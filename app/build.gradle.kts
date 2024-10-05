@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.dagger.hilt)
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -28,11 +30,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -41,6 +43,9 @@ android {
         resources {
             excludes += "META-INF/gradle/incremental.annotation.processors"
         }
+    }
+    configurations.all {
+        exclude(group = "org.apache.httpcomponents", module = "httpclient")
     }
 }
 
@@ -59,12 +64,12 @@ dependencies {
     implementation(libs.tikxml.annotation)
     implementation(libs.tikxml.core)
     implementation(libs.tikxml.retrofit.converter)
-    implementation(libs.tikxml.processor)
+    kapt(libs.tikxml.processor)
+    kapt(libs.tikxml.auto.value)
     compileOnly(libs.tikxml.auto.value)
-    implementation(libs.tikxml.auto.value)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.hilt.android)
-    implementation(libs.hilt.compiler)
+    kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
     testImplementation(libs.junit)

@@ -19,7 +19,7 @@ object RestApiModule {
 
     // Need to change base url if needed
     // or, @Url fullUrl can be specified RestApiService specific API.
-    private const val BASE_URL = "https://restcountries.eu/rest/v2/"
+    private const val BASE_URL = "https://alfa-leetcode-api.onrender.com/"
     private const val READ_TIME = 10L
     private const val WRITE_TIME = 10L
     private const val CONNECTION_TIME = 5L
