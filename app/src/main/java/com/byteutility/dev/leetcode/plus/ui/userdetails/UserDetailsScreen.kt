@@ -1,8 +1,12 @@
 package com.byteutility.dev.leetcode.plus.ui.userdetails
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.byteutility.dev.leetcode.plus.R
-import androidx.compose.foundation.layout.Arrangement.SpaceBetween as SpaceBetween1
+import ir.ehsannarmani.compose_charts.PieChart
+import ir.ehsannarmani.compose_charts.models.Pie
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -45,26 +50,89 @@ fun UserProfileScreen(
             //TopAppBar(title = { Text(text = "LeetCode User Profile") })
         },
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
         ) {
-            UserProfileCard(user)
-            UserStatisticsCard(user)
-            ProblemCategoriesSolved(
-                easySolved = 7222,
-                easyTotal = 7851,
-                mediumSolved = 5099,
-                mediumTotal = 3241,
-                hardSolved = 3753,
-                hardTotal = 1478
-            )
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    UserProfileCard(user)
+                    UserStatisticsCard(user)
+                    UserProblemCategoryStats()
+                    Text("Recent AC", fontSize = 16.sp)
+                }
+            }
 
-            Text("Recent AC", fontSize = 16.sp)
+            items(submissions) { submission ->
+                SubmissionItem(submission = submission)
+            }
+        }
+    }
+}
 
-            LatestSubmissionsList(submissions)
+@Composable
+fun UserPieChart() {
+    val pieList = listOf(
+        Pie(label = "Easy", data = 20.0, color = Color(0xFFE0F7FA), selectedColor = Color.Green),
+        Pie(label = "Medium", data = 45.0, color = Color(0xFFFFF9C4), selectedColor = Color.Blue),
+        Pie(label = "Hard", data = 35.0, color = Color(0xFFFFCDD2), selectedColor = Color.Yellow),
+    )
+    PieChart(
+        modifier = Modifier.size(200.dp),
+        data = pieList,
+        onPieClick = {
+            println("${it.label} Clicked")
+            val pieIndex = pieList.indexOf(it)
+            pieList.mapIndexed { mapIndex, pie -> pie.copy(selected = pieIndex == mapIndex) }
+        },
+        selectedScale = 1.2f,
+        scaleAnimEnterSpec = spring<Float>(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        colorAnimEnterSpec = tween(300),
+        colorAnimExitSpec = tween(300),
+        scaleAnimExitSpec = tween(300),
+        spaceDegreeAnimExitSpec = tween(300),
+        style = Pie.Style.Fill
+    )
+}
+
+@Composable
+fun UserProblemCategoryStats(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Card(
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                UserPieChart()
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    ProblemCategoriesSolved(
+                        easySolved = 7222,
+                        easyTotal = 7851,
+                        mediumSolved = 5099,
+                        mediumTotal = 3241,
+                        hardSolved = 3753,
+                        hardTotal = 1478
+                    )
+                }
+            }
         }
     }
 }
@@ -122,36 +190,29 @@ fun ProblemCategoriesSolved(
     mediumSolved: Int, mediumTotal: Int,
     hardSolved: Int, hardTotal: Int
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = SpaceBetween1
-    ) {
-        // Easy Category
-        ProblemCategoryBox(
-            category = "Easy",
-            solved = easySolved,
-            total = easyTotal,
-            backgroundColor = Color(0xFFE0F7FA)
-        )
+    // Easy Category
+    ProblemCategoryBox(
+        category = "Easy",
+        solved = easySolved,
+        total = easyTotal,
+        backgroundColor = Color(0xFFE0F7FA)
+    )
 
-        // Medium Category
-        ProblemCategoryBox(
-            category = "Medium",
-            solved = mediumSolved,
-            total = mediumTotal,
-            backgroundColor = Color(0xFFFFF9C4)
-        )
+    // Medium Category
+    ProblemCategoryBox(
+        category = "Medium",
+        solved = mediumSolved,
+        total = mediumTotal,
+        backgroundColor = Color(0xFFFFF9C4)
+    )
 
-        // Hard Category
-        ProblemCategoryBox(
-            category = "Hard",
-            solved = hardSolved,
-            total = hardTotal,
-            backgroundColor = Color(0xFFFFCDD2)
-        )
-    }
+    // Hard Category
+    ProblemCategoryBox(
+        category = "Hard",
+        solved = hardSolved,
+        total = hardTotal,
+        backgroundColor = Color(0xFFFFCDD2)
+    )
 }
 
 @Composable
@@ -162,7 +223,7 @@ fun ProblemCategoryBox(category: String, solved: Int, total: Int, backgroundColo
         ),
         modifier = Modifier
             .width(100.dp)
-            .height(100.dp),
+            .height(70.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Column(
@@ -185,7 +246,7 @@ fun LatestSubmissionsList(submissions: List<Submission>) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp) // Spacing between submissions
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(submissions) { submission ->
             SubmissionItem(submission = submission)
@@ -197,7 +258,8 @@ fun LatestSubmissionsList(submissions: List<Submission>) {
 fun SubmissionItem(submission: Submission) {
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Column(
