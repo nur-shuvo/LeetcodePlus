@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.set_target
+package com.byteutility.dev.leetcode.plus.ui.targetset
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
