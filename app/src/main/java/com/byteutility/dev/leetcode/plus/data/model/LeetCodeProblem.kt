@@ -4,5 +4,5 @@ data class LeetCodeProblem(
     val title: String,
     val difficulty: String,
     val tag: String,
-    val titleSlug: String = ""
+    val titleSlug: String = "",
 )

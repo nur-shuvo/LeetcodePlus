@@ -30,20 +30,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetWeeklyTargetScreen() {
     val viewModel: SetWeeklyTargetViewModel = hiltViewModel()
-    viewModel.getProblemsByLimit(5L)
-    val problems = remember { getProblemsFromApi() }
+    val problems = viewModel.problemsList.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = "Set Weekly Goals") })
         },
     ) { innerPadding ->
-        ProblemSelection(Modifier.padding(innerPadding), problems = problems) { selectedProblems ->
+        ProblemSelection(Modifier.padding(innerPadding), problems = problems.value) { selectedProblems ->
             println("Confirmed Problems: $selectedProblems")
         }
     }
@@ -128,8 +129,23 @@ fun ProblemItem(
     }
 }
 
-// Dummy function to simulate API call
-fun getProblemsFromApi(): List<LeetCodeProblem> {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@Preview
+fun ProblemSelectionApp() {
+    val problems = remember { getDummyProblems() }
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(text = "Set Weekly Goals") })
+        },
+    ) { innerPadding ->
+        ProblemSelection(Modifier.padding(innerPadding), problems = problems) { selectedProblems ->
+            println("Confirmed Problems: $selectedProblems")
+        }
+    }
+}
+
+fun getDummyProblems(): List<LeetCodeProblem> {
     return listOf(
         LeetCodeProblem("Two Sum", "Easy", "Array"),
         LeetCodeProblem("Binary Tree Level Order Traversal", "Medium", "Tree"),
@@ -141,20 +157,4 @@ fun getProblemsFromApi(): List<LeetCodeProblem> {
         LeetCodeProblem("Merge Intervals", "Medium", "Sorting"),
         LeetCodeProblem("Word Ladder", "Hard", "Graph")
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-@Preview
-fun ProblemSelectionApp() {
-    val problems = remember { getProblemsFromApi() }
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text(text = "Set Weekly Goals") })
-        },
-    ) { innerPadding ->
-        ProblemSelection(Modifier.padding(innerPadding), problems = problems) { selectedProblems ->
-            println("Confirmed Problems: $selectedProblems")
-        }
-    }
 }
