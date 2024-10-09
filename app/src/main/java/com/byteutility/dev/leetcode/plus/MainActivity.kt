@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.byteutility.dev.leetcode.plus.ui.set_target.SetWeeklyTargetScreen
+import com.byteutility.dev.leetcode.plus.ui.targetset.SetWeeklyTargetScreen
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import dagger.hilt.android.AndroidEntryPoint
 
