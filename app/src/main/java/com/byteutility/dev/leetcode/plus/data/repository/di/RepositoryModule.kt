@@ -1,7 +1,9 @@
-package com.byteutility.dev.leetcode.plus.data.di
+package com.byteutility.dev.leetcode.plus.data.repository.di
 
 import com.byteutility.dev.leetcode.plus.data.repository.ProblemsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.ProblemsRepositoryImpl
+import com.byteutility.dev.leetcode.plus.data.repository.WeeklyGoalRepository
+import com.byteutility.dev.leetcode.plus.data.repository.WeeklyGoalRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -17,4 +19,10 @@ abstract class RepositoryModule {
     abstract fun provideProblemsRepository(
         problemsRepository: ProblemsRepositoryImpl
     ): ProblemsRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideWeeklyGoalRepository(
+        weeklyGoalRepository: WeeklyGoalRepositoryImpl
+    ): WeeklyGoalRepository
 }
