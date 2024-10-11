@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.ui.targetset
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -22,9 +24,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
+import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
+import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalSetDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,15 +50,31 @@ fun SetWeeklyTargetScreen() {
             TopAppBar(title = { Text(text = "Set Weekly Goals") })
         },
     ) { innerPadding ->
-        ProblemSelection(Modifier.padding(innerPadding), problems = problems.value) { selectedProblems ->
-            println("Confirmed Problems: $selectedProblems")
+        var selectedProblems by remember { mutableStateOf<List<LeetCodeProblem>>(emptyList()) }
+        ProblemSelection(Modifier.padding(innerPadding), problems = problems.value) {
+            Log.i("SetWeeklyTargetScreen", "Problems selected for week")
+            selectedProblems = it
+        }
+        if (selectedProblems.isNotEmpty()) {
+            WeeklyGoalSetDialog {
+                viewModel.handleWeeklyGoalSet(selectedProblems, it)
+            }
         }
     }
 }
 
 @Composable
-fun ProblemSelection(modifier: Modifier = Modifier, problems: List<LeetCodeProblem>, onConfirm: (List<LeetCodeProblem>) -> Unit) {
+fun ProblemSelection(
+    modifier: Modifier = Modifier,
+    problems: List<LeetCodeProblem>,
+    onConfirm: (List<LeetCodeProblem>) -> Unit
+) {
     var selectedProblems by remember { mutableStateOf<List<LeetCodeProblem>>(emptyList()) }
+
+    var currentPage by remember { mutableIntStateOf(0) }
+    val itemsPerPage = 20
+    val totalPages = (problems.size + itemsPerPage - 1) / itemsPerPage
+    val displayedItems = problems.drop(currentPage * itemsPerPage).take(itemsPerPage)
 
     Column(modifier = Modifier.background(Color.White).padding(16.dp)) {
         LazyColumn(
@@ -62,8 +84,7 @@ fun ProblemSelection(modifier: Modifier = Modifier, problems: List<LeetCodeProbl
                 .then(modifier),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(problems.size) { index ->
-                val problem = problems[index]
+            items(displayedItems) { problem ->
                 ProblemItem(
                     problem = problem,
                     isSelected = selectedProblems.contains(problem),
@@ -81,6 +102,30 @@ fun ProblemSelection(modifier: Modifier = Modifier, problems: List<LeetCodeProbl
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = { if (currentPage > 0) currentPage-- },
+                enabled = currentPage > 0
+            ) {
+                Text("Previous")
+            }
+
+            Text("Page ${currentPage + 1} of $totalPages")
+
+            Button(
+                onClick = { if (currentPage < totalPages - 1) currentPage++ },
+                enabled = currentPage < totalPages - 1
+            ) {
+                Text("Next")
+            }
+        }
 
         Button(
             onClick = { onConfirm(selectedProblems) },
