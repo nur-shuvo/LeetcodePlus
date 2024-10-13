@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.data.repository
+package com.byteutility.dev.leetcode.plus.data.repository.problems
 
 import android.content.Context
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class ProblemsRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
-): ProblemsRepository {
+) : ProblemsRepository {
 
     override suspend fun getProblems(
         limit: Long

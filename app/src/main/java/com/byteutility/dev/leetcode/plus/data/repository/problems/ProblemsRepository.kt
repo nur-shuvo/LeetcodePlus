@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.data.repository
+package com.byteutility.dev.leetcode.plus.data.repository.problems
 
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 
