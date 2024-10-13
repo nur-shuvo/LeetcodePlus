@@ -21,6 +21,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,10 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
-import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
 import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalSetDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,18 +72,39 @@ fun ProblemSelection(
     onConfirm: (List<LeetCodeProblem>) -> Unit
 ) {
     var selectedProblems by remember { mutableStateOf<List<LeetCodeProblem>>(emptyList()) }
-
     var currentPage by remember { mutableIntStateOf(0) }
+    var searchText by remember { mutableStateOf("") }
+
     val itemsPerPage = 20
-    val totalPages = (problems.size + itemsPerPage - 1) / itemsPerPage
-    val displayedItems = problems.drop(currentPage * itemsPerPage).take(itemsPerPage)
+    val filteredProblems = problems.filter {
+        it.title.contains(searchText, ignoreCase = true) ||
+                it.tag.contains(searchText, ignoreCase = true) ||
+                it.difficulty.contains(searchText, ignoreCase = true)
+    }
+    val totalPages = (filteredProblems.size + itemsPerPage - 1) / itemsPerPage
+    val displayedItems = filteredProblems.drop(currentPage * itemsPerPage).take(itemsPerPage)
 
     Column(modifier = Modifier.background(Color.White).padding(16.dp)) {
+
+        Spacer(modifier = Modifier.height(30.dp))
+
+        TextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+            placeholder = { Text("Search problems...", fontSize = 18.sp) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .padding(top = 27.dp),
+            singleLine = true,
+            colors = TextFieldDefaults.colors(focusedContainerColor = Color.White, unfocusedContainerColor = Color.White)
+        )
+
         LazyColumn(
             modifier = Modifier
-                .weight(1f)
+                .weight(1.0f)
                 .fillMaxWidth()
-                .then(modifier),
+                .padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(displayedItems) { problem ->
@@ -100,8 +123,6 @@ fun ProblemSelection(
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier
@@ -177,7 +198,7 @@ fun ProblemItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun ProblemSelectionApp() {
+fun ProblemSelectionPreview() {
     val problems = remember { getDummyProblems() }
     Scaffold(
         topBar = {
