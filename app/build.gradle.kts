@@ -74,6 +74,9 @@ dependencies {
     implementation(libs.ehsannarmani.compose.charts)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.androidx.work)
+    implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.datastore)
     kapt(libs.room.compiler)
 
     testImplementation(libs.junit)

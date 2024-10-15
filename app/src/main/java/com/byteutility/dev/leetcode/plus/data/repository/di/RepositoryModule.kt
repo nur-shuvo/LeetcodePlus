@@ -2,11 +2,12 @@ package com.byteutility.dev.leetcode.plus.data.repository.di
 
 import com.byteutility.dev.leetcode.plus.data.repository.ProblemsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.ProblemsRepositoryImpl
+import com.byteutility.dev.leetcode.plus.data.repository.UserDetailsRepository
+import com.byteutility.dev.leetcode.plus.data.repository.UserDetailsRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.data.repository.WeeklyGoalRepositoryImpl
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -25,4 +26,9 @@ abstract class RepositoryModule {
     abstract fun provideWeeklyGoalRepository(
         weeklyGoalRepository: WeeklyGoalRepositoryImpl
     ): WeeklyGoalRepository
+
+    @Binds
+    abstract fun bindsUserDetailsRepository(
+        userDetailsRepository: UserDetailsRepositoryImpl
+    ): UserDetailsRepository
 }

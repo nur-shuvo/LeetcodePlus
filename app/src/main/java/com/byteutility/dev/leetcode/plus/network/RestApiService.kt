@@ -5,6 +5,7 @@ import com.byteutility.dev.leetcode.plus.network.annotation.RequestFormat
 import com.byteutility.dev.leetcode.plus.network.annotation.ResponseFormat
 import com.byteutility.dev.leetcode.plus.network.requestVO.SampleRequestVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.ProblemSetResponseVo
+import com.byteutility.dev.leetcode.plus.network.responseVo.UserSubmissionVo
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.HeaderMap
@@ -27,5 +28,12 @@ interface RestApiService {
     @GET("/problems")
     suspend fun getProblemsWithLimit(
         @Query("limit") limit: Long
-    ) : ProblemSetResponseVo
+    ): ProblemSetResponseVo
+
+    @ResponseFormat(Format.JSON)
+    @GET("/{username}/submission")
+    suspend fun getLastSubmissions(
+        @Path("username") username: String,
+        @Query("limit") limit: Int,
+    ): UserSubmissionVo
 }
