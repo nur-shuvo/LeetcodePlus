@@ -169,7 +169,7 @@ fun UserProfileCard(user: UserBasicInfo) {
             // User Info
             Column {
                 Text(text = user.name)
-                Text(text = "Problems Solved: ${user.country}")
+                Text(text = "Country: ${user.country}")
                 Text(text = "Ranking: ${user.ranking}")
             }
         }
