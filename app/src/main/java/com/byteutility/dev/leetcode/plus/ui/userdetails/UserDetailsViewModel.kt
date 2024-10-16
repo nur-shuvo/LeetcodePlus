@@ -2,12 +2,11 @@ package com.byteutility.dev.leetcode.plus.ui.userdetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
-import com.byteutility.dev.leetcode.plus.data.repository.UserDetailsRepository
+import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,8 +15,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-
 
 data class UserDetailsUiState(
     val userBasicInfo: UserBasicInfo = UserBasicInfo(),
@@ -29,37 +26,16 @@ data class UserDetailsUiState(
 @HiltViewModel
 class UserDetailsViewModel @Inject constructor(
     private val userDetailsRepository: UserDetailsRepository,
-    private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
     private val userBasicInfo =
-        MutableStateFlow<UserBasicInfo>(
-            UserBasicInfo(
-                name = "Bert Boyer",
-                userName = "Clara Trevino",
-                avatar = "leo",
-                ranking = 5469,
-                country = "Belarus"
-            )
-        )
+        MutableStateFlow(UserBasicInfo())
 
     private val userContestInfo =
-        MutableStateFlow<UserContestInfo>(
-            value = UserContestInfo(
-                rating = 6.7,
-                globalRanking = 5624,
-                attend = 4251
-            )
-        )
+        MutableStateFlow(UserContestInfo())
 
     private val userProblemSolvedInfo =
-        MutableStateFlow<UserProblemSolvedInfo>(
-            value = UserProblemSolvedInfo(
-                easy = 3667,
-                medium = 3987,
-                hard = 8330
-            )
-        )
+        MutableStateFlow(UserProblemSolvedInfo())
 
     private val userSubmissions =
         MutableStateFlow<List<UserSubmission>>(value = listOf())
@@ -90,6 +66,7 @@ class UserDetailsViewModel @Inject constructor(
             userDetailsRepository
                 .getUserBasicInfo()
                 .collect {
+                    userBasicInfo.value = it
                 }
         }
 
@@ -97,6 +74,7 @@ class UserDetailsViewModel @Inject constructor(
             userDetailsRepository
                 .getUserContestInfo()
                 .collect {
+                    userContestInfo.value = it
                 }
         }
 
@@ -104,6 +82,7 @@ class UserDetailsViewModel @Inject constructor(
             userDetailsRepository
                 .getUserProblemSolvedInfo()
                 .collect {
+                    userProblemSolvedInfo.value = it
                 }
         }
 
@@ -111,6 +90,7 @@ class UserDetailsViewModel @Inject constructor(
             userDetailsRepository
                 .getUserRecentSubmissions()
                 .collect {
+                    userSubmissions.value = it
                 }
         }
     }

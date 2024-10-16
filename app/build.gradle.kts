@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+    kapt(libs.androidx.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.ehsannarmani.compose.charts)
     implementation(libs.room.runtime)

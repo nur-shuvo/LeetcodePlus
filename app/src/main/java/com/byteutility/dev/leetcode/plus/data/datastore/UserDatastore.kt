@@ -59,7 +59,7 @@ class UserDatastore @Inject constructor(
         }
     }
 
-    suspend fun getUserContestInfo(): Flow<UserContestInfo> {
+    fun getUserContestInfo(): Flow<UserContestInfo> {
         return context.userPreferencesDataStore.data
             .catch { exception ->
                 emit(emptyPreferences())
@@ -79,7 +79,7 @@ class UserDatastore @Inject constructor(
         }
     }
 
-    suspend fun getUserProblemSolvedInfo(): Flow<UserProblemSolvedInfo> {
+    fun getUserProblemSolvedInfo(): Flow<UserProblemSolvedInfo> {
         return context.userPreferencesDataStore.data
             .catch { exception ->
                 emit(emptyPreferences())
@@ -99,7 +99,7 @@ class UserDatastore @Inject constructor(
         }
     }
 
-    suspend fun getUserSubmissions(): Flow<List<UserSubmission>> {
+    fun getUserSubmissions(): Flow<List<UserSubmission>> {
         return context.userPreferencesDataStore.data
             .catch { exception ->
                 emit(emptyPreferences())

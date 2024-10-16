@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.data.repository
+package com.byteutility.dev.leetcode.plus.data.repository.userDetails
 
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo

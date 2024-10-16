@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.data.repository
+package com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal
 
 import com.byteutility.dev.leetcode.plus.data.database.dao.WeeklyGoalDao
 import com.byteutility.dev.leetcode.plus.data.database.entity.WeeklyGoalEntity
@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class WeeklyGoalRepositoryImpl @Inject constructor(
     private val weeklyGoalDao: WeeklyGoalDao
-): WeeklyGoalRepository {
+) : WeeklyGoalRepository {
     override suspend fun saveWeeklyGoal(
         problems: List<LeetCodeProblem>,
         period: WeeklyGoalPeriod

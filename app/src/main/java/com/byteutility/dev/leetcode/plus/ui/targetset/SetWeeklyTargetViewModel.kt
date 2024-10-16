@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
-import com.byteutility.dev.leetcode.plus.data.repository.ProblemsRepository
-import com.byteutility.dev.leetcode.plus.data.repository.WeeklyGoalRepository
+import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
+import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
