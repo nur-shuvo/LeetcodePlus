@@ -25,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +34,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
+import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
+import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
+import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
+import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import ir.ehsannarmani.compose_charts.PieChart
 import ir.ehsannarmani.compose_charts.models.Pie
 
@@ -42,34 +49,42 @@ import ir.ehsannarmani.compose_charts.models.Pie
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(
-    user: LeetCodeUser,
-    submissions: List<Submission>,
+    viewModel: UserDetailsViewModel = hiltViewModel(),
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             //TopAppBar(title = { Text(text = "LeetCode User Profile") })
         },
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    UserProfileCard(user)
-                    UserStatisticsCard(user)
-                    UserProblemCategoryStats()
-                    Text("Recent AC", fontSize = 16.sp)
-                }
-            }
+        UserProfileContent(uiState)
+    }
+}
 
-            items(submissions) { submission ->
-                SubmissionItem(submission = submission)
+@Composable
+fun UserProfileContent(
+    uiState: UserDetailsUiState
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                UserProfileCard(uiState.userBasicInfo)
+                UserStatisticsCard(uiState.userContestInfo)
+                UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
+                Text("Recent AC", fontSize = 16.sp)
             }
+        }
+
+        items(uiState.userSubmissions) { submission ->
+            SubmissionItem(submission = submission)
         }
     }
 }
@@ -104,7 +119,8 @@ fun UserPieChart() {
 
 @Composable
 fun UserProblemCategoryStats(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userProblemSolvedInfo: UserProblemSolvedInfo,
 ) {
     Box(
         modifier = modifier.fillMaxWidth()
@@ -123,14 +139,7 @@ fun UserProblemCategoryStats(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    ProblemCategoriesSolved(
-                        easySolved = 7222,
-                        easyTotal = 7851,
-                        mediumSolved = 5099,
-                        mediumTotal = 3241,
-                        hardSolved = 3753,
-                        hardTotal = 1478
-                    )
+                    ProblemCategoriesSolved(userProblemSolvedInfo)
                 }
             }
         }
@@ -138,7 +147,7 @@ fun UserProblemCategoryStats(
 }
 
 @Composable
-fun UserProfileCard(user: LeetCodeUser) {
+fun UserProfileCard(user: UserBasicInfo) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier.fillMaxWidth()
@@ -159,16 +168,16 @@ fun UserProfileCard(user: LeetCodeUser) {
 
             // User Info
             Column {
-                Text(text = user.username)
-                Text(text = "Problems Solved: ${user.totalProblemsSolved}")
-                Text(text = "Ranking: ${user.globalRanking}")
+                Text(text = user.name)
+                Text(text = "Problems Solved: ${user.country}")
+                Text(text = "Ranking: ${user.ranking}")
             }
         }
     }
 }
 
 @Composable
-fun UserStatisticsCard(user: LeetCodeUser) {
+fun UserStatisticsCard(user: UserContestInfo) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier.fillMaxWidth()
@@ -177,40 +186,38 @@ fun UserStatisticsCard(user: LeetCodeUser) {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = "Contest Rating: ${user.contestRating}")
-            Text(text = "Badge: ${user.badge}")
-            Text(text = "Streak: ${user.streakDays} days")
+            Text(text = "Contest Rating: ${user.rating}")
+            Text(text = "Global Ranking: ${user.globalRanking}")
+            Text(text = "Attend: ${user.attend} days")
         }
     }
 }
 
 @Composable
 fun ProblemCategoriesSolved(
-    easySolved: Int, easyTotal: Int,
-    mediumSolved: Int, mediumTotal: Int,
-    hardSolved: Int, hardTotal: Int
+    userProblemSolvedInfo: UserProblemSolvedInfo,
 ) {
     // Easy Category
     ProblemCategoryBox(
         category = "Easy",
-        solved = easySolved,
-        total = easyTotal,
+        solved = userProblemSolvedInfo.easy,
+        total = 0,
         backgroundColor = Color(0xFFE0F7FA)
     )
 
     // Medium Category
     ProblemCategoryBox(
         category = "Medium",
-        solved = mediumSolved,
-        total = mediumTotal,
+        solved = userProblemSolvedInfo.medium,
+        total = 0,
         backgroundColor = Color(0xFFFFF9C4)
     )
 
     // Hard Category
     ProblemCategoryBox(
         category = "Hard",
-        solved = hardSolved,
-        total = hardTotal,
+        solved = userProblemSolvedInfo.hard,
+        total = 0,
         backgroundColor = Color(0xFFFFCDD2)
     )
 }
@@ -241,21 +248,7 @@ fun ProblemCategoryBox(category: String, solved: Int, total: Int, backgroundColo
 }
 
 @Composable
-fun LatestSubmissionsList(submissions: List<Submission>) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(submissions) { submission ->
-            SubmissionItem(submission = submission)
-        }
-    }
-}
-
-@Composable
-fun SubmissionItem(submission: Submission) {
+fun SubmissionItem(submission: UserSubmission) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -267,53 +260,77 @@ fun SubmissionItem(submission: Submission) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(text = "Title: ${submission.title}")
-            Text(text = "Date: ${submission.date}")
-            Text(text = "Language: ${submission.language}")
+            Text(text = "Date: ${submission.timestamp}")
+            Text(text = "Language: ${submission.lang}")
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PreviewUserDetails() {
     val submissions = listOf(
-        Submission(title = "Two Sum", date = "2023-10-02", language = "Java"),
-        Submission(title = "Reverse Linked List", date = "2023-09-30", language = "Kotlin"),
-        Submission(title = "Valid Parentheses", date = "2023-09-25", language = "Python"),
-        Submission(title = "Binary Search", date = "2023-09-20", language = "C++"),
-        Submission(title = "Two Sum", date = "2023-10-02", language = "Java"),
-        Submission(title = "Reverse Linked List", date = "2023-09-30", language = "Kotlin"),
-        Submission(title = "Valid Parentheses", date = "2023-09-25", language = "Python"),
-        Submission(title = "Binary Search", date = "2023-09-20", language = "C++"),
-    )
-    UserProfileScreen(
-        user = LeetCodeUser(
-            username = "Leigh Berger",
-            avatarUrl = "",
-            totalProblemsSolved = 5451,
-            globalRanking = 7795,
-            contestRating = 2.3,
-            badge = "natoque",
-            streakDays = 1198
+        UserSubmission(
+            lang = "volumus",
+            statusDisplay = "veri",
+            timestamp = "eu",
+            title = "reformidans"
         ),
-        submissions = submissions
+        UserSubmission(
+            lang = "volumus",
+            statusDisplay = "veri",
+            timestamp = "eu",
+            title = "reformidans"
+        ),
+        UserSubmission(
+            lang = "volumus",
+            statusDisplay = "veri",
+            timestamp = "eu",
+            title = "reformidans"
+        ),
+        UserSubmission(
+            lang = "volumus",
+            statusDisplay = "veri",
+            timestamp = "eu",
+            title = "reformidans"
+        ),
+        UserSubmission(
+            lang = "volumus",
+            statusDisplay = "veri",
+            timestamp = "eu",
+            title = "reformidans"
+        ),
+        UserSubmission(
+            lang = "volumus",
+            statusDisplay = "veri",
+            timestamp = "eu",
+            title = "reformidans"
+        ),
+        UserSubmission(
+            lang = "volumus",
+            statusDisplay = "veri",
+            timestamp = "eu",
+            title = "reformidans"
+        ),
+    )
+    UserProfileContent(
+        uiState = UserDetailsUiState(
+            userBasicInfo = UserBasicInfo(
+                name = "Mindy Shannon",
+                userName = "Annette Jones",
+                avatar = "venenatis",
+                ranking = 8869,
+                country = "Gambia, The"
+            ), userContestInfo = UserContestInfo(
+                rating = 14.15,
+                globalRanking = 3679,
+                attend = 7232
+            ), userProblemSolvedInfo = UserProblemSolvedInfo(
+                easy = 4592,
+                medium = 5761,
+                hard = 6990
+            ), userSubmissions = listOf()
+        )
+
     )
 }
-
-// Sample Data Model
-data class LeetCodeUser(
-    val username: String,
-    val avatarUrl: String,
-    val totalProblemsSolved: Int,
-    val globalRanking: Int,
-    val contestRating: Double,
-    val badge: String,
-    val streakDays: Int
-)
-
-// Sample data model
-data class Submission(
-    val title: String,
-    val date: String,
-    val language: String
-)

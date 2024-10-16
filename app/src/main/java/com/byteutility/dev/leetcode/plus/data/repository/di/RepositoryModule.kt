@@ -1,5 +1,7 @@
 package com.byteutility.dev.leetcode.plus.data.repository.di
 
+import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
+import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.submissions.SubmissionsRepository
@@ -26,6 +28,11 @@ abstract class RepositoryModule {
     abstract fun provideWeeklyGoalRepository(
         weeklyGoalRepository: WeeklyGoalRepositoryImpl
     ): WeeklyGoalRepository
+
+    @Binds
+    abstract fun bindsUserDetailsRepository(
+        userDetailsRepository: UserDetailsRepositoryImpl
+    ): UserDetailsRepository
 
     @Binds
     @Singleton
