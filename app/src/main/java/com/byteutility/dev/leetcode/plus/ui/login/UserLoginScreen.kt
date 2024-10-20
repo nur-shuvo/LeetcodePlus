@@ -73,7 +73,8 @@ fun LeetCodeUsernameScreen(
             value = username,
             onValueChange = { username = it },
             label = { Text(text = "LeetCode username") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(16.dp))
