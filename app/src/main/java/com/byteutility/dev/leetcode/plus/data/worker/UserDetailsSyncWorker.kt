@@ -12,6 +12,7 @@ import com.byteutility.dev.leetcode.plus.utils.toInternalModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
 
 @HiltWorker
@@ -25,14 +26,15 @@ class UserDetailsSyncWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return try {
             supervisorScope {
+                val userName = userDatastore.getUserBasicInfo().first().userName
                 val userProfileDeferred =
-                    async { restApiService.getUserProfile("Mazhar_MIK") }
+                    async { restApiService.getUserProfile(userName) }
                 val userContestDeferred =
-                    async { restApiService.getUserContest("Mazhar_MIK") }
+                    async { restApiService.getUserContest(userName) }
                 val userAcSubmissionDeferred =
-                    async { restApiService.getAcSubmission("Mazhar_MIK", 20) }
+                    async { restApiService.getAcSubmission(userName, 20) }
                 val userSolvedDeferred =
-                    async { restApiService.getSolved("Mazhar_MIK") }
+                    async { restApiService.getSolved(userName) }
 
                 val userProfile = userProfileDeferred.await()
                 val userContest = userContestDeferred.await()
