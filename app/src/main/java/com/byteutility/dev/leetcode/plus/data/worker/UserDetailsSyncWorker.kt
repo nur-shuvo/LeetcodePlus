@@ -12,6 +12,7 @@ import com.byteutility.dev.leetcode.plus.utils.toInternalModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
 
 @HiltWorker
@@ -25,23 +26,26 @@ class UserDetailsSyncWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return try {
             supervisorScope {
-                val userProfileDeferred =
-                    async { restApiService.getUserProfile("Mazhar_MIK") }
-                val userContestDeferred =
-                    async { restApiService.getUserContest("Mazhar_MIK") }
-                val userAcSubmissionDeferred =
-                    async { restApiService.getAcSubmission("Mazhar_MIK", 20) }
-                val userSolvedDeferred =
-                    async { restApiService.getSolved("Mazhar_MIK") }
+                val userName = userDatastore.getUserBasicInfo().first()?.userName
+                userName?.let {
+                    val userProfileDeferred =
+                        async { restApiService.getUserProfile(userName) }
+                    val userContestDeferred =
+                        async { restApiService.getUserContest(userName) }
+                    val userAcSubmissionDeferred =
+                        async { restApiService.getAcSubmission(userName, 20) }
+                    val userSolvedDeferred =
+                        async { restApiService.getSolved(userName) }
 
-                val userProfile = userProfileDeferred.await()
-                val userContest = userContestDeferred.await()
-                val userAcSubmission = userAcSubmissionDeferred.await()
-                val userSolved = userSolvedDeferred.await()
-                userDatastore.saveUserBasicInfo(userProfile.toInternalModel())
-                userDatastore.saveUserContestInfo(userContest.toInternalModel())
-                userDatastore.saveUserSubmissions(userAcSubmission.toInternalModel())
-                userDatastore.saveUserProblemSolvedInfo(userSolved.toInternalModel())
+                    val userProfile = userProfileDeferred.await()
+                    val userContest = userContestDeferred.await()
+                    val userAcSubmission = userAcSubmissionDeferred.await()
+                    val userSolved = userSolvedDeferred.await()
+                    userDatastore.saveUserBasicInfo(userProfile.toInternalModel())
+                    userDatastore.saveUserContestInfo(userContest.toInternalModel())
+                    userDatastore.saveUserSubmissions(userAcSubmission.toInternalModel())
+                    userDatastore.saveUserProblemSolvedInfo(userSolved.toInternalModel())
+                }
                 Result.success()
             }
         } catch (e: Exception) {
