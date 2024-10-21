@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.ui.login
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,17 +27,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.byteutility.dev.leetcode.plus.R
-import kotlinx.coroutines.launch
 
+private const val TAG = "UserLoginScreen"
 @Composable
 fun UserLoginScreen(
     viewModel: UserLoginViewModel = hiltViewModel(),
+    onProceedClick: () -> Unit = {}
 ) {
-    val scope = rememberCoroutineScope()
     LeetCodeUsernameScreen {
-        scope.launch {
-            viewModel.saveUserName(it)
-        }
+        Log.e(TAG, "UserLoginScreen: $it", )
+        viewModel.saveUserName(it)
+        onProceedClick()
     }
 }
 
@@ -72,7 +72,6 @@ fun LeetCodeUsernameScreen(
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text(text = "LeetCode username") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -91,7 +90,5 @@ fun LeetCodeUsernameScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewLeetCodeLoginScreen() {
-    LeetCodeUsernameScreen {
-
-    }
+    LeetCodeUsernameScreen {}
 }

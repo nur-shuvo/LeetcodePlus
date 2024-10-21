@@ -66,7 +66,9 @@ class UserDetailsViewModel @Inject constructor(
             userDetailsRepository
                 .getUserBasicInfo()
                 .collect {
-                    userBasicInfo.value = it
+                    if (it != null) {
+                        userBasicInfo.value = it
+                    }
                 }
         }
 
@@ -74,7 +76,9 @@ class UserDetailsViewModel @Inject constructor(
             userDetailsRepository
                 .getUserContestInfo()
                 .collect {
-                    userContestInfo.value = it
+                    if (it != null) {
+                        userContestInfo.value = it
+                    }
                 }
         }
 
@@ -82,7 +86,9 @@ class UserDetailsViewModel @Inject constructor(
             userDetailsRepository
                 .getUserProblemSolvedInfo()
                 .collect {
-                    userProblemSolvedInfo.value = it
+                    if (it != null) {
+                        userProblemSolvedInfo.value = it
+                    }
                 }
         }
 
@@ -90,7 +96,9 @@ class UserDetailsViewModel @Inject constructor(
             userDetailsRepository
                 .getUserRecentSubmissions()
                 .collect {
-                    userSubmissions.value = it
+                    if (it != null) {
+                        userSubmissions.value = it
+                    }
                 }
         }
     }
