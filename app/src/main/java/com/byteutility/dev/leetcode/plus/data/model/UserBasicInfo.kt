@@ -18,7 +18,12 @@ data class UserProblemSolvedInfo(
     val easy: Int = -1,
     val medium: Int = -1,
     val hard: Int = -1,
-)
+    val totalSolved: Int = -1
+) {
+    fun getEasyPercentage() = (easy.toFloat() / totalSolved.toFloat()) * 100
+    fun getMediumPercentage() = (medium.toFloat() / totalSolved.toFloat()) * 100
+    fun getHardPercentage() = (hard.toFloat() / totalSolved.toFloat()) * 100
+}
 
 
 data class UserSubmission(

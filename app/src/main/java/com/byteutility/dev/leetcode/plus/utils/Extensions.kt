@@ -54,5 +54,6 @@ fun UserSolvedVo.toInternalModel() =
     UserProblemSolvedInfo(
         easy = this.easySolved,
         medium = this.mediumSolved,
-        hard = this.hardSolved
+        hard = this.hardSolved,
+        totalSolved = this.solvedProblem,
     )

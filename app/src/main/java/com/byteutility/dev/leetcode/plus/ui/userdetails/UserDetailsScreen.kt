@@ -1,10 +1,6 @@
 package com.byteutility.dev.leetcode.plus.ui.userdetails
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +20,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,13 +34,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
-import ir.ehsannarmani.compose_charts.PieChart
-import ir.ehsannarmani.compose_charts.models.Pie
+import me.bytebeats.views.charts.pie.PieChart
+import me.bytebeats.views.charts.pie.PieChartData
+import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
+import me.bytebeats.views.charts.simpleChartAnimation
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -50,30 +51,42 @@ import ir.ehsannarmani.compose_charts.models.Pie
 @Composable
 fun UserProfileScreen(
     viewModel: UserDetailsViewModel = hiltViewModel(),
+    onSetGoal: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
-            //TopAppBar(title = { Text(text = "LeetCode User Profile") })
+            TopAppBar(
+                title = { Text(text = "My Profile") },
+                actions = {
+                    TextButton(onClick = { onSetGoal() }, modifier = Modifier.padding(end = 8.dp)) {
+                        Text(
+                            text = "Set Goal",
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            )
         },
-    ) {
-        UserProfileContent(uiState)
+    ) { paddingValues ->
+        UserProfileContent(uiState, Modifier.padding(paddingValues))
     }
 }
 
 @Composable
 fun UserProfileContent(
-    uiState: UserDetailsUiState
+    uiState: UserDetailsUiState,
+    modifier: Modifier
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         item {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 UserProfileCard(uiState.userBasicInfo)
@@ -90,30 +103,18 @@ fun UserProfileContent(
 }
 
 @Composable
-fun UserPieChart() {
-    val pieList = listOf(
-        Pie(label = "Easy", data = 20.0, color = Color(0xFFE0F7FA), selectedColor = Color.Green),
-        Pie(label = "Medium", data = 45.0, color = Color(0xFFFFF9C4), selectedColor = Color.Blue),
-        Pie(label = "Hard", data = 35.0, color = Color(0xFFFFCDD2), selectedColor = Color.Yellow),
-    )
+fun UserPieChart(userProblemSolvedInfo: UserProblemSolvedInfo) {
     PieChart(
-        modifier = Modifier.size(200.dp),
-        data = pieList,
-        onPieClick = {
-            println("${it.label} Clicked")
-            val pieIndex = pieList.indexOf(it)
-            pieList.mapIndexed { mapIndex, pie -> pie.copy(selected = pieIndex == mapIndex) }
-        },
-        selectedScale = 1.2f,
-        scaleAnimEnterSpec = spring<Float>(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+        pieChartData = PieChartData(
+            slices = listOf(
+                PieChartData.Slice(userProblemSolvedInfo.getEasyPercentage(), Color(0xFFE0F7FA)),
+                PieChartData.Slice(userProblemSolvedInfo.getMediumPercentage(), Color(0xFFFFF9C4)),
+                PieChartData.Slice(userProblemSolvedInfo.getHardPercentage(), Color(0xFFFFCDD2))
+            )
         ),
-        colorAnimEnterSpec = tween(300),
-        colorAnimExitSpec = tween(300),
-        scaleAnimExitSpec = tween(300),
-        spaceDegreeAnimExitSpec = tween(300),
-        style = Pie.Style.Fill
+        modifier = Modifier.size(200.dp),
+        animation = simpleChartAnimation(),
+        sliceDrawer = SimpleSliceDrawer(50F),
     )
 }
 
@@ -135,7 +136,7 @@ fun UserProblemCategoryStats(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                UserPieChart()
+                UserPieChart(userProblemSolvedInfo)
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -156,17 +157,15 @@ fun UserProfileCard(user: UserBasicInfo) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar
-            Image(
-                painter = painterResource(id = R.drawable.icon_article_background),
-                contentDescription = "User Avatar",
+            AsyncImage(
+                model = user.avatar,
+                contentDescription = "User avatar",
+                placeholder = painterResource(id = R.drawable.icon_article_background),
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(16.dp))
-
-            // User Info
             Column {
                 Text(text = user.name)
                 Text(text = "Country: ${user.country}")
@@ -201,7 +200,7 @@ fun ProblemCategoriesSolved(
     ProblemCategoryBox(
         category = "Easy",
         solved = userProblemSolvedInfo.easy,
-        total = 0,
+        total = 830,
         backgroundColor = Color(0xFFE0F7FA)
     )
 
@@ -209,7 +208,7 @@ fun ProblemCategoriesSolved(
     ProblemCategoryBox(
         category = "Medium",
         solved = userProblemSolvedInfo.medium,
-        total = 0,
+        total = 1742,
         backgroundColor = Color(0xFFFFF9C4)
     )
 
@@ -217,7 +216,7 @@ fun ProblemCategoriesSolved(
     ProblemCategoryBox(
         category = "Hard",
         solved = userProblemSolvedInfo.hard,
-        total = 0,
+        total = 756,
         backgroundColor = Color(0xFFFFCDD2)
     )
 }
@@ -330,7 +329,7 @@ fun PreviewUserDetails() {
                 medium = 5761,
                 hard = 6990
             ), userSubmissions = listOf()
-        )
-
+        ),
+        modifier = Modifier
     )
 }

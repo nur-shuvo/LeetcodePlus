@@ -32,7 +32,9 @@ fun LeetCodePlusNavGraph(
         }
 
         composable(route = LeetCodePlusNavigationDestinations.USER_PROFILE_ROUTE) {
-            UserProfileScreen()
+            UserProfileScreen {
+                navigationActions.navigateToSetGoal()
+            }
         }
     }
 }
