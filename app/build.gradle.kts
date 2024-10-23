@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
     implementation(libs.bytebeats.charts)
+    implementation(libs.androidx.splashscreen)
     kapt(libs.room.compiler)
 
     testImplementation(libs.junit)

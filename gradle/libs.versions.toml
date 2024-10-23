@@ -20,6 +20,7 @@ hilt-work = "1.0.0"
 androidxDatastore = "1.1.0"
 coil = "3.0.0-rc01"
 bytebeats-charts = "0.2.1"
+androidx-splashscreen = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,7 +59,7 @@ androidx-datastore = { group = "androidx.datastore", name = "datastore-preferenc
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 bytebeats-charts = { group = "io.github.bytebeats", name = "compose-charts", version.ref = "bytebeats-charts" }
-
+androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidx-splashscreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
