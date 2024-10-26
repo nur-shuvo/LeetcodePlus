@@ -21,8 +21,7 @@ class UserLoginViewModel @Inject constructor(
     fun saveUserName(userName: String) {
         viewModelScope.launch {
             userDatastore.saveUserBasicInfo(
-                userBasicInfo = UserBasicInfo(
-                    userName = userName,
+                userBasicInfo = UserBasicInfo(userName = userName,
                 )
             )
             UserDetailsSyncWorker.enqueueWork(context)
