@@ -8,7 +8,9 @@ import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsReposi
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,6 +21,9 @@ class SetWeeklyTargetViewModel @Inject constructor(
 ) : ViewModel() {
 
     val problemsList = MutableStateFlow<List<LeetCodeProblem>>(emptyList())
+
+    private val _popCurrentDestination = MutableSharedFlow<Unit>()
+    val popCurrentDestination = _popCurrentDestination.asSharedFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -32,6 +37,7 @@ class SetWeeklyTargetViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             weeklyGoalRepository.saveWeeklyGoal(problems, period)
+            _popCurrentDestination.emit(Unit)
         }
     }
 }

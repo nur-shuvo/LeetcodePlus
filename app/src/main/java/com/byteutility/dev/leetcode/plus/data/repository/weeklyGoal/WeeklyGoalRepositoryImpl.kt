@@ -4,11 +4,15 @@ import com.byteutility.dev.leetcode.plus.data.database.dao.WeeklyGoalDao
 import com.byteutility.dev.leetcode.plus.data.database.entity.WeeklyGoalEntity
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 class WeeklyGoalRepositoryImpl @Inject constructor(
     private val weeklyGoalDao: WeeklyGoalDao
 ) : WeeklyGoalRepository {
+
+    override val weeklyGoal = weeklyGoalDao.getWeeklyGoal()
+
     override suspend fun saveWeeklyGoal(
         problems: List<LeetCodeProblem>,
         period: WeeklyGoalPeriod

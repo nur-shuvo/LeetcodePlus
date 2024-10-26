@@ -25,6 +25,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,9 +44,15 @@ import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalSetDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetWeeklyTargetScreen() {
+fun SetWeeklyTargetScreen(onPopCurrent: () -> Unit = {}) {
     val viewModel: SetWeeklyTargetViewModel = hiltViewModel()
     val problems = viewModel.problemsList.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.popCurrentDestination.collect {
+            onPopCurrent()
+        }
+    }
 
     Scaffold(
         topBar = {
