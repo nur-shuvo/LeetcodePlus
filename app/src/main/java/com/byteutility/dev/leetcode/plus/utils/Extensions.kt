@@ -40,7 +40,7 @@ fun UserProfileVo.toInternalModel() =
         userName = this.username,
         avatar = this.avatar,
         ranking = this.ranking,
-        country = this.country
+        country = this.country.toString()
     )
 
 fun UserContestVo.toInternalModel() =
