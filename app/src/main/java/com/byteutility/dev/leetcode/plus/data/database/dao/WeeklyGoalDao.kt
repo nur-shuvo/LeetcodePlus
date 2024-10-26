@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.byteutility.dev.leetcode.plus.data.database.entity.WeeklyGoalEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WeeklyGoalDao {
@@ -13,7 +14,7 @@ interface WeeklyGoalDao {
     suspend fun insertWeeklyGoal(weeklyGoalEntity: WeeklyGoalEntity)
 
     @Query("SELECT * FROM weekly_goal LIMIT 1")
-    suspend fun getWeeklyGoal(): WeeklyGoalEntity
+    fun getWeeklyGoal(): Flow<WeeklyGoalEntity?>
 
     @Query("DELETE FROM weekly_goal")
     suspend fun deleteWeeklyGoal()

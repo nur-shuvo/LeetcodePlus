@@ -2,12 +2,15 @@ package com.byteutility.dev.leetcode.plus.ui.userdetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
+import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,12 +23,14 @@ data class UserDetailsUiState(
     val userBasicInfo: UserBasicInfo = UserBasicInfo(),
     val userContestInfo: UserContestInfo = UserContestInfo(),
     val userProblemSolvedInfo: UserProblemSolvedInfo = UserProblemSolvedInfo(),
-    val userSubmissions: List<UserSubmission> = emptyList()
+    val userSubmissions: List<UserSubmission> = emptyList(),
+    val isWeeklyGoalSet: Boolean = false,
 )
 
 @HiltViewModel
 class UserDetailsViewModel @Inject constructor(
     private val userDetailsRepository: UserDetailsRepository,
+    private val goalRepository: WeeklyGoalRepository,
 ) : ViewModel() {
 
     private val userBasicInfo =
@@ -40,19 +45,22 @@ class UserDetailsViewModel @Inject constructor(
     private val userSubmissions =
         MutableStateFlow<List<UserSubmission>>(value = listOf())
 
+    private val isWeeklyGoalSet = MutableStateFlow(false)
 
     val uiState: StateFlow<UserDetailsUiState> =
         combine(
             userBasicInfo,
             userContestInfo,
             userProblemSolvedInfo,
-            userSubmissions
-        ) { userBasicInfo, userContestInfo, userProblemSolvedInfo, userSubmissions ->
+            userSubmissions,
+            isWeeklyGoalSet
+        ) { userBasicInfo, userContestInfo, userProblemSolvedInfo, userSubmissions, isWeeklyGoalSet ->
             UserDetailsUiState(
                 userBasicInfo = userBasicInfo,
                 userContestInfo = userContestInfo,
                 userProblemSolvedInfo = userProblemSolvedInfo,
-                userSubmissions = userSubmissions
+                userSubmissions = userSubmissions,
+                isWeeklyGoalSet = isWeeklyGoalSet
             )
         }.stateIn(
             scope = viewModelScope,
@@ -100,6 +108,12 @@ class UserDetailsViewModel @Inject constructor(
                         userSubmissions.value = it
                     }
                 }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            goalRepository.weeklyGoal.collect {
+                isWeeklyGoalSet.value = (it != null)
+            }
         }
     }
 }

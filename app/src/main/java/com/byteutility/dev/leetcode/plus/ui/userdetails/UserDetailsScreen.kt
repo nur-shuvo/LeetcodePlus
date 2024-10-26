@@ -50,9 +50,10 @@ import me.bytebeats.views.charts.simpleChartAnimation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(
-    viewModel: UserDetailsViewModel = hiltViewModel(),
     onSetGoal: () -> Unit = {},
+    onGoalStatus: () -> Unit = {},
 ) {
+    val viewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -60,9 +61,15 @@ fun UserProfileScreen(
             TopAppBar(
                 title = { Text(text = "My Profile") },
                 actions = {
-                    TextButton(onClick = { onSetGoal() }, modifier = Modifier.padding(end = 8.dp)) {
+                    TextButton(onClick = {
+                        if (uiState.isWeeklyGoalSet) {
+                            onGoalStatus()
+                        } else {
+                            onSetGoal()
+                        }
+                    }, modifier = Modifier.padding(end = 8.dp)) {
                         Text(
-                            text = "Set Goal",
+                            text = if (uiState.isWeeklyGoalSet) "See Goal Status" else "Set Goal",
                             fontSize = 12.sp
                         )
                     }

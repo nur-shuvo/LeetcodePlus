@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.byteutility.dev.leetcode.plus.ui.login.UserLoginScreen
 import com.byteutility.dev.leetcode.plus.ui.targetset.SetWeeklyTargetScreen
+import com.byteutility.dev.leetcode.plus.ui.targetstatus.GoalProgressScreen
 import com.byteutility.dev.leetcode.plus.ui.userdetails.UserProfileScreen
 
 
@@ -20,7 +21,7 @@ fun LeetCodePlusNavGraph(
         startDestination = startDestination
     ) {
         val navigationActions = LeetCodePlusNavigation(navController)
-        
+
         composable(route = LeetCodePlusNavigationDestinations.LOGIN_ROUTE) {
             UserLoginScreen {
                 navigationActions.navigateToUserProfile()
@@ -28,13 +29,23 @@ fun LeetCodePlusNavGraph(
         }
 
         composable(route = LeetCodePlusNavigationDestinations.SET_GOAL_ROUTE) {
-            SetWeeklyTargetScreen()
+            SetWeeklyTargetScreen {
+                navigationActions.popCurrentDestination()
+            }
+        }
+
+        composable(route = LeetCodePlusNavigationDestinations.GOAL_STATUS_ROUTE) {
+            GoalProgressScreen()
         }
 
         composable(route = LeetCodePlusNavigationDestinations.USER_PROFILE_ROUTE) {
-            UserProfileScreen {
-                navigationActions.navigateToSetGoal()
-            }
+            UserProfileScreen(
+                {
+                    navigationActions.navigateToSetGoal()
+                }, {
+                    navigationActions.navigateToGoalStatus()
+                }
+            )
         }
     }
 }
