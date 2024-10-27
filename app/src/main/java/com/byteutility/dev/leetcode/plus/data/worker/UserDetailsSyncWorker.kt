@@ -45,8 +45,8 @@ class UserDetailsSyncWorker @AssistedInject constructor(
                     userDatastore.saveUserContestInfo(userContest.toInternalModel())
                     userDatastore.saveUserSubmissions(userAcSubmission.toInternalModel())
                     userDatastore.saveUserProblemSolvedInfo(userSolved.toInternalModel())
-                }
-                Result.success()
+                    Result.success()
+                } ?: Result.failure()
             }
         } catch (e: Exception) {
             e.printStackTrace()
