@@ -13,33 +13,56 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
+import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoalProgressScreen() {
-    // Replace with viewmodel
-    val problemsWithStatus = emptyList<ProblemStatus>()
+    val viewmodel: GoalProgressViewModel = hiltViewModel()
+    viewmodel.init()
+    val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "My Progress") },
+            )
+        },
+    ) { paddingValues ->
+        ProgressScreenContent(uiState.problemsWithStatus, Modifier.padding(paddingValues))
+    }
+}
+
+@Composable
+fun ProgressScreenContent(
+    problemsWithStatus: List<ProblemStatus>,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = Modifier
-            .background(Color.White)
             .padding(16.dp)
+            .then(modifier)
     ) {
-        Text("Goal Progress (Weekly)", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(16.dp))
-
         for (problem in problemsWithStatus) {
             ProblemCard(problem)
             Spacer(modifier = Modifier.height(8.dp))
@@ -49,7 +72,9 @@ fun GoalProgressScreen() {
 
 @Composable
 fun ProblemCard(problemStatus: ProblemStatus) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -64,7 +89,7 @@ fun ProblemCard(problemStatus: ProblemStatus) {
                     text = problemStatus.title,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Text("Status: ${problemStatus.status}")
                 Text("Attempts Count: ${problemStatus.attemptsCount}")
@@ -122,8 +147,5 @@ fun LeetCodeProgressScreenPreview() {
             ProblemStatus("Climbing Stairs", "Completed", "Easy", 2)
         )
     }
-
-    MaterialTheme {
-        GoalProgressScreen()
-    }
+    ProgressScreenContent(problemStatuses)
 }

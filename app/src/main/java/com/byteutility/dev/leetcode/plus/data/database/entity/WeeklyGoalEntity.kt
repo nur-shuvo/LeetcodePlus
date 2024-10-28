@@ -16,15 +16,17 @@ data class WeeklyGoalEntity(
     @ColumnInfo(name = "problems")
     val problems: String,
     @ColumnInfo(name = "period")
-    val period: String
+    val period: String,
 ) {
     fun toProblems(): List<LeetCodeProblem> {
         val type = object : TypeToken<List<LeetCodeProblem>>() {}.type
         return Gson().fromJson(problems, type)
     }
+
     fun toWeeklyGoal(): WeeklyGoalPeriod {
         return Gson().fromJson(period, WeeklyGoalPeriod::class.java)
     }
+
     companion object {
         fun createWeeklyGoalEntity(
             problems: List<LeetCodeProblem>,
