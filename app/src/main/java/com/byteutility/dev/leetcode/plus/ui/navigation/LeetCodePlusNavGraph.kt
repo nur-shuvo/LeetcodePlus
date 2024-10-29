@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui
+package com.byteutility.dev.leetcode.plus.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController

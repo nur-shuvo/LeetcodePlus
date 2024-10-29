@@ -7,8 +7,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
-import com.byteutility.dev.leetcode.plus.ui.LeetCodePlusNavGraph
-import com.byteutility.dev.leetcode.plus.ui.LeetCodePlusNavigationDestinations
+import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavGraph
+import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavigationDestinations
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
