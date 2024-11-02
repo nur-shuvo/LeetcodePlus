@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +39,6 @@ import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
 import com.byteutility.dev.leetcode.plus.ui.common.done
 import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 
-
 @Composable
 fun GoalProgressScreen() {
     val viewmodel: GoalProgressViewModel = hiltViewModel()
@@ -53,21 +54,21 @@ fun ProgressScreenContent(
     modifier: Modifier = Modifier
 ) {
     Scaffold(
-        modifier = Modifier.fillMaxSize().padding(10.dp),
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = { Text(text = "My Progress") },
             )
         },
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(top = 8.dp)
+                .padding(top = 8.dp, start = 10.dp, end = 10.dp)
                 .then(modifier)
         ) {
-            for (problem in uiState.problemsWithStatus) {
-                ProblemCard(problem)
+            items(uiState.problemsWithStatus) {
+                ProblemCard(it)
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
