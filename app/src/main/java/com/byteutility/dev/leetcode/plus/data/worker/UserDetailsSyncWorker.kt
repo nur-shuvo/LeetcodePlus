@@ -3,7 +3,8 @@ package com.byteutility.dev.leetcode.plus.data.worker
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
-import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
@@ -14,6 +15,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
+import java.time.Duration
 
 @HiltWorker
 class UserDetailsSyncWorker @AssistedInject constructor(
@@ -55,10 +57,16 @@ class UserDetailsSyncWorker @AssistedInject constructor(
     }
 
     companion object {
-        fun enqueueWork(context: Context) {
-            val workRequest = OneTimeWorkRequestBuilder<UserDetailsSyncWorker>()
-                .build()
-            WorkManager.getInstance(context).enqueue(workRequest)
+        fun enqueuePeriodicWork(context: Context) {
+            val workRequest = PeriodicWorkRequestBuilder<UserDetailsSyncWorker>(
+                repeatInterval = Duration.ofMinutes(20)
+            ).build()
+            WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(
+                    "UserDetailsSyncWorker",
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    workRequest
+                )
         }
     }
 }

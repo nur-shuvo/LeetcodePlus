@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.targetstatus
+package com.byteutility.dev.leetcode.plus.ui.common
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType

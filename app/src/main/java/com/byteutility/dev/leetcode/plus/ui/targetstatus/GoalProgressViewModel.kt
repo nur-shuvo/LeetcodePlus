@@ -5,18 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
+import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class ProgressScreenState(
-    val problemsWithStatus: List<ProblemStatus> = emptyList()
-)
 
 @HiltViewModel
 class GoalProgressViewModel @Inject constructor(
@@ -24,7 +20,7 @@ class GoalProgressViewModel @Inject constructor(
     private val goalRepository: WeeklyGoalRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProgressScreenState())
+    private val _uiState = MutableStateFlow(ProgressUiState())
     val uiState = _uiState.asStateFlow()
 
     fun init() {
@@ -58,7 +54,7 @@ class GoalProgressViewModel @Inject constructor(
                 }
             }.collect {
                 if (it != null)
-                    _uiState.value = ProgressScreenState(it)
+                    _uiState.value = ProgressUiState(it)
             }
         }
     }
