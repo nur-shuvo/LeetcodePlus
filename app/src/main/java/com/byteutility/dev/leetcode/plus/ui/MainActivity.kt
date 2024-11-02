@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus
+package com.byteutility.dev.leetcode.plus.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,6 +7,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
+import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavGraph
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavigationDestinations
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
@@ -42,5 +43,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        UserDetailsSyncWorker.enqueuePeriodicWork(this)
     }
 }

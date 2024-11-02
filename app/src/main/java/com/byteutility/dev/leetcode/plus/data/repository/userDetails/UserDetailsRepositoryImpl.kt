@@ -19,7 +19,7 @@ class UserDetailsRepositoryImpl @Inject constructor(
 ) : UserDetailsRepository {
 
     init {
-        UserDetailsSyncWorker.enqueueWork(context)
+        UserDetailsSyncWorker.enqueuePeriodicWork(context)
     }
 
     override suspend fun getUserBasicInfo(): Flow<UserBasicInfo?> {

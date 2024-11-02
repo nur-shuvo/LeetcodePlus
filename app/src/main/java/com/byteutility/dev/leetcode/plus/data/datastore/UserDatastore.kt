@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -93,15 +94,19 @@ class UserDatastore @Inject constructor(
     suspend fun saveUserSubmissions(
         userSubmissions: List<UserSubmission>
     ) {
+        val existing = getUserSubmissions().first() ?: emptyList()
+        val updated = userSubmissions.filter {
+            !existing.contains(it)
+        }
         context.userPreferencesDataStore.edit { preferences ->
-            val jsonString = gson.toJson(userSubmissions)
+            val jsonString = gson.toJson(updated + existing)
             preferences[stringPreferencesKey("user_submissions")] = jsonString
         }
     }
 
     fun getUserSubmissions(): Flow<List<UserSubmission>?> {
         return context.userPreferencesDataStore.data
-            .catch { exception ->
+            .catch {
                 emit(emptyPreferences())
             }
             .map { preferences ->

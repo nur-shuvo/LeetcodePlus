@@ -24,7 +24,6 @@ class UserLoginViewModel @Inject constructor(
                 userBasicInfo = UserBasicInfo(userName = userName,
                 )
             )
-            UserDetailsSyncWorker.enqueueWork(context)
         }
     }
 }

@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,38 +34,42 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
-import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
+import com.byteutility.dev.leetcode.plus.ui.common.done
+import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun GoalProgressScreen() {
     val viewmodel: GoalProgressViewModel = hiltViewModel()
     viewmodel.init()
     val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
+    ProgressScreenContent(uiState)
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun ProgressScreenContent(
+    uiState: ProgressUiState,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
+        modifier = Modifier.fillMaxSize().padding(10.dp),
         topBar = {
             TopAppBar(
                 title = { Text(text = "My Progress") },
             )
         },
     ) { paddingValues ->
-        ProgressScreenContent(uiState.problemsWithStatus, Modifier.padding(paddingValues))
-    }
-}
-
-@Composable
-fun ProgressScreenContent(
-    problemsWithStatus: List<ProblemStatus>,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .then(modifier)
-    ) {
-        for (problem in problemsWithStatus) {
-            ProblemCard(problem)
-            Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(top = 8.dp)
+                .then(modifier)
+        ) {
+            for (problem in uiState.problemsWithStatus) {
+                ProblemCard(problem)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
         }
     }
 }
@@ -97,7 +101,7 @@ fun ProblemCard(problemStatus: ProblemStatus) {
             if (problemStatus.status == "In Progress" || problemStatus.status == "Not Started") {
                 Image(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(60.dp)
                         .padding(10.dp),
                     painter = painterResource(R.drawable.baseline_pending_24),
                     contentDescription = ""
@@ -124,7 +128,7 @@ fun ProblemCard(problemStatus: ProblemStatus) {
 }
 
 @Composable
-@Preview
+@Preview(showSystemUi = true)
 fun LeetCodeProgressScreenPreview() {
     val problemStatuses = remember {
         listOf(
@@ -147,5 +151,5 @@ fun LeetCodeProgressScreenPreview() {
             ProblemStatus("Climbing Stairs", "Completed", "Easy", 2)
         )
     }
-    ProgressScreenContent(problemStatuses)
+    ProgressScreenContent(ProgressUiState(problemStatuses))
 }
