@@ -31,4 +31,5 @@ data class UserSubmission(
     val statusDisplay: String = "",
     val timestamp: String = "",
     val title: String = "",
+    val titleSlug: String = ""
 )
