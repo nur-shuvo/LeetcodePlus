@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.collections.plus
 
 @Singleton
 class UserDatastore @Inject constructor(
@@ -111,6 +112,35 @@ class UserDatastore @Inject constructor(
             }
             .map { preferences ->
                 val jsonString = preferences[stringPreferencesKey("user_submissions")] ?: ""
+                if (jsonString.isNotEmpty()) {
+                    val type = object : TypeToken<List<UserSubmission>>() {}.type
+                    gson.fromJson(jsonString, type)
+                } else {
+                    emptyList()
+                }
+            }
+    }
+
+    suspend fun saveUserLastSubmissions(
+        userLastSubmissions: List<UserSubmission>
+    ) {
+        val existing = getUserSubmissions().first() ?: emptyList()
+        val updated = userLastSubmissions.filter {
+            !existing.contains(it)
+        }
+        context.userPreferencesDataStore.edit { preferences ->
+            val jsonString = gson.toJson(updated + existing)
+            preferences[stringPreferencesKey("user_last_submissions")] = jsonString
+        }
+    }
+
+    fun getUserLastSubmissions(): Flow<List<UserSubmission>?> {
+        return context.userPreferencesDataStore.data
+            .catch {
+                emit(emptyPreferences())
+            }
+            .map { preferences ->
+                val jsonString = preferences[stringPreferencesKey("user_last_submissions")] ?: ""
                 if (jsonString.isNotEmpty()) {
                     val type = object : TypeToken<List<UserSubmission>>() {}.type
                     gson.fromJson(jsonString, type)

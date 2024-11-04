@@ -13,11 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -56,7 +60,14 @@ fun SetWeeklyTargetScreen(onPopCurrent: () -> Unit = {}) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "Set Weekly Goals") })
+            TopAppBar(title = { Text(text = "Set Weekly Goals") },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { onPopCurrent() }
+                    ) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "")
+                    }
+                })
         },
     ) { innerPadding ->
         var selectedProblems by remember { mutableStateOf<List<LeetCodeProblem>>(emptyList()) }
@@ -91,7 +102,11 @@ fun ProblemSelection(
     val totalPages = (filteredProblems.size + itemsPerPage - 1) / itemsPerPage
     val displayedItems = filteredProblems.drop(currentPage * itemsPerPage).take(itemsPerPage)
 
-    Column(modifier = Modifier.background(Color.White).padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .background(Color.White)
+            .padding(16.dp)
+    ) {
 
         Spacer(modifier = Modifier.height(30.dp))
 
@@ -104,7 +119,10 @@ fun ProblemSelection(
                 .height(80.dp)
                 .padding(top = 27.dp),
             singleLine = true,
-            colors = TextFieldDefaults.colors(focusedContainerColor = Color.White, unfocusedContainerColor = Color.White)
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            )
         )
 
         LazyColumn(
@@ -171,7 +189,7 @@ fun ProblemItem(
     isSelected: Boolean,
     onProblemSelected: (Boolean) -> Unit
 ) {
-    val backgroundColor: Color = when(problem.difficulty) {
+    val backgroundColor: Color = when (problem.difficulty) {
         "Easy" -> Color(0xFFE0F7FA)
         "Medium" -> Color(0xFFFFF9C4)
         "Hard" -> Color(0xFFFFCDD2)
@@ -192,7 +210,10 @@ fun ProblemItem(
             Column(modifier = Modifier.fillMaxWidth(0.85f)) {
                 Text(text = problem.title, style = MaterialTheme.typography.bodyLarge)
                 Text(text = "Tag: ${problem.tag}", style = MaterialTheme.typography.bodySmall)
-                Text(text = "Difficulty: ${problem.difficulty}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = "Difficulty: ${problem.difficulty}",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
             Checkbox(
                 checked = isSelected,

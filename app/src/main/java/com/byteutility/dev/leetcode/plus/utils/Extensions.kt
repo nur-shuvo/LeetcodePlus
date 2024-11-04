@@ -31,6 +31,7 @@ fun SubmissionVo.toInternalModel() =
         lang = this.lang,
         statusDisplay = this.statusDisplay,
         timestamp = this.timestamp.getDateFromTimestamp(),
+        titleSlug = this.titleSlug
     )
 
 
