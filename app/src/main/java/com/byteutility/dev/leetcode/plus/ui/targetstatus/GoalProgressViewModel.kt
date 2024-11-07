@@ -26,7 +26,7 @@ class GoalProgressViewModel @Inject constructor(
     fun init() {
         viewModelScope.launch(Dispatchers.IO) {
             combine(
-                userDetailsRepository.getUserRecentSubmissions(),
+                userDetailsRepository.getUserRecentAcSubmissions(),
                 goalRepository.weeklyGoal
             ) { recentSubmissions, goalProblems ->
                 val completedTitles = recentSubmissions?.filter { sub ->

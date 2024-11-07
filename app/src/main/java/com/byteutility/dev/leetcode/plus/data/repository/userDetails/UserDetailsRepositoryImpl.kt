@@ -34,7 +34,11 @@ class UserDetailsRepositoryImpl @Inject constructor(
         return userDatastore.getUserProblemSolvedInfo()
     }
 
-    override suspend fun getUserRecentSubmissions(): Flow<List<UserSubmission>?> {
-        return userDatastore.getUserSubmissions()
+    override suspend fun getUserRecentAcSubmissions(): Flow<List<UserSubmission>?> {
+        return userDatastore.getUserAcSubmissions()
+    }
+
+    override suspend fun getUserLastSubmissions(): Flow<List<UserSubmission>?> {
+        return userDatastore.getUserLastSubmissions()
     }
 }

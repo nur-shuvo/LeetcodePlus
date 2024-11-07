@@ -92,26 +92,26 @@ class UserDatastore @Inject constructor(
             }
     }
 
-    suspend fun saveUserSubmissions(
+    suspend fun saveUserAcSubmissions(
         userSubmissions: List<UserSubmission>
     ) {
-        val existing = getUserSubmissions().first() ?: emptyList()
+        val existing = getUserAcSubmissions().first() ?: emptyList()
         val updated = userSubmissions.filter {
             !existing.contains(it)
         }
         context.userPreferencesDataStore.edit { preferences ->
             val jsonString = gson.toJson(updated + existing)
-            preferences[stringPreferencesKey("user_submissions")] = jsonString
+            preferences[stringPreferencesKey("user_ac_submissions")] = jsonString
         }
     }
 
-    fun getUserSubmissions(): Flow<List<UserSubmission>?> {
+    fun getUserAcSubmissions(): Flow<List<UserSubmission>?> {
         return context.userPreferencesDataStore.data
             .catch {
                 emit(emptyPreferences())
             }
             .map { preferences ->
-                val jsonString = preferences[stringPreferencesKey("user_submissions")] ?: ""
+                val jsonString = preferences[stringPreferencesKey("user_ac_submissions")] ?: ""
                 if (jsonString.isNotEmpty()) {
                     val type = object : TypeToken<List<UserSubmission>>() {}.type
                     gson.fromJson(jsonString, type)
@@ -124,7 +124,7 @@ class UserDatastore @Inject constructor(
     suspend fun saveUserLastSubmissions(
         userLastSubmissions: List<UserSubmission>
     ) {
-        val existing = getUserSubmissions().first() ?: emptyList()
+        val existing = getUserAcSubmissions().first() ?: emptyList()
         val updated = userLastSubmissions.filter {
             !existing.contains(it)
         }

@@ -48,7 +48,7 @@ class UserDetailsSyncWorker @AssistedInject constructor(
                     val userSolved = userSolvedDeferred.await()
                     userDatastore.saveUserBasicInfo(userProfile.toInternalModel())
                     userDatastore.saveUserContestInfo(userContest.toInternalModel())
-                    userDatastore.saveUserSubmissions(userAcSubmission.toInternalModel())
+                    userDatastore.saveUserAcSubmissions(userAcSubmission.toInternalModel())
                     userDatastore.saveUserLastSubmissions(userLastSubmissions.toInternalModel())
                     userDatastore.saveUserProblemSolvedInfo(userSolved.toInternalModel())
                     Result.success()

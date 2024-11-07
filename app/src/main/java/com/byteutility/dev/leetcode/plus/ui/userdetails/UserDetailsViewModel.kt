@@ -2,7 +2,6 @@ package com.byteutility.dev.leetcode.plus.ui.userdetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
@@ -102,7 +101,7 @@ class UserDetailsViewModel @Inject constructor(
 
         viewModelScope.launch {
             userDetailsRepository
-                .getUserRecentSubmissions()
+                .getUserRecentAcSubmissions()
                 .collect {
                     if (it != null) {
                         userSubmissions.value = it
