@@ -13,4 +13,6 @@ interface WeeklyGoalRepository {
         problems: List<LeetCodeProblem>,
         period: WeeklyGoalPeriod,
     )
+
+    suspend fun deleteWeeklyGoal()
 }

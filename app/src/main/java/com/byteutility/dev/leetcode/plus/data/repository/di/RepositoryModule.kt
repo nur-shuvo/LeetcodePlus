@@ -1,11 +1,11 @@
 package com.byteutility.dev.leetcode.plus.data.repository.di
 
-import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
-import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.submissions.SubmissionsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.submissions.SubmissionsRepositoryImpl
+import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
+import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepositoryImpl
 import dagger.Binds

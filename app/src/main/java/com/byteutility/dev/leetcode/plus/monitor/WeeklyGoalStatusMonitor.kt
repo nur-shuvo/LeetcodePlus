@@ -1,30 +1,106 @@
 package com.byteutility.dev.leetcode.plus.monitor
 
-import android.util.Log
+import com.byteutility.dev.leetcode.plus.data.datastore.NotificationDataStore
+import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
+import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class WeeklyGoalStatusMonitor @Inject constructor(
-    private val userDetailsRepository: UserDetailsRepository
+    private val userDetailsRepository: UserDetailsRepository,
+    private val weeklyGoalRepository: WeeklyGoalRepository,
+    private val notificationDataStore: NotificationDataStore,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var monitorJob: Job? = null
+
     private var _showNotification = MutableSharedFlow<String>()
     val showNotification = _showNotification.asSharedFlow()
 
     fun start() {
-        scope.launch {
+        if (monitorJob != null) return
+        monitorJob = scope.launch {
             userDetailsRepository.getUserLastSubmissions().collect {
-                Log.i("WeeklyGoalStatusMonitor", "last submissions ${it?.joinToString(" ")}")
+                if (it != null) {
+                    if (isGoalSet()) {
+                        val filterByGoalStartDate = filteredSubmissionsAfterGoalStart(it)
+                        var isAtLeastOneProblemSolvedToday = false
+                        var isAtLeastOneProblemTriedToday = false
+                        var countOfAc = 0
+                        filterByGoalStartDate.forEach { sub ->
+                            val submissionLocalDate =
+                                LocalDate.parse(sub.timestamp, formatter2)
+                            if (submissionLocalDate == LocalDate.now()) {
+                                if (sub.statusDisplay == "Accepted") {
+                                    isAtLeastOneProblemSolvedToday = true
+                                } else {
+                                    isAtLeastOneProblemTriedToday = true
+                                }
+                            }
+                            if (sub.statusDisplay == "Accepted") {
+                                countOfAc++
+                            }
+                        }
+
+                        if (isAtLeastOneProblemSolvedToday) {
+                            _showNotification.emit("Congratulations! You have completed your today's goal!")
+                        } else if (isAtLeastOneProblemTriedToday) {
+                            _showNotification.emit("You're close to solving the problem, try once more!")
+                        } else if (countOfAc == 7) {
+                            _showNotification.emit("Whoa! You're done with weekly goal!")
+                        } else {
+                            _showNotification.emit("Hey! Please solve today's problem!")
+                        }
+                        notificationDataStore.saveCurrentNotification(
+                            _showNotification.firstOrNull() ?: ""
+                        )
+                    }
+                }
             }
         }
+    }
+
+    /**
+     * Filter submissions by problems in goal and goal start date.
+     */
+    private suspend fun filteredSubmissionsAfterGoalStart(
+        userSubmissions: List<UserSubmission>
+    ): List<UserSubmission> {
+        val goalEntity = weeklyGoalRepository.weeklyGoal.first()
+        val goalStartDate =
+            goalEntity?.toWeeklyGoalPeriod()?.startDate
+        val parsedGoalStartDateTime = LocalDate.parse(goalStartDate, formatter1).atStartOfDay()
+        return userSubmissions.filter { submission ->
+            val submissionDateTime =
+                LocalDateTime.parse(submission.timestamp, formatter2)
+            val isIncludedInGoal = goalEntity?.toProblems()
+                ?.map { it.titleSlug }
+                ?.contains(submission.titleSlug) == true
+            isIncludedInGoal && submissionDateTime.isAfter(parsedGoalStartDateTime)
+        }
+    }
+
+    private suspend fun isGoalSet(): Boolean {
+        return weeklyGoalRepository.weeklyGoal.firstOrNull() != null
+    }
+
+    companion object {
+        private val formatter1: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
+        private val formatter2: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("MMMM dd, yyyy HH:mm:ss a")
     }
 }
