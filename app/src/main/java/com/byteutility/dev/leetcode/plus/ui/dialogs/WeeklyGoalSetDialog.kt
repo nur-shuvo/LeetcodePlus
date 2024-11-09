@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun  WeeklyGoalSetDialog(
+fun WeeklyGoalSetDialog(
     confirmed: (period: WeeklyGoalPeriod) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(true) }

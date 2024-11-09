@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.userdetails
+package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +47,6 @@ import me.bytebeats.views.charts.simpleChartAnimation
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(
     onSetGoal: () -> Unit = {},
@@ -55,7 +54,16 @@ fun UserProfileScreen(
 ) {
     val viewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    UserProfileLayout(uiState, onSetGoal, onGoalStatus)
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserProfileLayout(
+    uiState: UserDetailsUiState,
+    onSetGoal: () -> Unit = {},
+    onGoalStatus: () -> Unit = {},
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -319,7 +327,7 @@ fun PreviewUserDetails() {
             title = "reformidans"
         ),
     )
-    UserProfileContent(
+    UserProfileLayout(
         uiState = UserDetailsUiState(
             userBasicInfo = UserBasicInfo(
                 name = "Mindy Shannon",
@@ -337,6 +345,5 @@ fun PreviewUserDetails() {
                 hard = 6990
             ), userSubmissions = listOf()
         ),
-        modifier = Modifier
     )
 }

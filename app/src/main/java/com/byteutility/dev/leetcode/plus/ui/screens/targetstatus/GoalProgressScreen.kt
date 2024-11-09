@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.targetstatus
+package com.byteutility.dev.leetcode.plus.ui.screens.targetstatus
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -129,7 +129,7 @@ fun ProblemCard(problemStatus: ProblemStatus) {
 }
 
 @Composable
-@Preview(showSystemUi = true)
+@Preview
 fun LeetCodeProgressScreenPreview() {
     val problemStatuses = remember {
         listOf(

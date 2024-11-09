@@ -23,7 +23,7 @@ data class WeeklyGoalEntity(
         return Gson().fromJson(problems, type)
     }
 
-    fun toWeeklyGoal(): WeeklyGoalPeriod {
+    fun toWeeklyGoalPeriod(): WeeklyGoalPeriod {
         return Gson().fromJson(period, WeeklyGoalPeriod::class.java)
     }
 

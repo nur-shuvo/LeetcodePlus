@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.login
+package com.byteutility.dev.leetcode.plus.ui.screens.login
 
 import android.widget.Toast
 import androidx.compose.foundation.Image

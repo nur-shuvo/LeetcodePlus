@@ -8,7 +8,7 @@ class HttpHeaderInterceptor @Inject constructor() : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         chain.request().apply {
             val newRequest = newBuilder().apply {
-            // TODO add common headers here
+                // TODO add common headers here
             }.build()
             return chain.proceed(newRequest)
         }

@@ -9,6 +9,6 @@ import com.byteutility.dev.leetcode.plus.data.database.entity.WeeklyGoalEntity
     entities = [WeeklyGoalEntity::class],
     version = 1
 )
-abstract class LeetcodeDatabase: RoomDatabase() {
+abstract class LeetcodeDatabase : RoomDatabase() {
     abstract fun weeklyGoalDao(): WeeklyGoalDao
 }

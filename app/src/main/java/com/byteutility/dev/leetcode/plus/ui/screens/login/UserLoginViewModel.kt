@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.login
+package com.byteutility.dev.leetcode.plus.ui.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,7 +1,6 @@
 package com.byteutility.dev.leetcode.plus.network.responseVo
 
 
-
 data class UserSolvedVo(
     val acSubmissionNumVo: List<AcSubmissionNumVo>,
     val easySolved: Int,

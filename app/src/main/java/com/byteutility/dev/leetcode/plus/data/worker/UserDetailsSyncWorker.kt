@@ -8,14 +8,17 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
+import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import com.byteutility.dev.leetcode.plus.utils.toInternalModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
 import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @HiltWorker
 class UserDetailsSyncWorker @AssistedInject constructor(
@@ -23,6 +26,7 @@ class UserDetailsSyncWorker @AssistedInject constructor(
     @Assisted workerParameters: WorkerParameters,
     private val userDatastore: UserDatastore,
     private val restApiService: RestApiService,
+    private val goalStatusMonitor: WeeklyGoalStatusMonitor,
 ) : CoroutineWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
@@ -51,6 +55,10 @@ class UserDetailsSyncWorker @AssistedInject constructor(
                     userDatastore.saveUserAcSubmissions(userAcSubmission.toInternalModel())
                     userDatastore.saveUserLastSubmissions(userLastSubmissions.toInternalModel())
                     userDatastore.saveUserProblemSolvedInfo(userSolved.toInternalModel())
+
+                    goalStatusMonitor.start()
+                    delay(1.seconds)
+
                     Result.success()
                 } ?: Result.failure()
             }
