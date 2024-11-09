@@ -17,7 +17,7 @@ import com.byteutility.dev.leetcode.plus.ui.MainActivity
 
 object NotificationHandler {
 
-    private const val CHANNEL_ID = "transactions_reminder_channel"
+    private const val CHANNEL_ID = "goal_reminder_channel"
 
     @SuppressLint("MissingPermission")
     fun createReminderNotification(context: Context, message: String) {
@@ -33,7 +33,7 @@ object NotificationHandler {
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.leetcode_logo_small)
-            .setContentTitle("Reminder")
+            .setContentTitle("Finish your goal")
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)

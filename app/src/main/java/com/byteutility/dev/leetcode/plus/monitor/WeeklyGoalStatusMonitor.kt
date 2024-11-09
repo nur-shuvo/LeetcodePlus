@@ -55,18 +55,21 @@ class WeeklyGoalStatusMonitor @Inject constructor(
                                 countOfAc++
                             }
                         }
-
+                        val currentNotificationMessage: String
                         if (isAtLeastOneProblemSolvedToday) {
-                            _showNotification.emit("Congratulations! You have completed your today's goal!")
+                            currentNotificationMessage =
+                                "Congratulations! You have completed your today's goal!"
                         } else if (isAtLeastOneProblemTriedToday) {
-                            _showNotification.emit("You're close to solving the problem, try once more!")
+                            currentNotificationMessage =
+                                "You're close to solving the problem, try once more!"
                         } else if (countOfAc == 7) {
-                            _showNotification.emit("Whoa! You're done with weekly goal!")
+                            currentNotificationMessage = "Whoa! You're done with weekly goal!"
                         } else {
-                            _showNotification.emit("Hey! Please solve today's problem!")
+                            currentNotificationMessage = "Hey! Please solve today's problem!"
                         }
+                        _showNotification.emit(currentNotificationMessage)
                         notificationDataStore.saveCurrentNotification(
-                            _showNotification.firstOrNull() ?: ""
+                            currentNotificationMessage
                         )
                     }
                 }
