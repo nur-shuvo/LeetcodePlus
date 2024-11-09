@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.targetstatus
+package com.byteutility.dev.leetcode.plus.ui.screens.targetstatus
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

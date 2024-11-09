@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.targetset
+package com.byteutility.dev.leetcode.plus.ui.screens.targetset
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
