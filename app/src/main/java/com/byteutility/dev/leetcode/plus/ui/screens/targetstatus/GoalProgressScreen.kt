@@ -15,12 +15,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -28,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,93 +49,147 @@ import com.byteutility.dev.leetcode.plus.ui.common.done
 import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 
 @Composable
-fun GoalProgressScreen() {
+fun GoalProgressScreen(onPopCurrent: () -> Unit) {
     val viewmodel: GoalProgressViewModel = hiltViewModel()
     viewmodel.init()
     val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
-    ProgressScreenContent(uiState)
+    ProgressScreenContent(uiState, onPopCurrent)
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ProgressScreenContent(
     uiState: ProgressUiState,
-    modifier: Modifier = Modifier
+    onPopCurrent: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = { Text(text = "My Progress") },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { onPopCurrent() }
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFABDEF5).copy(
+                        alpha = 0.1f
+                    )
+                )
             )
         },
     ) { paddingValues ->
-        LazyColumn(
+        Box(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
-                .padding(top = 8.dp, start = 10.dp, end = 10.dp)
-                .then(modifier)
         ) {
-            items(uiState.problemsWithStatus) {
-                ProblemCard(it)
-                Spacer(modifier = Modifier.height(8.dp))
+            LazyColumn(
+                modifier = Modifier
+                    .padding(top = 8.dp, start = 10.dp, end = 10.dp)
+            ) {
+                items(uiState.problemsWithStatus) {
+                    ProblemCard(it)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
+            Image(
+                painter = painterResource(id = R.drawable.img),
+                contentDescription = null,
+                contentScale = ContentScale.FillHeight,
+                modifier = Modifier.fillMaxSize(),
+                alpha = 0.08f
+            )
         }
     }
 }
 
 @Composable
 fun ProblemCard(problemStatus: ProblemStatus) {
+    val backgroundColor = when (problemStatus.status) {
+        "Completed" -> Color(0xFFE8F5E9)
+        "In Progress" -> Color(0xFFFFF8E1)
+        else -> Color(0xFFF3E5F5)
+    }
+
+    val statusColor = when (problemStatus.status) {
+        "Completed" -> Color(0xFF4CAF50)
+        "In Progress" -> Color(0xFFFFA000)
+        else -> Color(0xFF9C27B0)
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .background(backgroundColor),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
-                    .padding(16.dp)
             ) {
                 Text(
                     text = problemStatus.title,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Text("Status: ${problemStatus.status}")
-                Text("Attempts Count: ${problemStatus.attemptsCount}")
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Status: ${problemStatus.status}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = statusColor
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Attempts Count: ${problemStatus.attemptsCount}",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
             }
+
             if (problemStatus.status == "In Progress" || problemStatus.status == "Not Started") {
                 Image(
                     modifier = Modifier
-                        .size(60.dp)
-                        .padding(10.dp),
+                        .size(38.dp),
                     painter = painterResource(R.drawable.baseline_pending_24),
-                    contentDescription = ""
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(statusColor)
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
-                        .padding(10.dp)
-                        .background(Color.Green, shape = CircleShape)
+                        .size(32.dp)
+                        .background(Color(0xFF4CAF50), shape = CircleShape)
                         .clip(CircleShape)
                 ) {
                     Image(
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(32.dp)
                             .align(Alignment.Center),
                         imageVector = done,
-                        contentDescription = ""
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(Color.White)
                     )
                 }
             }
         }
     }
 }
+
 
 @Composable
 @Preview
@@ -152,5 +215,5 @@ fun LeetCodeProgressScreenPreview() {
             ProblemStatus("Climbing Stairs", "Completed", "Easy", 2)
         )
     }
-    ProgressScreenContent(ProgressUiState(problemStatuses))
+    ProgressScreenContent(ProgressUiState(problemStatuses)) {}
 }
