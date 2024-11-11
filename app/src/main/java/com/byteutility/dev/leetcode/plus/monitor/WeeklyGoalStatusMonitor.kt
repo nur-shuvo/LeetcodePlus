@@ -40,7 +40,7 @@ class WeeklyGoalStatusMonitor @Inject constructor(
                         val filterByGoalStartDate = filteredSubmissionsAfterGoalStart(it)
                         var isAtLeastOneProblemSolvedToday = false
                         var isAtLeastOneProblemTriedToday = false
-                        var countOfAc = 0
+                        val countOfAc = mutableSetOf<String>()
                         filterByGoalStartDate.forEach { sub ->
                             val submissionLocalDate =
                                 LocalDate.parse(sub.timestamp, formatter2)
@@ -52,7 +52,7 @@ class WeeklyGoalStatusMonitor @Inject constructor(
                                 }
                             }
                             if (sub.statusDisplay == "Accepted") {
-                                countOfAc++
+                                countOfAc.add(sub.titleSlug)
                             }
                         }
                         val currentNotificationMessage: String
@@ -62,7 +62,7 @@ class WeeklyGoalStatusMonitor @Inject constructor(
                         } else if (isAtLeastOneProblemTriedToday) {
                             currentNotificationMessage =
                                 "You're close to solving the problem, try once more!"
-                        } else if (countOfAc == 7) {
+                        } else if (countOfAc.size == 7) {
                             currentNotificationMessage = "Whoa! You're done with weekly goal!"
                         } else {
                             currentNotificationMessage = "Hey! Please solve today's problem!"

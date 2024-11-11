@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.targetstatus
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
+import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
@@ -11,7 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,36 +31,79 @@ class GoalProgressViewModel @Inject constructor(
     fun init() {
         viewModelScope.launch(Dispatchers.IO) {
             combine(
-                userDetailsRepository.getUserRecentAcSubmissions(),
+                userDetailsRepository.getUserLastSubmissions(),
                 goalRepository.weeklyGoal
-            ) { recentSubmissions, goalProblems ->
-                val completedTitles = recentSubmissions?.filter { sub ->
-                    goalProblems?.toProblems()?.any { it.title == sub.title } == true
-                }?.map {
-                    it.title
-                } ?: emptyList()
-
-                goalProblems?.toProblems()?.map {
-                    if (it.title in completedTitles) {
-                        ProblemStatus(
-                            title = it.title,
-                            status = "Completed",
-                            difficulty = it.difficulty,
-                            attemptsCount = 1,
-                        )
-                    } else {
-                        ProblemStatus(
-                            title = it.title,
-                            status = "Not Started",
-                            difficulty = it.difficulty,
-                            attemptsCount = 0,
-                        )
+            ) { submissions, goalProblems ->
+                val res = mutableListOf<ProblemStatus>()
+                submissions?.let {
+                    val validList = filteredSubmissionsAfterGoalStart(it)
+                    goalProblems?.toProblems()?.forEach { goalProblem ->
+                        val attemptCnt = validList.count { v ->
+                            v.titleSlug == goalProblem.titleSlug
+                        }
+                        val isCompleted = validList.any { v ->
+                            v.statusDisplay == "Accepted"
+                                    && v.titleSlug == goalProblem.titleSlug
+                        }
+                        if (isCompleted) {
+                            res.add(
+                                ProblemStatus(
+                                    title = goalProblem.title,
+                                    status = "Completed",
+                                    difficulty = goalProblem.difficulty,
+                                    attemptsCount = attemptCnt,
+                                )
+                            )
+                        } else if (attemptCnt > 0) {
+                            res.add(
+                                ProblemStatus(
+                                    title = goalProblem.title,
+                                    status = "In Progress",
+                                    difficulty = goalProblem.difficulty,
+                                    attemptsCount = attemptCnt,
+                                )
+                            )
+                        } else {
+                            res.add(
+                                ProblemStatus(
+                                    title = goalProblem.title,
+                                    status = "Not Started",
+                                    difficulty = goalProblem.difficulty,
+                                    attemptsCount = attemptCnt,
+                                )
+                            )
+                        }
                     }
                 }
+                res
             }.collect {
-                if (it != null)
-                    _uiState.value = ProgressUiState(it)
+                _uiState.value = ProgressUiState(it)
             }
         }
     }
+
+    // TODO Need to refactor to avoid reuse same code
+    private suspend fun filteredSubmissionsAfterGoalStart(
+        userSubmissions: List<UserSubmission>
+    ): List<UserSubmission> {
+        val goalEntity = goalRepository.weeklyGoal.first()
+        val goalStartDate =
+            goalEntity?.toWeeklyGoalPeriod()?.startDate
+        val parsedGoalStartDateTime = LocalDate.parse(goalStartDate, formatter1).atStartOfDay()
+        return userSubmissions.filter { submission ->
+            val submissionDateTime =
+                LocalDateTime.parse(submission.timestamp, formatter2)
+            val isIncludedInGoal = goalEntity?.toProblems()
+                ?.map { it.titleSlug }
+                ?.contains(submission.titleSlug) == true
+            isIncludedInGoal && submissionDateTime.isAfter(parsedGoalStartDateTime)
+        }
+    }
+
+    companion object {
+        private val formatter1: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
+        private val formatter2: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("MMMM dd, yyyy HH:mm:ss a")
+    }
+
 }

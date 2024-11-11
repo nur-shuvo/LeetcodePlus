@@ -157,7 +157,7 @@ fun ProblemCard(problemStatus: ProblemStatus) {
                 Text(
                     text = "Attempts Count: ${problemStatus.attemptsCount}",
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = Color.DarkGray
                 )
             }
 
