@@ -35,7 +35,9 @@ fun LeetCodePlusNavGraph(
         }
 
         composable(route = LeetCodePlusNavigationDestinations.GOAL_STATUS_ROUTE) {
-            GoalProgressScreen()
+            GoalProgressScreen {
+                navigationActions.popCurrentDestination()
+            }
         }
 
         composable(route = LeetCodePlusNavigationDestinations.USER_PROFILE_ROUTE) {

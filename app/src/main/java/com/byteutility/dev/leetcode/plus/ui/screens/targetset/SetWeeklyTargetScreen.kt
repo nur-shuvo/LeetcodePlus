@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,14 +61,21 @@ fun SetWeeklyTargetScreen(onPopCurrent: () -> Unit = {}) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "Set Weekly Goals") },
+            TopAppBar(
+                title = { Text(text = "Set Weekly Goals") },
                 navigationIcon = {
                     IconButton(
                         onClick = { onPopCurrent() }
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
                     }
-                })
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFABDEF5).copy(
+                        alpha = 0.1f
+                    )
+                )
+            )
         },
     ) { innerPadding ->
         var selectedProblems by remember { mutableStateOf<List<LeetCodeProblem>>(emptyList()) }
