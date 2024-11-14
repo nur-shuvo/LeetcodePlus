@@ -33,11 +33,14 @@ class GoalProgressViewModel @Inject constructor(
             combine(
                 userDetailsRepository.getUserLastSubmissions(),
                 goalRepository.weeklyGoal
-            ) { submissions, goalProblems ->
+            ) { submissions, weeklyGoal ->
+                weeklyGoal?.let {
+                    _uiState.value = _uiState.value.copy(period = it.toWeeklyGoalPeriod())
+                }
                 val res = mutableListOf<ProblemStatus>()
                 submissions?.let {
                     val validList = filteredSubmissionsAfterGoalStart(it)
-                    goalProblems?.toProblems()?.forEach { goalProblem ->
+                    weeklyGoal?.toProblems()?.forEach { goalProblem ->
                         val attemptCnt = validList.count { v ->
                             v.titleSlug == goalProblem.titleSlug
                         }
@@ -77,7 +80,7 @@ class GoalProgressViewModel @Inject constructor(
                 }
                 res
             }.collect {
-                _uiState.value = ProgressUiState(it)
+                _uiState.value = _uiState.value.copy(problemsWithStatus = it)
             }
         }
     }

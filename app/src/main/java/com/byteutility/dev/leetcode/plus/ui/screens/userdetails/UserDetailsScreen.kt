@@ -1,11 +1,14 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,9 +18,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,8 +40,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -170,48 +185,164 @@ fun UserProblemCategoryStats(
 
 @Composable
 fun UserProfileCard(user: UserBasicInfo) {
+    val gradientBrush = Brush.horizontalGradient(
+        colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
+    )
+
     Card(
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clip(RoundedCornerShape(16.dp)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(gradientBrush)
+                .padding(16.dp)
         ) {
-            AsyncImage(
-                model = user.avatar,
-                contentDescription = "User avatar",
-                placeholder = painterResource(id = R.drawable.icon_article_background),
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(text = user.name)
-                Text(text = "Country: ${user.country}")
-                Text(text = "Ranking: ${user.ranking}")
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Avatar image
+                AsyncImage(
+                    model = user.avatar,
+                    placeholder = painterResource(R.drawable.profile_placeholder),
+                    contentDescription = "User avatar",
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, Color.White, CircleShape)
+                )
+
+                // User information
+                Column(modifier = Modifier.fillMaxHeight()) {
+                    // User name
+                    Text(
+                        text = user.name,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = Color.White,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Country with icon
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Public,
+                            contentDescription = "Country",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Country: ${user.country}",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Ranking with icon
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Ranking",
+                            tint = Color.Yellow,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Ranking: ${user.ranking}",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                        )
+                    }
+                }
             }
         }
     }
 }
 
+
 @Composable
 fun UserStatisticsCard(user: UserContestInfo) {
+    val gradientBrush = Brush.horizontalGradient(
+        colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
+    )
+
     Card(
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clip(RoundedCornerShape(16.dp)),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Box(
+            modifier = Modifier
+                .background(gradientBrush)
+                .padding(16.dp)
         ) {
-            Text(text = "Contest Rating: ${user.rating}")
-            Text(text = "Global Ranking: ${user.globalRanking}")
-            Text(text = "Attend: ${user.attend} days")
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Rating",
+                        tint = Color.Yellow,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Contest Rating: ${String.format("%.3f", user.rating)}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
+                    )
+                }
+                Divider(color = Color.White.copy(alpha = 0.5f), thickness = 1.dp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Leaderboard,
+                        contentDescription = "Global Ranking",
+                        tint = Color.Cyan,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Global Ranking: ${user.globalRanking}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
+                    )
+                }
+                Divider(color = Color.White.copy(alpha = 0.5f), thickness = 1.dp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.CalendarToday,
+                        contentDescription = "Attend Days",
+                        tint = Color.Magenta,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Attend: ${user.attend} days",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
+                    )
+                }
+            }
         }
     }
 }
+
 
 @Composable
 fun ProblemCategoriesSolved(
@@ -349,7 +480,51 @@ fun PreviewUserDetails() {
                 easy = 4592,
                 medium = 5761,
                 hard = 6990
-            ), userSubmissions = listOf()
+            ), userSubmissions = submissions
         ),
+    )
+}
+
+@Composable
+fun DateRow(startDate: String, endDate: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        DateItem(label = "Start Date", date = startDate)
+        Spacer(modifier = Modifier.width(16.dp))
+        DateItem(label = "End Date", date = endDate)
+    }
+}
+
+@Composable
+fun DateItem(label: String, date: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray
+            )
+        )
+        Text(
+            text = date,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDateRow() {
+    DateRow(
+        startDate = "2024-11-15",
+        endDate = "2024-11-20"
     )
 }

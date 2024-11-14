@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
+import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
 import com.byteutility.dev.leetcode.plus.ui.common.done
 import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 
@@ -91,6 +94,9 @@ fun ProgressScreenContent(
                 modifier = Modifier
                     .padding(top = 8.dp, start = 10.dp, end = 10.dp)
             ) {
+                item {
+                    DateRow(uiState.period.startDate, uiState.period.endDate)
+                }
                 items(uiState.problemsWithStatus) {
                     ProblemCard(it)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -190,6 +196,40 @@ fun ProblemCard(problemStatus: ProblemStatus) {
     }
 }
 
+@Composable
+fun DateRow(startDate: String, endDate: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        DateItem(label = "Start Date", date = startDate)
+        Spacer(modifier = Modifier.width(16.dp))
+        DateItem(label = "End Date", date = endDate)
+    }
+}
+
+@Composable
+fun DateItem(label: String, date: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray
+            )
+        )
+        Text(
+            text = date,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        )
+    }
+}
 
 @Composable
 @Preview
@@ -215,5 +255,10 @@ fun LeetCodeProgressScreenPreview() {
             ProblemStatus("Climbing Stairs", "Completed", "Easy", 2)
         )
     }
-    ProgressScreenContent(ProgressUiState(problemStatuses)) {}
+    ProgressScreenContent(
+        ProgressUiState(
+            problemStatuses,
+            WeeklyGoalPeriod("14 June 2024", "21 June 2024")
+        )
+    ) {}
 }

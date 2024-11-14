@@ -74,7 +74,6 @@ dependencies {
     kapt(libs.hilt.compiler)
     kapt(libs.androidx.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
-//    implementation(libs.ehsannarmani.compose.charts)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.androidx.work)
@@ -84,6 +83,7 @@ dependencies {
     implementation(libs.coil.network)
     implementation(libs.bytebeats.charts)
     implementation(libs.androidx.splashscreen)
+    implementation(libs.androidx.material.icons.extended)
     kapt(libs.room.compiler)
 
     testImplementation(libs.junit)

@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 data class UserDetailsUiState(
@@ -68,7 +70,6 @@ class UserDetailsViewModel @Inject constructor(
         )
 
     init {
-
         viewModelScope.launch {
             userDetailsRepository
                 .getUserBasicInfo()
@@ -112,6 +113,18 @@ class UserDetailsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             goalRepository.weeklyGoal.collect {
                 isWeeklyGoalSet.value = (it != null)
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
+            goalRepository.weeklyGoal.collect { goal ->
+                if (goal != null) {
+                    val endDate = LocalDate.parse(goal.toWeeklyGoalPeriod().endDate, formatter)
+                    if (LocalDate.now().isAfter(endDate)) {
+                        goalRepository.deleteWeeklyGoal()
+                    }
+                }
             }
         }
     }
