@@ -8,8 +8,7 @@ Additionally, you can set your own weekly goal through this application and this
 - **Weekly Goals Tracking**: Set weekly problem-solving targets, track your progress, and stay motivated to achieve your goals.
 - **Recent Submissions & User Stats**: Keep tabs on your latest Accepted submissions and view detailed user statistics from LeetCode.
 
-### Screenshots
--
+## Screenshots
 <p align="center">
     <img src="./ss/Home.png" alt="Screenshot 1" width="200"/>
     <img src="./ss/Goal.png" alt="Screenshot 2" width="200"/>
