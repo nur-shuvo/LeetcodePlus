@@ -1,5 +1,5 @@
 # LeetCode Android Client 📱
-This is an unofficial native Android leetcode client that may help you to focus on your leetcode problem solving journey! This app has notification features that reminds you of leetcode daily problem if you did not solve a day. 
+This is an unofficial native Android leetcode client that may help you to focus on your leetcode problem solving journey! This app has notification features that reminds you of leetcode daily problem if you did not solve a day.
 Additionally, you can set your own weekly goal through this application and this app will remind you about your progress! And many more features are coming! 🚀
 
 ## Key Features 🌟
@@ -14,6 +14,16 @@ This app leverages modern Android development technologies:
 
 ### 🖌️ UI
 - **Jetpack Compose**: Build beautiful, declarative, and responsive UI with minimal code.
+
+### Screenshots
+<p align="center">
+    <img src="./ss/Home.png" alt="Screenshot 1" width="150"/>
+    <img src="./ss/Goal.png" alt="Screenshot 2" width="150"/>
+    <img src="./ss/Goal-Dialog.png" alt="Screenshot 3" width="150"/>
+    <img src="./ss/Goal-Status.png" alt="Screenshot 4" width="150"/>
+    <img src="./ss/Goal-Notification-1.png" alt="Screenshot 5" width="150"/>
+    <img src="./ss/Goal-Notification-2.png" alt="Screenshot 6" width="150"/>
+</p>
 
 ### 🔄 Asynchronous API Handling
 - **Kotlin Coroutines**: Lightweight threads for efficient background processing.
