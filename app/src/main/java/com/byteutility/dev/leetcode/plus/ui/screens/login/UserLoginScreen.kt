@@ -34,7 +34,7 @@ import com.byteutility.dev.leetcode.plus.R
 @Composable
 fun UserLoginScreen(
     viewModel: UserLoginViewModel = hiltViewModel(),
-    onProceedClick: () -> Unit = {}
+    onProceedClick: () -> Unit = {},
 ) {
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -42,7 +42,7 @@ fun UserLoginScreen(
     when (loginState) {
         is UserLoginViewModel.LoginState.Idle -> {
             LeetCodeUsernameScreen { username ->
-                viewModel.saveUserName(username)
+                viewModel.saveUserName(username, context)
             }
         }
 
@@ -61,7 +61,7 @@ fun UserLoginScreen(
                 ).show()
             }
             LeetCodeUsernameScreen { username ->
-                viewModel.saveUserName(username)
+                viewModel.saveUserName(username, context)
             }
         }
 

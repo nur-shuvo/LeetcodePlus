@@ -64,7 +64,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        UserDetailsSyncWorker.enqueuePeriodicWork(this)
         ReminderNotificationWorker.enqueuePeriodicWork(this)
         goalStatusMonitor.start()
         dailyProblemStatusMonitor.start()

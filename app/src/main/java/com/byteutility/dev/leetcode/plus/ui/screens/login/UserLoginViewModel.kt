@@ -1,9 +1,11 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.login
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
+import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,15 +30,17 @@ class UserLoginViewModel @Inject constructor(
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState = _loginState.asStateFlow()
 
-    fun saveUserName(userName: String) {
+    fun saveUserName(userName: String, context: Context) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
             try {
+                // TODO: need parse message if user name does not exist
                 restApiService.getUserProfile(userName)
                 userDatastore.saveUserBasicInfo(
                     userBasicInfo = UserBasicInfo(userName = userName)
                 )
                 _loginState.value = LoginState.Success(userName)
+                UserDetailsSyncWorker.enqueuePeriodicWork(context)
             } catch (_: Exception) {
                 _loginState.value = LoginState.Error("Failed to retrieve user profile.")
             }
