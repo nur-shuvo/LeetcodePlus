@@ -8,22 +8,22 @@ Additionally, you can set your own weekly goal through this application and this
 - **Weekly Goals Tracking**: Set weekly problem-solving targets, track your progress, and stay motivated to achieve your goals.
 - **Recent Submissions & User Stats**: Keep tabs on your latest Accepted submissions and view detailed user statistics from LeetCode.
 
+### Screenshots
+<p align="center">
+    <img src="./ss/Home.png" alt="Screenshot 1" width="200"/>
+    <img src="./ss/Goal.png" alt="Screenshot 2" width="200"/>
+    <img src="./ss/Goal-Dialog.png" alt="Screenshot 3" width="200"/>
+    <img src="./ss/Goal-Status.png" alt="Screenshot 4" width="200"/>
+    <img src="./ss/Goal-Notification-1.png" alt="Screenshot 5" width="200"/>
+    <img src="./ss/Goal-Notification-2.png" alt="Screenshot 6" width="200"/>
+</p>
+
 ## Built With 🛠️
 
 This app leverages modern Android development technologies:
 
 ### 🖌️ UI
 - **Jetpack Compose**: Build beautiful, declarative, and responsive UI with minimal code.
-
-### Screenshots
-<p align="center">
-    <img src="./ss/Home.png" alt="Screenshot 1" width="150"/>
-    <img src="./ss/Goal.png" alt="Screenshot 2" width="150"/>
-    <img src="./ss/Goal-Dialog.png" alt="Screenshot 3" width="150"/>
-    <img src="./ss/Goal-Status.png" alt="Screenshot 4" width="150"/>
-    <img src="./ss/Goal-Notification-1.png" alt="Screenshot 5" width="150"/>
-    <img src="./ss/Goal-Notification-2.png" alt="Screenshot 6" width="150"/>
-</p>
 
 ### 🔄 Asynchronous API Handling
 - **Kotlin Coroutines**: Lightweight threads for efficient background processing.
