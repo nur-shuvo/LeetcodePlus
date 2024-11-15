@@ -23,11 +23,16 @@ class ReminderNotificationWorker @AssistedInject constructor(
 ) : Worker(appContext, workerParameters) {
 
     override fun doWork(): Result {
-        val notificationMessage = runBlocking {
-            notificationDataStore.getCurrentNotification().firstOrNull()
-                ?: "You are few steps away to start your goal"
+        runBlocking {
+            notificationDataStore.getCurrentGoalNotification().firstOrNull()
+        }?.let {
+            NotificationHandler.createWeeklyGoalNotification(appContext, it)
         }
-        NotificationHandler.createReminderNotification(appContext, notificationMessage)
+        runBlocking {
+            notificationDataStore.getCurrentDailyProblemNotification().firstOrNull()
+        }?.let {
+            NotificationHandler.createDailyProblemNotification(appContext, it)
+        }
         return Result.success()
     }
 

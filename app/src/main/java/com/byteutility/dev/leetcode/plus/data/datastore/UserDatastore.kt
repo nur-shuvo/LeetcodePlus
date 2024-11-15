@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
@@ -131,6 +132,26 @@ class UserDatastore @Inject constructor(
             val jsonString = gson.toJson(updated + existing)
             preferences[stringPreferencesKey("user_last_submissions")] = jsonString
         }
+    }
+
+    suspend fun saveDailyProblem(
+        problem: LeetCodeProblem
+    ) {
+        context.userPreferencesDataStore.edit { preferences ->
+            val jsonString = gson.toJson(problem)
+            preferences[stringPreferencesKey("daily_problem")] = jsonString
+        }
+    }
+
+    fun getDailyProblem(): Flow<LeetCodeProblem?> {
+        return context.userPreferencesDataStore.data
+            .catch {
+                emit(emptyPreferences())
+            }
+            .map { preferences ->
+                val jsonString = preferences[stringPreferencesKey("daily_problem")] ?: ""
+                gson.fromJson(jsonString, LeetCodeProblem::class.java)
+            }
     }
 
     fun getUserLastSubmissions(): Flow<List<UserSubmission>?> {

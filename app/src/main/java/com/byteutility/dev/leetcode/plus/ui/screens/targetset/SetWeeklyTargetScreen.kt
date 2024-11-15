@@ -113,19 +113,15 @@ fun ProblemSelection(
     Column(
         modifier = Modifier
             .background(Color.White)
-            .padding(16.dp)
+            .then(modifier)
     ) {
-
-        Spacer(modifier = Modifier.height(30.dp))
-
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
             placeholder = { Text("Search problems...", fontSize = 18.sp) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(80.dp)
-                .padding(top = 27.dp),
+                .height(55.dp),
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.White,

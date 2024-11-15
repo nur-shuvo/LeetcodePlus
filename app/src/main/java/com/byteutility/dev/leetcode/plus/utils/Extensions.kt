@@ -1,9 +1,11 @@
 package com.byteutility.dev.leetcode.plus.utils
 
+import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import com.byteutility.dev.leetcode.plus.network.responseVo.DailyQuestionResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.SubmissionVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserContestVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserProfileVo
@@ -57,4 +59,12 @@ fun UserSolvedVo.toInternalModel() =
         medium = this.mediumSolved,
         hard = this.hardSolved,
         totalSolved = this.solvedProblem,
+    )
+
+fun DailyQuestionResponse.toInternalModel() =
+    LeetCodeProblem(
+        title = this.questionTitle,
+        difficulty = this.difficulty,
+        tag = this.topicTags.firstOrNull()?.name ?: "NO_TAG",
+        titleSlug = this.titleSlug
     )

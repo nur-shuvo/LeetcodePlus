@@ -8,6 +8,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
+import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import com.byteutility.dev.leetcode.plus.utils.toInternalModel
@@ -27,6 +28,7 @@ class UserDetailsSyncWorker @AssistedInject constructor(
     private val userDatastore: UserDatastore,
     private val restApiService: RestApiService,
     private val goalStatusMonitor: WeeklyGoalStatusMonitor,
+    private val dailyProblemStatusMonitor: DailyProblemStatusMonitor,
 ) : CoroutineWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
@@ -44,19 +46,25 @@ class UserDetailsSyncWorker @AssistedInject constructor(
                         async { restApiService.getLastSubmissions(userName, 20) }
                     val userSolvedDeferred =
                         async { restApiService.getSolved(userName) }
+                    val dailyProblemDeferred =
+                        async { restApiService.getDailyProblem() }
 
                     val userProfile = userProfileDeferred.await()
                     val userContest = userContestDeferred.await()
                     val userAcSubmission = userAcSubmissionDeferred.await()
                     val userLastSubmissions = userLastSubmissionsDeferred.await()
                     val userSolved = userSolvedDeferred.await()
+                    val dailProblem = dailyProblemDeferred.await()
+
                     userDatastore.saveUserBasicInfo(userProfile.toInternalModel())
                     userDatastore.saveUserContestInfo(userContest.toInternalModel())
                     userDatastore.saveUserAcSubmissions(userAcSubmission.toInternalModel())
                     userDatastore.saveUserLastSubmissions(userLastSubmissions.toInternalModel())
                     userDatastore.saveUserProblemSolvedInfo(userSolved.toInternalModel())
+                    userDatastore.saveDailyProblem(dailProblem.toInternalModel())
 
                     goalStatusMonitor.start()
+                    dailyProblemStatusMonitor.start()
                     delay(1.seconds)
 
                     Result.success()

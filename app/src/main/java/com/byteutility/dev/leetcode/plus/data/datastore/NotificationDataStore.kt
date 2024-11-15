@@ -22,16 +22,30 @@ class NotificationDataStore @Inject constructor(
         name = "notification_datastore"
     )
 
-    suspend fun saveCurrentNotification(message: String) {
+    suspend fun saveCurrentGoalNotification(message: String) {
         context.dataStore.edit { preferences ->
-            preferences[stringPreferencesKey("notification")] = message
+            preferences[stringPreferencesKey("goal_notification")] = message
         }
     }
 
-    fun getCurrentNotification(): Flow<String> {
+    fun getCurrentGoalNotification(): Flow<String> {
         return context.dataStore.data
             .map { preferences ->
-                preferences[stringPreferencesKey("notification")] ?: ""
+                preferences[stringPreferencesKey("goal_notification")] ?: ""
             }
     }
+
+    suspend fun saveCurrentDailyProblemNotification(message: String) {
+        context.dataStore.edit { preferences ->
+            preferences[stringPreferencesKey("leetcode_daily_notification")] = message
+        }
+    }
+
+    fun getCurrentDailyProblemNotification(): Flow<String> {
+        return context.dataStore.data
+            .map { preferences ->
+                preferences[stringPreferencesKey("leetcode_daily_notification")] ?: ""
+            }
+    }
+
 }

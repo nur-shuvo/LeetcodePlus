@@ -65,10 +65,10 @@ class WeeklyGoalStatusMonitor @Inject constructor(
                         } else if (countOfAc.size == 7) {
                             currentNotificationMessage = "Whoa! You're done with weekly goal!"
                         } else {
-                            currentNotificationMessage = "Hey! Please solve today's problem!"
+                            currentNotificationMessage = "Hey! Please solve today's weekly target problem!"
                         }
                         _showNotification.emit(currentNotificationMessage)
-                        notificationDataStore.saveCurrentNotification(
+                        notificationDataStore.saveCurrentGoalNotification(
                             currentNotificationMessage
                         )
                     }
