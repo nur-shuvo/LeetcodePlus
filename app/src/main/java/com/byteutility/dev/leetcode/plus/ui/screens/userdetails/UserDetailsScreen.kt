@@ -123,12 +123,18 @@ fun UserProfileContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 UserProfileCard(uiState.userBasicInfo)
                 UserStatisticsCard(uiState.userContestInfo)
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
-                Text("Recent AC", fontSize = 16.sp)
+                Text(
+                    "Recent AC",
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(top = 8.dp),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
 
@@ -207,7 +213,6 @@ fun UserProfileCard(user: UserBasicInfo) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Avatar image
                 AsyncImage(
                     model = user.avatar,
                     placeholder = painterResource(R.drawable.profile_placeholder),
@@ -218,9 +223,7 @@ fun UserProfileCard(user: UserBasicInfo) {
                         .border(2.dp, Color.White, CircleShape)
                 )
 
-                // User information
                 Column(modifier = Modifier.fillMaxHeight()) {
-                    // User name
                     Text(
                         text = user.name,
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
@@ -228,10 +231,7 @@ fun UserProfileCard(user: UserBasicInfo) {
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
-
-                    // Country with icon
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Public,
@@ -248,7 +248,6 @@ fun UserProfileCard(user: UserBasicInfo) {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Ranking with icon
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Star,
@@ -267,7 +266,6 @@ fun UserProfileCard(user: UserBasicInfo) {
         }
     }
 }
-
 
 @Composable
 fun UserStatisticsCard(user: UserContestInfo) {
@@ -348,7 +346,6 @@ fun UserStatisticsCard(user: UserContestInfo) {
 fun ProblemCategoriesSolved(
     userProblemSolvedInfo: UserProblemSolvedInfo,
 ) {
-    // Easy Category
     ProblemCategoryBox(
         category = "Easy",
         solved = userProblemSolvedInfo.easy,
@@ -356,7 +353,6 @@ fun ProblemCategoriesSolved(
         backgroundColor = Color(0xFFE0F7FA)
     )
 
-    // Medium Category
     ProblemCategoryBox(
         category = "Medium",
         solved = userProblemSolvedInfo.medium,
@@ -364,7 +360,6 @@ fun ProblemCategoriesSolved(
         backgroundColor = Color(0xFFFFF9C4)
     )
 
-    // Hard Category
     ProblemCategoryBox(
         category = "Hard",
         solved = userProblemSolvedInfo.hard,
@@ -403,19 +398,39 @@ fun SubmissionItem(submission: UserSubmission) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = "Title: ${submission.title}")
-            Text(text = "Date: ${submission.timestamp}")
-            Text(text = "Language: ${submission.lang}")
+            Text(
+                text = "Title: ${submission.title}",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color(0xFF323232)
+            )
+            Text(
+                text = "Date: ${submission.timestamp}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF757575)
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Language: ${submission.lang}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF323232)
+                )
+            }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -482,49 +497,5 @@ fun PreviewUserDetails() {
                 hard = 6990
             ), userSubmissions = submissions
         ),
-    )
-}
-
-@Composable
-fun DateRow(startDate: String, endDate: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        DateItem(label = "Start Date", date = startDate)
-        Spacer(modifier = Modifier.width(16.dp))
-        DateItem(label = "End Date", date = endDate)
-    }
-}
-
-@Composable
-fun DateItem(label: String, date: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                color = Color.Gray
-            )
-        )
-        Text(
-            text = date,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDateRow() {
-    DateRow(
-        startDate = "2024-11-15",
-        endDate = "2024-11-20"
     )
 }

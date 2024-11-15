@@ -35,10 +35,9 @@ class ReminderNotificationWorker @AssistedInject constructor(
         fun enqueuePeriodicWork(context: Context) {
             val notificationRequest =
                 PeriodicWorkRequestBuilder<ReminderNotificationWorker>(
-                    15,
-                    TimeUnit.MINUTES
-                ) // TODO For testing it is 15 minutes, it would be 1+ hour
-                    .addTag("TAG_REMINDER_WORKER")
+                    1,
+                    TimeUnit.HOURS
+                ).addTag("TAG_REMINDER_WORKER")
                     .build()
             WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(
