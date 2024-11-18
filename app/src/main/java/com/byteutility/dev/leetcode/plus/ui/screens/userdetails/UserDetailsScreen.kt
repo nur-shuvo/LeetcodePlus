@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -128,13 +129,23 @@ fun UserProfileContent(
                 UserProfileCard(uiState.userBasicInfo)
                 UserStatisticsCard(uiState.userContestInfo)
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
-                Text(
-                    "Recent AC",
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(top = 8.dp),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
+
+                if (uiState.userSubmissions.isEmpty()) {
+                    Text(
+                        text = "You have no recent submissions",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                } else {
+                    Text(
+                        "Recent AC",
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(top = 8.dp, start = 8.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
@@ -166,7 +177,7 @@ fun UserProblemCategoryStats(
     userProblemSolvedInfo: UserProblemSolvedInfo,
 ) {
     Box(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.padding(8.dp).fillMaxWidth()
     ) {
         Card(
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -398,7 +409,7 @@ fun SubmissionItem(submission: UserSubmission) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 24.dp, vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
