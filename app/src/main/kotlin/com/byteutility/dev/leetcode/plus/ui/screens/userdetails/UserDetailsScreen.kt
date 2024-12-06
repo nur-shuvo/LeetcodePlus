@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,11 +38,17 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -57,6 +64,8 @@ import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.bytebeats.views.charts.pie.PieChart
 import me.bytebeats.views.charts.pie.PieChartData
 import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
@@ -68,10 +77,12 @@ import me.bytebeats.views.charts.simpleChartAnimation
 fun UserProfileScreen(
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
+    onTroubleShoot: () -> Unit = {},
 ) {
     val viewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    UserProfileLayout(uiState, onSetGoal, onGoalStatus)
+    viewModel.startsSync(LocalContext.current)
+    UserProfileLayout(uiState, onSetGoal, onGoalStatus, onTroubleShoot)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,11 +91,37 @@ fun UserProfileLayout(
     uiState: UserDetailsUiState,
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
+    onTroubleShoot: () -> Unit = {}
 ) {
+    var clickCount by remember { mutableIntStateOf(0) }
+    var lastClickTime by remember { mutableStateOf(0L) }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "My Profile") },
+                title = {
+                    /**
+                     * 5 times click in a shorter period will open troubleshoot page
+                     */
+                    Text(text = "My Profile", modifier = Modifier.clickable {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime <= 1000) {
+                            clickCount++
+                            if (clickCount == 5) {
+                                onTroubleShoot.invoke()
+                                clickCount = 0
+                            }
+                        } else {
+                            clickCount = 1
+                        }
+                        lastClickTime = currentTime
+                        scope.launch {
+                            delay(2000)
+                            clickCount = 0
+                        }
+                    })
+                },
                 actions = {
                     TextButton(onClick = {
                         if (uiState.isWeeklyGoalSet) {
@@ -177,7 +214,9 @@ fun UserProblemCategoryStats(
     userProblemSolvedInfo: UserProblemSolvedInfo,
 ) {
     Box(
-        modifier = modifier.padding(8.dp).fillMaxWidth()
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxWidth()
     ) {
         Card(
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),

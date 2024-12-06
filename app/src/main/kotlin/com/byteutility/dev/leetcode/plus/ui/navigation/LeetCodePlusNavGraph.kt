@@ -5,11 +5,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetset.SetWeeklyTargetScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetstatus.GoalProgressScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.userdetails.UserProfileScreen
-
 
 @Composable
 fun LeetCodePlusNavGraph(
@@ -46,8 +46,14 @@ fun LeetCodePlusNavGraph(
                     navigationActions.navigateToSetGoal()
                 }, {
                     navigationActions.navigateToGoalStatus()
+                },
+                {
+                    navigationActions.navigateToTroubleShoot()
                 }
             )
+        }
+        composable(route = LeetCodePlusNavigationDestinations.TROUBLE_SHOOT_ROUTE) {
+            TroubleShootScreen()
         }
     }
 }
