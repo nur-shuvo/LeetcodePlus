@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
@@ -8,6 +9,7 @@ import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
+import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -128,4 +130,6 @@ class UserDetailsViewModel @Inject constructor(
             }
         }
     }
+
+    fun startsSync(context: Context) = UserDetailsSyncWorker.enqueuePeriodicWork(context)
 }

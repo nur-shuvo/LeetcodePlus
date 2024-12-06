@@ -8,6 +8,7 @@ object LeetCodePlusNavigationDestinations {
     const val SET_GOAL_ROUTE = "set_goal"
     const val LOGIN_ROUTE = "login"
     const val GOAL_STATUS_ROUTE = "goal_status"
+    const val TROUBLE_SHOOT_ROUTE = "trouble_shoot"
 }
 
 class LeetCodePlusNavigation(navController: NavController) {
@@ -42,5 +43,11 @@ class LeetCodePlusNavigation(navController: NavController) {
 
     val popCurrentDestination: () -> Unit = {
         navController.popBackStack()
+    }
+
+    val navigateToTroubleShoot: () -> Unit = {
+        navController.navigate(LeetCodePlusNavigationDestinations.TROUBLE_SHOOT_ROUTE) {
+            launchSingleTop = true
+        }
     }
 }
