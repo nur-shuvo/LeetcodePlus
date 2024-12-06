@@ -25,7 +25,7 @@ class ReminderNotificationWorker @AssistedInject constructor(
     override fun doWork(): Result {
         runBlocking {
             notificationDataStore.getCurrentGoalNotification().firstOrNull()
-        }?.let {
+        }?.takeIf { it.isNotEmpty() }?.let {
             NotificationHandler.createWeeklyGoalNotification(appContext, it)
         }
         runBlocking {
