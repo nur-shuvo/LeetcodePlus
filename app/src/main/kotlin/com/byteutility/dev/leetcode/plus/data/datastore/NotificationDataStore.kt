@@ -35,6 +35,12 @@ class NotificationDataStore @Inject constructor(
             }
     }
 
+    suspend fun clearCurrentGoalNotification() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(stringPreferencesKey("goal_notification"))
+        }
+    }
+
     suspend fun saveCurrentDailyProblemNotification(message: String) {
         context.dataStore.edit { preferences ->
             preferences[stringPreferencesKey("leetcode_daily_notification")] = message
