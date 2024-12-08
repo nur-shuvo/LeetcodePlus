@@ -27,9 +27,11 @@ class DailyProblemStatusMonitor @Inject constructor(
     private var monitorJob: Job? = null
 
     private val showNotification = MutableSharedFlow<String>()
-    val dailyProblemSolved: Flow<Boolean> = showNotification.map {
-        it == "Great! You've solved today's Leetcode daily!"
-    }
+
+    val dailyProblemSolved: Flow<Boolean> =
+        notificationDataStore.getCurrentDailyProblemNotification().map {
+            it == "Great! You've solved today's Leetcode daily!"
+        }
 
     fun start() {
         if (monitorJob != null) return
