@@ -2,6 +2,8 @@
 This is an unofficial native Android leetcode client that may help you to focus on your leetcode problem solving journey! This app has notification features that reminds you of leetcode daily problem if you did not solve a day.
 Additionally, you can set your own weekly goal through this application and this app will remind you about your progress! And many more features are coming! 🚀
 
+Get the latest snapshot of development version: https://t.ly/myQ6X
+
 ## Key Features 🌟
 
 - **Daily Reminder Notifications**: Stay on top of your coding practice with daily notifications based on your **LeetCode daily problem progress**.
