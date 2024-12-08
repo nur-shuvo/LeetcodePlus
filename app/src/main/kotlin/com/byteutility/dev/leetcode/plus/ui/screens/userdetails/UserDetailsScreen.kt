@@ -1,6 +1,7 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,8 +38,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -60,6 +63,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.byteutility.dev.leetcode.plus.R
+import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
@@ -70,7 +74,7 @@ import me.bytebeats.views.charts.pie.PieChart
 import me.bytebeats.views.charts.pie.PieChartData
 import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
 import me.bytebeats.views.charts.simpleChartAnimation
-
+import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -81,20 +85,31 @@ fun UserProfileScreen(
 ) {
     val viewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
+    val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
     viewModel.startsSync(LocalContext.current)
-    UserProfileLayout(uiState, onSetGoal, onGoalStatus, onTroubleShoot)
+    UserProfileLayout(
+        uiState,
+        dailyProblem,
+        dailyProblemSolved,
+        onSetGoal,
+        onGoalStatus,
+        onTroubleShoot
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileLayout(
     uiState: UserDetailsUiState,
+    dailyProblem: LeetCodeProblem,
+    dailyProblemSolved: Boolean,
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
     onTroubleShoot: () -> Unit = {}
 ) {
     var clickCount by remember { mutableIntStateOf(0) }
-    var lastClickTime by remember { mutableStateOf(0L) }
+    var lastClickTime by remember { mutableLongStateOf(0L) }
     val scope = rememberCoroutineScope()
 
     Scaffold(
@@ -144,13 +159,20 @@ fun UserProfileLayout(
             )
         },
     ) { paddingValues ->
-        UserProfileContent(uiState, Modifier.padding(paddingValues))
+        UserProfileContent(
+            uiState,
+            dailyProblem,
+            dailyProblemSolved,
+            Modifier.padding(paddingValues)
+        )
     }
 }
 
 @Composable
 fun UserProfileContent(
     uiState: UserDetailsUiState,
+    dailyProblem: LeetCodeProblem,
+    dailyProblemSolved: Boolean,
     modifier: Modifier
 ) {
     LazyColumn(
@@ -164,6 +186,11 @@ fun UserProfileContent(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 UserProfileCard(uiState.userBasicInfo)
+                DailyProblemCard(
+                    title = dailyProblem.title,
+                    if (dailyProblemSolved) "Completed"
+                    else "Pending"
+                )
                 UserStatisticsCard(uiState.userContestInfo)
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
 
@@ -188,6 +215,32 @@ fun UserProfileContent(
 
         items(uiState.userSubmissions) { submission ->
             SubmissionItem(submission = submission)
+        }
+    }
+}
+
+@Composable
+private fun DailyProblemCard(
+    title: String = "Two Sum",
+    verdict: String = "Completed"
+) {
+    var animatedContent by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1.seconds)
+            animatedContent = !animatedContent
+        }
+    }
+    Crossfade(
+        targetState = animatedContent,
+        label = ""
+    ) { state ->
+        when (state) {
+            true -> LeetcodeDailyProblemText()
+            false -> LeetcodeDailyProblemCard(
+                title,
+                verdict
+            )
         }
     }
 }
@@ -248,7 +301,7 @@ fun UserProfileCard(user: UserBasicInfo) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(4.dp)
             .clip(RoundedCornerShape(16.dp)),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -317,6 +370,97 @@ fun UserProfileCard(user: UserBasicInfo) {
     }
 }
 
+
+@Composable
+fun LeetcodeDailyProblemCard(
+    title: String = "Two Sum",
+    verdict: String = "Completed"
+) {
+    val backgroundColor = when (verdict) {
+        "Completed" -> Color(0xFFD1FAD7)
+        "Pending" -> Color(0xFFFDE2E4)
+        else -> Color.LightGray
+    }
+    val textColor = when (verdict) {
+        "Completed" -> Color(0xFF217346)
+        "Pending" -> Color(0xFFB00020)
+        else -> Color.Black
+    }
+
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .background(backgroundColor)
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.Black
+                )
+                Text(
+                    text = verdict,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = textColor,
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun LeetcodeDailyProblemText(
+) {
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "LeetCode Daily Problem",
+                    fontSize = 18.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.Blue,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun UserStatisticsCard(user: UserContestInfo) {
     val gradientBrush = Brush.horizontalGradient(
@@ -326,7 +470,7 @@ fun UserStatisticsCard(user: UserContestInfo) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(4.dp)
             .clip(RoundedCornerShape(16.dp)),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -547,5 +691,7 @@ fun PreviewUserDetails() {
                 hard = 6990
             ), userSubmissions = submissions
         ),
+        LeetCodeProblem("Two Sum", "", ""),
+        false
     )
 }

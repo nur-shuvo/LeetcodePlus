@@ -7,9 +7,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -25,8 +26,10 @@ class DailyProblemStatusMonitor @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var monitorJob: Job? = null
 
-    private var _showNotification = MutableSharedFlow<String>()
-    val showNotification = _showNotification.asSharedFlow()
+    private val showNotification = MutableSharedFlow<String>()
+    val dailyProblemSolved: Flow<Boolean> = showNotification.map {
+        it == "Great! You've solved today's Leetcode daily!"
+    }
 
     fun start() {
         if (monitorJob != null) return
@@ -47,7 +50,7 @@ class DailyProblemStatusMonitor @Inject constructor(
                         "Hey! Please solve today's daily! Did you forget?"
                     }
 
-                    _showNotification.emit(currentNotificationMessage)
+                    showNotification.emit(currentNotificationMessage)
                     notificationDataStore.saveCurrentDailyProblemNotification(
                         currentNotificationMessage
                     )

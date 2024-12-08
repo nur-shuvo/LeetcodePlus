@@ -2,6 +2,7 @@ package com.byteutility.dev.leetcode.plus.data.repository.userDetails
 
 import android.content.Context
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
+import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
@@ -35,5 +36,9 @@ class UserDetailsRepositoryImpl @Inject constructor(
 
     override suspend fun getUserLastSubmissions(): Flow<List<UserSubmission>?> {
         return userDatastore.getUserLastSubmissions()
+    }
+
+    override suspend fun getDailyProblem(): Flow<LeetCodeProblem?> {
+        return userDatastore.getDailyProblem()
     }
 }

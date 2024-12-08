@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.data.repository.userDetails
 
+import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
@@ -12,4 +13,5 @@ interface UserDetailsRepository {
     suspend fun getUserProblemSolvedInfo(): Flow<UserProblemSolvedInfo?>
     suspend fun getUserRecentAcSubmissions(): Flow<List<UserSubmission>?>
     suspend fun getUserLastSubmissions(): Flow<List<UserSubmission>?>
+    suspend fun getDailyProblem(): Flow<LeetCodeProblem?>
 }

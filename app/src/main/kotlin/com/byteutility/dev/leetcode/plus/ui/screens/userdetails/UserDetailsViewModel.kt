@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
@@ -10,11 +11,13 @@ import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
+import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,6 +37,7 @@ data class UserDetailsUiState(
 class UserDetailsViewModel @Inject constructor(
     private val userDetailsRepository: UserDetailsRepository,
     private val goalRepository: WeeklyGoalRepository,
+    private val dailyProblemStatusMonitor: DailyProblemStatusMonitor
 ) : ViewModel() {
 
     private val userBasicInfo =
@@ -46,10 +50,21 @@ class UserDetailsViewModel @Inject constructor(
         MutableStateFlow(UserProblemSolvedInfo())
 
     private val userSubmissions =
-        MutableStateFlow<List<UserSubmission>>(value = listOf())
+        MutableStateFlow<List<UserSubmission>>(listOf())
 
     private val isWeeklyGoalSet = MutableStateFlow(false)
 
+    private val _dailyProblem =
+        MutableStateFlow(LeetCodeProblem("", "", ""))
+    val dailyProblem = _dailyProblem.asStateFlow()
+
+    val dailyProblemSolved = dailyProblemStatusMonitor.dailyProblemSolved.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        false
+    )
+
+    // TODO Combine does not accept more than 5 args, need to find a cleaner way to add more flows
     val uiState: StateFlow<UserDetailsUiState> =
         combine(
             userBasicInfo,
@@ -126,6 +141,14 @@ class UserDetailsViewModel @Inject constructor(
                     if (LocalDate.now().isAfter(endDate)) {
                         goalRepository.deleteWeeklyGoal()
                     }
+                }
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            userDetailsRepository.getDailyProblem().collect {
+                if (it != null) {
+                    _dailyProblem.value = it
                 }
             }
         }
