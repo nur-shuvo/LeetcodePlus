@@ -33,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -204,10 +205,8 @@ fun UserProfileContent(
                 } else {
                     Text(
                         "Recent AC",
-                        fontSize = 16.sp,
                         modifier = Modifier.padding(top = 8.dp, start = 8.dp),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleMedium,
                     )
                 }
             }
@@ -271,8 +270,10 @@ fun UserProblemCategoryStats(
             .padding(8.dp)
             .fillMaxWidth()
     ) {
-        Card(
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = MaterialTheme.shapes.large,
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -387,37 +388,43 @@ fun LeetcodeDailyProblemCard(
         else -> Color.Black
     }
 
-    Card(
-        shape = RoundedCornerShape(8.dp),
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(120.dp)
             .padding(4.dp)
     ) {
-        Row(
+        Surface(
             modifier = Modifier
-                .background(backgroundColor)
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth()
+                .height(120.dp),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            onClick = {}
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
+            Row(
+                modifier = Modifier
+                    .background(backgroundColor)
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color.Black
-                )
-                Text(
-                    text = verdict,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = textColor,
-                    style = MaterialTheme.typography.titleSmall
-                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = title,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = verdict,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = textColor
+                    )
+                }
             }
         }
     }
@@ -426,36 +433,37 @@ fun LeetcodeDailyProblemCard(
 @Composable
 fun LeetcodeDailyProblemText(
 ) {
-    Card(
-        shape = RoundedCornerShape(8.dp),
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(120.dp)
             .padding(4.dp)
     ) {
-        Row(
+        Surface(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth()
+                .height(120.dp),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            onClick = {}
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "LeetCode Daily Problem",
-                    fontSize = 18.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color.Blue,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.titleSmall
-                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "LeetCode Daily Problem",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
         }
     }
@@ -466,24 +474,22 @@ fun UserStatisticsCard(user: UserContestInfo) {
     val gradientBrush = Brush.horizontalGradient(
         colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
     )
-
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp)
-            .clip(RoundedCornerShape(16.dp)),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Box(
+        Surface(
             modifier = Modifier
-                .background(gradientBrush)
-                .padding(16.dp)
+                .fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            onClick = {}
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -496,8 +502,9 @@ fun UserStatisticsCard(user: UserContestInfo) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Contest Rating: ${String.format("%.3f", user.rating)}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 Divider(color = Color.White.copy(alpha = 0.5f), thickness = 1.dp)
@@ -511,8 +518,9 @@ fun UserStatisticsCard(user: UserContestInfo) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Global Ranking: ${user.globalRanking}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 Divider(color = Color.White.copy(alpha = 0.5f), thickness = 1.dp)
@@ -526,8 +534,9 @@ fun UserStatisticsCard(user: UserContestInfo) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Attend: ${user.attend} days",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -589,37 +598,46 @@ fun ProblemCategoryBox(category: String, solved: Int, total: Int, backgroundColo
 
 @Composable
 fun SubmissionItem(submission: UserSubmission) {
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            onClick = {}
         ) {
-            Text(
-                text = "Title: ${submission.title}",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color(0xFF323232)
-            )
-            Text(
-                text = "Date: ${submission.timestamp}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF757575)
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "Language: ${submission.lang}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF323232)
+                    maxLines = 2,
+                    minLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    text = "Title: ${submission.title}",
+                    style = MaterialTheme.typography.titleMedium,
                 )
+                Text(
+                    text = "Date: ${submission.timestamp}",
+                    maxLines = 2,
+                    minLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "Language: ${submission.lang}",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
         }
     }
@@ -693,5 +711,18 @@ fun PreviewUserDetails() {
         ),
         LeetCodeProblem("Two Sum", "", ""),
         false
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSubmissionItem() {
+    SubmissionItem(
+        submission = UserSubmission(
+            lang = "volumus",
+            statusDisplay = "veri",
+            timestamp = "eu",
+            title = "reformidans",
+        )
     )
 }
