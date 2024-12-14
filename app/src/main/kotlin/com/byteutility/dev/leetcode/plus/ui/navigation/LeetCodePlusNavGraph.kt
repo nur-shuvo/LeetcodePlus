@@ -47,9 +47,17 @@ fun LeetCodePlusNavGraph(
         }
 
         composable(route = LeetCodePlusNavigationDestinations.GOAL_STATUS_ROUTE) {
-            GoalProgressScreen {
-                navigationActions.popCurrentDestination()
-            }
+            GoalProgressScreen(
+                {
+                    navigationActions.popCurrentDestination()
+                },
+                { url ->
+                    navigationActions.navigateToWebView(
+                        url,
+                        LeetCodePlusNavigationDestinations.GOAL_STATUS_ROUTE
+                    )
+                }
+            )
         }
 
         composable(route = LeetCodePlusNavigationDestinations.USER_PROFILE_ROUTE) {
