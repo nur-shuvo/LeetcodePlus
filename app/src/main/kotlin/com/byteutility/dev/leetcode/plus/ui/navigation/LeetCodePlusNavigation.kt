@@ -9,6 +9,7 @@ object LeetCodePlusNavigationDestinations {
     const val LOGIN_ROUTE = "login"
     const val GOAL_STATUS_ROUTE = "goal_status"
     const val TROUBLE_SHOOT_ROUTE = "trouble_shoot"
+    const val WEB_VIEW_ROUTE = "web_view"
 }
 
 class LeetCodePlusNavigation(navController: NavController) {
@@ -47,6 +48,14 @@ class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToTroubleShoot: () -> Unit = {
         navController.navigate(LeetCodePlusNavigationDestinations.TROUBLE_SHOOT_ROUTE) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToWebView: (String, String) -> Unit = { url, caller ->
+        navController.navigate(
+            LeetCodePlusNavigationDestinations.WEB_VIEW_ROUTE + "/" + url + "/" + caller
+        ) {
             launchSingleTop = true
         }
     }
