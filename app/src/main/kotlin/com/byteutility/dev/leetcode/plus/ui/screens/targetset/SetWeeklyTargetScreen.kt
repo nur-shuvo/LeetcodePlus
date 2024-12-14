@@ -221,7 +221,6 @@ fun ProblemItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(backgroundColor)
-//                .clickable { onProblemSelected(!isSelected) }
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
