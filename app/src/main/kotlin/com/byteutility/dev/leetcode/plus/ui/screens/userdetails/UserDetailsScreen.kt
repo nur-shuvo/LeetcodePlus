@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Leaderboard
@@ -299,21 +298,16 @@ fun UserProfileCard(user: UserBasicInfo) {
         colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
     )
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .clip(RoundedCornerShape(16.dp)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+    Box(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(gradientBrush)
-                .padding(16.dp)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = MaterialTheme.shapes.large,
         ) {
             Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -330,10 +324,9 @@ fun UserProfileCard(user: UserBasicInfo) {
                 Column(modifier = Modifier.fillMaxHeight()) {
                     Text(
                         text = user.name,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium,
                         overflow = TextOverflow.Ellipsis,
-                        maxLines = 1
+                        maxLines = 2
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -346,7 +339,7 @@ fun UserProfileCard(user: UserBasicInfo) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Country: ${user.country}",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
 
@@ -362,7 +355,7 @@ fun UserProfileCard(user: UserBasicInfo) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Ranking: ${user.ranking}",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
@@ -392,7 +385,6 @@ fun LeetcodeDailyProblemCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(120.dp)
-            .padding(4.dp)
     ) {
         Surface(
             modifier = Modifier
@@ -438,7 +430,6 @@ fun LeetcodeDailyProblemText(
         modifier = Modifier
             .fillMaxWidth()
             .height(120.dp)
-            .padding(4.dp)
     ) {
         Surface(
             modifier = Modifier

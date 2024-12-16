@@ -16,16 +16,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -92,34 +90,29 @@ fun ProgressScreenContent(
         ) {
             LazyColumn(
                 modifier = Modifier
-                    .padding(top = 8.dp, start = 10.dp, end = 10.dp)
+                    .padding(top = 8.dp, start = 16.dp, end = 16.dp)
             ) {
                 item {
                     DateRow(uiState.period.startDate, uiState.period.endDate)
                 }
                 items(uiState.problemsWithStatus) {
                     ProblemCard(it)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
-            Image(
-                painter = painterResource(id = R.drawable.img),
-                contentDescription = null,
-                contentScale = ContentScale.FillHeight,
-                modifier = Modifier.fillMaxSize(),
-                alpha = 0.08f
-            )
+//            Image(
+//                painter = painterResource(id = R.drawable.img),
+//                contentDescription = null,
+//                contentScale = ContentScale.FillHeight,
+//                modifier = Modifier.fillMaxSize(),
+//                alpha = 0.08f
+//            )
         }
     }
 }
 
 @Composable
 fun ProblemCard(problemStatus: ProblemStatus) {
-    val backgroundColor = when (problemStatus.status) {
-        "Completed" -> Color(0xFFE8F5E9)
-        "In Progress" -> Color(0xFFFFF8E1)
-        else -> Color(0xFFF3E5F5)
-    }
 
     val statusColor = when (problemStatus.status) {
         "Completed" -> Color(0xFF4CAF50)
@@ -127,69 +120,68 @@ fun ProblemCard(problemStatus: ProblemStatus) {
         else -> Color(0xFF9C27B0)
     }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
-            .background(backgroundColor),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    Box(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surfaceContainer
         ) {
-            Column(
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = problemStatus.title,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Status: ${problemStatus.status}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = statusColor
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Attempts Count: ${problemStatus.attemptsCount}",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Color.DarkGray
-                )
-            }
-
-            if (problemStatus.status == "In Progress" || problemStatus.status == "Not Started") {
-                Image(
+                Column(
                     modifier = Modifier
-                        .size(38.dp),
-                    painter = painterResource(R.drawable.baseline_pending_24),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(statusColor)
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .background(Color(0xFF4CAF50), shape = CircleShape)
-                        .clip(CircleShape)
+                        .fillMaxWidth(0.8f)
                 ) {
+                    Text(
+                        text = problemStatus.title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Status: ${problemStatus.status}",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = statusColor
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Attempts Count: ${problemStatus.attemptsCount}",
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                }
+
+                if (problemStatus.status == "In Progress" || problemStatus.status == "Not Started") {
                     Image(
                         modifier = Modifier
-                            .size(32.dp)
-                            .align(Alignment.Center),
-                        imageVector = done,
+                            .size(38.dp),
+                        painter = painterResource(R.drawable.baseline_pending_24),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(Color.White)
+                        colorFilter = ColorFilter.tint(statusColor)
                     )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(Color(0xFF4CAF50), shape = CircleShape)
+                            .clip(CircleShape)
+                    ) {
+                        Image(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .align(Alignment.Center),
+                            imageVector = done,
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(Color.White)
+                        )
+                    }
                 }
             }
         }
@@ -201,7 +193,7 @@ fun DateRow(startDate: String, endDate: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
