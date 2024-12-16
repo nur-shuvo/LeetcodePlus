@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,9 +32,22 @@ class SetWeeklyTargetViewModel @Inject constructor(
     private val _popCurrentDestination = MutableSharedFlow<Unit>()
     val popCurrentDestination = _popCurrentDestination.asSharedFlow()
 
+    private val _selectedProblems = MutableStateFlow<List<LeetCodeProblem>>(emptyList())
+    val selectedProblems = _selectedProblems.asStateFlow()
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             problemsList.value = problemsRepository.getProblems(limit = 3000)
+        }
+    }
+
+    fun onProblemSelected(problem: LeetCodeProblem, selected: Boolean) {
+        if (_selectedProblems.value.size < 7 || selectedProblems.value.contains(problem)) {
+            _selectedProblems.value = if (selected) {
+                _selectedProblems.value + problem
+            } else {
+                _selectedProblems.value - problem
+            }
         }
     }
 
