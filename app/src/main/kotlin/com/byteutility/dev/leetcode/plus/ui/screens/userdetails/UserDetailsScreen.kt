@@ -266,7 +266,6 @@ fun UserProblemCategoryStats(
 ) {
     Box(
         modifier = modifier
-            .padding(8.dp)
             .fillMaxWidth()
     ) {
         Surface(
@@ -468,7 +467,6 @@ fun UserStatisticsCard(user: UserContestInfo) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp)
     ) {
         Surface(
             modifier = Modifier
@@ -592,7 +590,7 @@ fun SubmissionItem(submission: UserSubmission) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
