@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +55,8 @@ fun SetWeeklyTargetScreen(
     onNavigateToWebView: (String) -> Unit = {}
 ) {
     val viewModel: SetWeeklyTargetViewModel = hiltViewModel()
-    val problems = viewModel.problemsList.collectAsStateWithLifecycle()
+    val problems by viewModel.problemsList.collectAsStateWithLifecycle()
+    val selectedProblems by viewModel.selectedProblems.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.popCurrentDestination.collect {
@@ -81,17 +83,22 @@ fun SetWeeklyTargetScreen(
             )
         },
     ) { innerPadding ->
-        var selectedProblems by remember { mutableStateOf<List<LeetCodeProblem>>(emptyList()) }
+        var needToShowConfirmDialog by rememberSaveable { mutableStateOf(false) }
         ProblemSelection(
-            Modifier.padding(innerPadding), problems = problems.value, {
+            selectedProblems = selectedProblems,
+            modifier = Modifier.padding(innerPadding),
+            problems = problems, {
                 Log.i("SetWeeklyTargetScreen", "Problems selected for week")
-                selectedProblems = it
+                needToShowConfirmDialog = true
             },
-            onNavigateToWebView
+            onNavigateToWebView = onNavigateToWebView,
+            onProblemSelected = { problem, selected ->
+                viewModel.onProblemSelected(problem, selected)
+            }
         )
-        if (selectedProblems.isNotEmpty()) {
-            WeeklyGoalSetDialog {
-                viewModel.handleWeeklyGoalSet(selectedProblems, it)
+        if (needToShowConfirmDialog) {
+            WeeklyGoalSetDialog { period ->
+                viewModel.handleWeeklyGoalSet(selectedProblems, period)
             }
         }
     }
@@ -99,12 +106,13 @@ fun SetWeeklyTargetScreen(
 
 @Composable
 fun ProblemSelection(
+    selectedProblems: List<LeetCodeProblem>,
     modifier: Modifier = Modifier,
     problems: List<LeetCodeProblem>,
     onConfirm: (List<LeetCodeProblem>) -> Unit,
-    onNavigateToWebView: (String) -> Unit = {}
+    onNavigateToWebView: (String) -> Unit = {},
+    onProblemSelected: (LeetCodeProblem, Boolean) -> Unit
 ) {
-    var selectedProblems by remember { mutableStateOf<List<LeetCodeProblem>>(emptyList()) }
     var currentPage by remember { mutableIntStateOf(0) }
     var searchText by remember { mutableStateOf("") }
 
@@ -148,13 +156,7 @@ fun ProblemSelection(
                     problem = problem,
                     isSelected = selectedProblems.contains(problem),
                     onProblemSelected = { selected ->
-                        if (selectedProblems.size < 7 || selectedProblems.contains(problem)) {
-                            selectedProblems = if (selected) {
-                                selectedProblems + problem
-                            } else {
-                                selectedProblems - problem
-                            }
-                        }
+                        onProblemSelected.invoke(problem, selected)
                     },
                     onNavigateToWebView
                 )
@@ -251,12 +253,13 @@ fun ProblemSelectionPreview() {
         },
     ) { innerPadding ->
         ProblemSelection(
+            problems,
             Modifier.padding(innerPadding),
             problems = problems,
-            {}
-        ) { selectedProblems ->
-            println("Confirmed Problems: $selectedProblems")
-        }
+            {},
+            onNavigateToWebView = {},
+            onProblemSelected = { _, _ -> },
+        )
     }
 }
 

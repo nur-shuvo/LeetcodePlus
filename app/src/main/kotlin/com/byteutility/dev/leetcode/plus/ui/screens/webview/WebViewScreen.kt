@@ -67,6 +67,8 @@ fun WebViewLayout(url: String, modifier: Modifier = Modifier) {
                 setSupportZoom(true)
                 builtInZoomControls = true
                 displayZoomControls = false
+                // TODO Commented now though this desktop mode works but very long width not fit in mobile screen, later we will go with this with correct configuration
+                // setDesktopMode(true)
             }
             setLayerType(WebView.LAYER_TYPE_HARDWARE, null)
             webViewClient = object : WebViewClient() {
@@ -84,3 +86,19 @@ fun WebViewLayout(url: String, modifier: Modifier = Modifier) {
         modifier = Modifier.then(modifier)
     )
 }
+
+fun WebView.setDesktopMode(enabled: Boolean) {
+    val webSettings = getSettings()
+    val newUserAgent = if (enabled) {
+        webSettings.userAgentString.replace("Mobile", "eliboM").replace("Android", "diordnA")
+    } else {
+        webSettings.userAgentString.replace("eliboM", "Mobile").replace("diordnA", "Android")
+    }
+
+    webSettings.userAgentString = newUserAgent
+    webSettings.useWideViewPort = true
+    webSettings.loadWithOverviewMode = enabled
+    webSettings.setSupportZoom(enabled)
+    webSettings.builtInZoomControls = enabled
+}
+
