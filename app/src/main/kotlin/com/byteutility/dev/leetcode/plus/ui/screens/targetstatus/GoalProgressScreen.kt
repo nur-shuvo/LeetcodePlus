@@ -1,7 +1,9 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.targetstatus
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,18 +54,22 @@ import com.byteutility.dev.leetcode.plus.ui.common.done
 import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 
 @Composable
-fun GoalProgressScreen(onPopCurrent: () -> Unit) {
+fun GoalProgressScreen(
+    onPopCurrent: () -> Unit = {},
+    onNavigateToWebView: (String) -> Unit = {}
+) {
     val viewmodel: GoalProgressViewModel = hiltViewModel()
     viewmodel.init()
     val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
-    ProgressScreenContent(uiState, onPopCurrent)
+    ProgressScreenContent(uiState, onPopCurrent, onNavigateToWebView)
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ProgressScreenContent(
     uiState: ProgressUiState,
-    onPopCurrent: () -> Unit
+    onPopCurrent: () -> Unit = {},
+    onNavigateToWebView: (String) -> Unit = {}
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -98,7 +104,7 @@ fun ProgressScreenContent(
                     DateRow(uiState.period.startDate, uiState.period.endDate)
                 }
                 items(uiState.problemsWithStatus) {
-                    ProblemCard(it)
+                    ProblemCard(it, onNavigateToWebView)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -114,7 +120,10 @@ fun ProgressScreenContent(
 }
 
 @Composable
-fun ProblemCard(problemStatus: ProblemStatus) {
+fun ProblemCard(
+    problemStatus: ProblemStatus,
+    onNavigateToWebView: (String) -> Unit = {}
+) {
     val backgroundColor = when (problemStatus.status) {
         "Completed" -> Color(0xFFE8F5E9)
         "In Progress" -> Color(0xFFFFF8E1)
@@ -130,6 +139,11 @@ fun ProblemCard(problemStatus: ProblemStatus) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                val encodedUrl =
+                    Uri.encode("https://leetcode.com/problems/${problemStatus.titleSlug}/description")
+                onNavigateToWebView.invoke(encodedUrl)
+            }
             .padding(vertical = 8.dp, horizontal = 16.dp)
             .background(backgroundColor),
         shape = RoundedCornerShape(12.dp),
@@ -236,23 +250,25 @@ fun DateItem(label: String, date: String) {
 fun LeetCodeProgressScreenPreview() {
     val problemStatuses = remember {
         listOf(
-            ProblemStatus("Two Sum", "Not Started", "Easy", 0),
+            ProblemStatus("Two Sum", "two-sum", "Not Started", "Easy", 0),
             ProblemStatus(
                 "Longest Substring Without Repeating Characters",
+                "two-sum",
                 "In Progress",
                 "Medium",
                 1,
             ),
             ProblemStatus(
                 "Median of Two Sorted Arrays",
+                "two-sum",
                 "Completed",
                 "Hard",
                 1,
             ),
-            ProblemStatus("Add Two Numbers", "Not Started", "Medium", 0),
-            ProblemStatus("Valid Parentheses", "In Progress", "Easy", 5),
-            ProblemStatus("Merge Two Sorted Lists", "Not Started", "Easy", 0),
-            ProblemStatus("Climbing Stairs", "Completed", "Easy", 2)
+            ProblemStatus("Add Two Numbers", "two-sum", "Not Started", "Medium", 0),
+            ProblemStatus("Valid Parentheses", "two-sum", "In Progress", "Easy", 5),
+            ProblemStatus("Merge Two Sorted Lists", "two-sum", "Not Started", "Easy", 0),
+            ProblemStatus("Climbing Stairs", "two-sum", "Completed", "Easy", 2)
         )
     }
     ProgressScreenContent(

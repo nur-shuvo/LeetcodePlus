@@ -52,6 +52,7 @@ class GoalProgressViewModel @Inject constructor(
                             res.add(
                                 ProblemStatus(
                                     title = goalProblem.title,
+                                    titleSlug = goalProblem.titleSlug,
                                     status = "Completed",
                                     difficulty = goalProblem.difficulty,
                                     attemptsCount = attemptCnt,
@@ -61,6 +62,7 @@ class GoalProgressViewModel @Inject constructor(
                             res.add(
                                 ProblemStatus(
                                     title = goalProblem.title,
+                                    titleSlug = goalProblem.titleSlug,
                                     status = "In Progress",
                                     difficulty = goalProblem.difficulty,
                                     attemptsCount = attemptCnt,
@@ -70,6 +72,7 @@ class GoalProgressViewModel @Inject constructor(
                             res.add(
                                 ProblemStatus(
                                     title = goalProblem.title,
+                                    titleSlug = goalProblem.titleSlug,
                                     status = "Not Started",
                                     difficulty = goalProblem.difficulty,
                                     attemptsCount = attemptCnt,

@@ -1,6 +1,7 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -82,6 +83,7 @@ fun UserProfileScreen(
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
     onTroubleShoot: () -> Unit = {},
+    onNavigateToWebView: (String) -> Unit = {}
 ) {
     val viewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -94,7 +96,8 @@ fun UserProfileScreen(
         dailyProblemSolved,
         onSetGoal,
         onGoalStatus,
-        onTroubleShoot
+        onTroubleShoot,
+        onNavigateToWebView
     )
 }
 
@@ -106,7 +109,8 @@ fun UserProfileLayout(
     dailyProblemSolved: Boolean,
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
-    onTroubleShoot: () -> Unit = {}
+    onTroubleShoot: () -> Unit = {},
+    onNavigateToWebView: (String) -> Unit = {}
 ) {
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
@@ -163,7 +167,8 @@ fun UserProfileLayout(
             uiState,
             dailyProblem,
             dailyProblemSolved,
-            Modifier.padding(paddingValues)
+            onNavigateToWebView,
+            Modifier.padding(paddingValues),
         )
     }
 }
@@ -173,7 +178,8 @@ fun UserProfileContent(
     uiState: UserDetailsUiState,
     dailyProblem: LeetCodeProblem,
     dailyProblemSolved: Boolean,
-    modifier: Modifier
+    onNavigateToWebView: (String) -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize()
@@ -189,7 +195,9 @@ fun UserProfileContent(
                 DailyProblemCard(
                     title = dailyProblem.title,
                     if (dailyProblemSolved) "Completed"
-                    else "Pending"
+                    else "Pending",
+                    titleSlug = dailyProblem.titleSlug,
+                    onNavigateToWebView
                 )
                 UserStatisticsCard(uiState.userContestInfo)
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
@@ -222,7 +230,9 @@ fun UserProfileContent(
 @Composable
 private fun DailyProblemCard(
     title: String = "Two Sum",
-    verdict: String = "Completed"
+    verdict: String = "Completed",
+    titleSlug: String = "",
+    onNavigateToWebView: (String) -> Unit = {}
 ) {
     var animatedContent by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
@@ -233,7 +243,12 @@ private fun DailyProblemCard(
     }
     Crossfade(
         targetState = animatedContent,
-        label = ""
+        label = "",
+        modifier = Modifier.clickable {
+            val encodedUrl =
+                Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
+            onNavigateToWebView.invoke(encodedUrl)
+        }
     ) { state ->
         when (state) {
             true -> LeetcodeDailyProblemText()
