@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Star
@@ -50,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -227,38 +229,38 @@ fun UserProfileContent(
     }
 }
 
-@Composable
-private fun DailyProblemCard(
-    title: String = "Two Sum",
-    verdict: String = "Completed",
-    titleSlug: String = "",
-    onNavigateToWebView: (String) -> Unit = {}
-) {
-    var animatedContent by remember { mutableStateOf(true) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(1.seconds)
-            animatedContent = !animatedContent
-        }
-    }
-    Crossfade(
-        targetState = animatedContent,
-        label = "",
-        modifier = Modifier.clickable {
-            val encodedUrl =
-                Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
-            onNavigateToWebView.invoke(encodedUrl)
-        }
-    ) { state ->
-        when (state) {
-            true -> LeetcodeDailyProblemText()
-            false -> LeetcodeDailyProblemCard(
-                title,
-                verdict
-            )
-        }
-    }
-}
+//@Composable
+//private fun DailyProblemCard(
+//    title: String = "Two Sum",
+//    verdict: String = "Completed",
+//    titleSlug: String = "",
+//    onNavigateToWebView: (String) -> Unit = {}
+//) {
+//    var animatedContent by remember { mutableStateOf(true) }
+//    LaunchedEffect(Unit) {
+//        while (true) {
+//            delay(1.seconds)
+//            animatedContent = !animatedContent
+//        }
+//    }
+//    Crossfade(
+//        targetState = animatedContent,
+//        label = "",
+//        modifier = Modifier.clickable {
+//            val encodedUrl =
+//                Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
+//            onNavigateToWebView.invoke(encodedUrl)
+//        }
+//    ) { state ->
+//        when (state) {
+//            true -> LeetcodeDailyProblemText()
+//            false -> LeetcodeDailyProblemCard(
+//                title,
+//                verdict
+//            )
+//        }
+//    }
+//}
 
 @Composable
 fun UserPieChart(userProblemSolvedInfo: UserProblemSolvedInfo) {
@@ -386,95 +388,94 @@ fun UserProfileCard(user: UserBasicInfo) {
 }
 
 
-@Composable
-fun LeetcodeDailyProblemCard(
-    title: String = "Two Sum",
-    verdict: String = "Completed"
-) {
-    val backgroundColor = when (verdict) {
-        "Completed" -> Color(0xFFD1FAD7)
-        "Pending" -> Color(0xFFFDE2E4)
-        else -> Color.LightGray
-    }
-    val textColor = when (verdict) {
-        "Completed" -> Color(0xFF217346)
-        "Pending" -> Color(0xFFB00020)
-        else -> Color.Black
-    }
-
-    Card(
-        shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .background(backgroundColor)
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color.Black
-                )
-                Text(
-                    text = verdict,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = textColor,
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun LeetcodeDailyProblemText(
-) {
-    Card(
-        shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "LeetCode Daily Problem",
-                    fontSize = 18.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color.Blue,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-        }
-    }
-}
+//@Composable
+//fun LeetcodeDailyProblemCard(
+//    title: String = "Two Sum",
+//    verdict: String = "Completed"
+//) {
+//    val backgroundColor = when (verdict) {
+//        "Completed" -> Color(0xFFD1FAD7)
+//        "Pending" -> Color(0xFFFDE2E4)
+//        else -> Color.LightGray
+//    }
+//    val textColor = when (verdict) {
+//        "Completed" -> Color(0xFF217346)
+//        "Pending" -> Color(0xFFB00020)
+//        else -> Color.Black
+//    }
+//
+//    Card(
+//        shape = RoundedCornerShape(8.dp),
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(4.dp)
+//    ) {
+//        Row(
+//            modifier = Modifier
+//                .background(backgroundColor)
+//                .padding(16.dp)
+//                .fillMaxWidth(),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Column(
+//                modifier = Modifier.weight(1f)
+//            ) {
+//                Text(
+//                    text = title,
+//                    fontSize = 18.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis,
+//                    color = Color.Black
+//                )
+//                Text(
+//                    text = verdict,
+//                    fontSize = 14.sp,
+//                    fontWeight = FontWeight.Medium,
+//                    color = textColor,
+//                    style = MaterialTheme.typography.titleSmall
+//                )
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun LeetcodeDailyProblemText() {
+//    Card(
+//        shape = RoundedCornerShape(8.dp),
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(4.dp)
+//    ) {
+//        Row(
+//            modifier = Modifier
+//                .padding(16.dp)
+//                .fillMaxWidth(),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Column(
+//                modifier = Modifier.weight(1f),
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//                Text(
+//                    text = "LeetCode Daily Problem",
+//                    fontSize = 18.sp,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis,
+//                    color = Color.Blue,
+//                    fontWeight = FontWeight.Bold
+//                )
+//                Text(
+//                    text = "",
+//                    fontSize = 14.sp,
+//                    fontWeight = FontWeight.Medium,
+//                    style = MaterialTheme.typography.titleSmall
+//                )
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun UserStatisticsCard(user: UserContestInfo) {
@@ -549,7 +550,6 @@ fun UserStatisticsCard(user: UserContestInfo) {
         }
     }
 }
-
 
 @Composable
 fun ProblemCategoriesSolved(
@@ -634,6 +634,127 @@ fun SubmissionItem(submission: UserSubmission) {
                     text = "Language: ${submission.lang}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0xFF323232)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DailyProblemCard(
+    title: String = "Two Sum",
+    verdict: String = "Completed",
+    titleSlug: String = "",
+    onNavigateToWebView: (String) -> Unit = {}
+) {
+    var animatedContent by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            animatedContent = true
+            delay(1.seconds.inWholeMilliseconds)
+            animatedContent = false
+            delay(5.seconds.inWholeMilliseconds)
+        }
+    }
+
+    Crossfade(
+        targetState = animatedContent,
+        label = "",
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable {
+                val encodedUrl = Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
+                onNavigateToWebView.invoke(encodedUrl)
+            }
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
+    ) { state ->
+        when (state) {
+            true -> ProblemTextPlaceholder()
+            false -> ProblemDetailsCard(title, verdict)
+        }
+    }
+}
+
+@Composable
+fun ProblemTextPlaceholder() {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "LeetCode Daily Problem",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Solve today for a streak!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ProblemDetailsCard(
+    title: String = "Two Sum",
+    verdict: String = "Completed"
+) {
+    val backgroundColor = when (verdict) {
+        "Completed" -> MaterialTheme.colorScheme.secondaryContainer
+        "Pending" -> MaterialTheme.colorScheme.errorContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+    val textColor = when (verdict) {
+        "Completed" -> MaterialTheme.colorScheme.onSecondaryContainer
+        "Pending" -> MaterialTheme.colorScheme.onErrorContainer
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = verdict,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = textColor
                 )
             }
         }
