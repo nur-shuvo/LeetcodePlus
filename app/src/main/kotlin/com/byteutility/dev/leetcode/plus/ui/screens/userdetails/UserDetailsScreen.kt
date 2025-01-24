@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Star
@@ -229,39 +228,6 @@ fun UserProfileContent(
     }
 }
 
-//@Composable
-//private fun DailyProblemCard(
-//    title: String = "Two Sum",
-//    verdict: String = "Completed",
-//    titleSlug: String = "",
-//    onNavigateToWebView: (String) -> Unit = {}
-//) {
-//    var animatedContent by remember { mutableStateOf(true) }
-//    LaunchedEffect(Unit) {
-//        while (true) {
-//            delay(1.seconds)
-//            animatedContent = !animatedContent
-//        }
-//    }
-//    Crossfade(
-//        targetState = animatedContent,
-//        label = "",
-//        modifier = Modifier.clickable {
-//            val encodedUrl =
-//                Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
-//            onNavigateToWebView.invoke(encodedUrl)
-//        }
-//    ) { state ->
-//        when (state) {
-//            true -> LeetcodeDailyProblemText()
-//            false -> LeetcodeDailyProblemCard(
-//                title,
-//                verdict
-//            )
-//        }
-//    }
-//}
-
 @Composable
 fun UserPieChart(userProblemSolvedInfo: UserProblemSolvedInfo) {
     PieChart(
@@ -386,96 +352,6 @@ fun UserProfileCard(user: UserBasicInfo) {
         }
     }
 }
-
-
-//@Composable
-//fun LeetcodeDailyProblemCard(
-//    title: String = "Two Sum",
-//    verdict: String = "Completed"
-//) {
-//    val backgroundColor = when (verdict) {
-//        "Completed" -> Color(0xFFD1FAD7)
-//        "Pending" -> Color(0xFFFDE2E4)
-//        else -> Color.LightGray
-//    }
-//    val textColor = when (verdict) {
-//        "Completed" -> Color(0xFF217346)
-//        "Pending" -> Color(0xFFB00020)
-//        else -> Color.Black
-//    }
-//
-//    Card(
-//        shape = RoundedCornerShape(8.dp),
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(4.dp)
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .background(backgroundColor)
-//                .padding(16.dp)
-//                .fillMaxWidth(),
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            Column(
-//                modifier = Modifier.weight(1f)
-//            ) {
-//                Text(
-//                    text = title,
-//                    fontSize = 18.sp,
-//                    fontWeight = FontWeight.Bold,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis,
-//                    color = Color.Black
-//                )
-//                Text(
-//                    text = verdict,
-//                    fontSize = 14.sp,
-//                    fontWeight = FontWeight.Medium,
-//                    color = textColor,
-//                    style = MaterialTheme.typography.titleSmall
-//                )
-//            }
-//        }
-//    }
-//}
-//
-//@Composable
-//fun LeetcodeDailyProblemText() {
-//    Card(
-//        shape = RoundedCornerShape(8.dp),
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(4.dp)
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .padding(16.dp)
-//                .fillMaxWidth(),
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            Column(
-//                modifier = Modifier.weight(1f),
-//                horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
-//                Text(
-//                    text = "LeetCode Daily Problem",
-//                    fontSize = 18.sp,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis,
-//                    color = Color.Blue,
-//                    fontWeight = FontWeight.Bold
-//                )
-//                Text(
-//                    text = "",
-//                    fontSize = 14.sp,
-//                    fontWeight = FontWeight.Medium,
-//                    style = MaterialTheme.typography.titleSmall
-//                )
-//            }
-//        }
-//    }
-//}
 
 @Composable
 fun UserStatisticsCard(user: UserContestInfo) {
@@ -665,7 +541,8 @@ fun DailyProblemCard(
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                val encodedUrl = Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
+                val encodedUrl =
+                    Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
                 onNavigateToWebView.invoke(encodedUrl)
             }
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp))
