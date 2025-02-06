@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -71,6 +70,7 @@ import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import me.bytebeats.views.charts.pie.PieChart
 import me.bytebeats.views.charts.pie.PieChartData
@@ -183,22 +183,23 @@ fun UserProfileContent(
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .padding(start = 16.dp, end = 16.dp)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 UserProfileCard(uiState.userBasicInfo)
                 DailyProblemCard(
                     title = dailyProblem.title,
-                    if (dailyProblemSolved) "Completed"
-                    else "Pending",
+                    verdict = if (dailyProblemSolved) "Completed" else "Pending",
                     titleSlug = dailyProblem.titleSlug,
-                    onNavigateToWebView
+                    onNavigateToWebView = onNavigateToWebView
                 )
                 UserStatisticsCard(uiState.userContestInfo)
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
@@ -214,7 +215,7 @@ fun UserProfileContent(
                     Text(
                         "Recent AC",
                         fontSize = 16.sp,
-                        modifier = Modifier.padding(top = 8.dp, start = 8.dp),
+                        modifier = Modifier.padding(start = 8.dp),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -283,8 +284,8 @@ fun UserProfileCard(user: UserBasicInfo) {
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
             .padding(4.dp)
+            .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp)),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -309,7 +310,10 @@ fun UserProfileCard(user: UserBasicInfo) {
                         .border(2.dp, Color.White, CircleShape)
                 )
 
-                Column(modifier = Modifier.fillMaxHeight()) {
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text(
                         text = user.name,
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
@@ -317,31 +321,32 @@ fun UserProfileCard(user: UserBasicInfo) {
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Public,
                             contentDescription = "Country",
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Country: ${user.country}",
                             style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "Ranking",
                             tint = Color.Yellow,
                             modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Ranking: ${user.ranking}",
                             style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
@@ -361,8 +366,8 @@ fun UserStatisticsCard(user: UserContestInfo) {
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
             .padding(4.dp)
+            .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp)),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -376,16 +381,18 @@ fun UserStatisticsCard(user: UserContestInfo) {
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Star,
                         contentDescription = "Rating",
                         tint = Color.Yellow,
                         modifier = Modifier.size(20.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Contest Rating: ${String.format("%.3f", user.rating)}",
                         style = MaterialTheme.typography.bodyLarge,
@@ -393,14 +400,16 @@ fun UserStatisticsCard(user: UserContestInfo) {
                     )
                 }
                 Divider(color = Color.White.copy(alpha = 0.5f), thickness = 1.dp)
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Leaderboard,
                         contentDescription = "Global Ranking",
                         tint = Color.Cyan,
                         modifier = Modifier.size(20.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Global Ranking: ${user.globalRanking}",
                         style = MaterialTheme.typography.bodyLarge,
@@ -408,14 +417,16 @@ fun UserStatisticsCard(user: UserContestInfo) {
                     )
                 }
                 Divider(color = Color.White.copy(alpha = 0.5f), thickness = 1.dp)
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.CalendarToday,
                         contentDescription = "Attend Days",
                         tint = Color.Magenta,
                         modifier = Modifier.size(20.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Attend: ${user.attend} days",
                         style = MaterialTheme.typography.bodyLarge,
@@ -460,14 +471,13 @@ fun ProblemCategoryBox(category: String, solved: Int, total: Int, backgroundColo
             containerColor = backgroundColor,
         ),
         modifier = Modifier
-            .width(100.dp)
-            .height(70.dp),
+            .size(width = 100.dp, height = 70.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
+                .padding(8.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -482,8 +492,8 @@ fun ProblemCategoryBox(category: String, solved: Int, total: Int, backgroundColo
 fun SubmissionItem(submission: UserSubmission) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp),
+            .padding(horizontal = 8.dp)
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
@@ -518,15 +528,15 @@ fun SubmissionItem(submission: UserSubmission) {
 
 @Composable
 fun DailyProblemCard(
-    title: String = "Two Sum",
-    verdict: String = "Completed",
-    titleSlug: String = "",
-    onNavigateToWebView: (String) -> Unit = {}
+    title: String,
+    verdict: String,
+    titleSlug: String,
+    onNavigateToWebView: (String) -> Unit
 ) {
     var animatedContent by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        while (true) {
+        while (isActive) {
             animatedContent = true
             delay(1.seconds.inWholeMilliseconds)
             animatedContent = false
@@ -536,21 +546,17 @@ fun DailyProblemCard(
 
     Crossfade(
         targetState = animatedContent,
-        label = "",
         modifier = Modifier
-            .fillMaxWidth()
             .padding(4.dp)
-            .clickable {
-                val encodedUrl =
-                    Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
-                onNavigateToWebView.invoke(encodedUrl)
-            }
+            .fillMaxWidth()
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
     ) { state ->
         when (state) {
             true -> ProblemTextPlaceholder()
-            false -> ProblemDetailsCard(title, verdict)
+            false -> ProblemDetailsCard(title = title, titleSlug = titleSlug, verdict = verdict) {
+                onNavigateToWebView(it)
+            }
         }
     }
 }
@@ -561,8 +567,8 @@ fun ProblemTextPlaceholder() {
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         modifier = Modifier
-            .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 8.dp)
+            .fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -590,8 +596,10 @@ fun ProblemTextPlaceholder() {
 
 @Composable
 fun ProblemDetailsCard(
-    title: String = "Two Sum",
-    verdict: String = "Completed"
+    title: String,
+    titleSlug: String,
+    verdict: String,
+    onNavigateToWebView: (String) -> Unit
 ) {
     val backgroundColor = when (verdict) {
         "Completed" -> MaterialTheme.colorScheme.secondaryContainer
@@ -608,8 +616,13 @@ fun ProblemDetailsCard(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         modifier = Modifier
-            .fillMaxWidth()
+            .clickable {
+                val encodedUrl =
+                    Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
+                onNavigateToWebView.invoke(encodedUrl)
+            }
             .padding(horizontal = 8.dp, vertical = 8.dp)
+            .fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
