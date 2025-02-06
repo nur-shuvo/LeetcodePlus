@@ -539,13 +539,13 @@ fun DailyProblemCard(
         label = "",
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(4.dp)
             .clickable {
                 val encodedUrl =
                     Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
                 onNavigateToWebView.invoke(encodedUrl)
             }
-            .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp))
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
     ) { state ->
         when (state) {
@@ -562,7 +562,7 @@ fun ProblemTextPlaceholder() {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -609,7 +609,7 @@ fun ProblemDetailsCard(
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier
