@@ -9,7 +9,6 @@
     <application
         android:name=".LeetCodePlusApplication"
         android:allowBackup="true"
-        android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/leetcode_logo"
@@ -17,6 +16,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
             android:name=".ui.MainActivity"
@@ -33,6 +33,17 @@
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove" />
+
+        <receiver
+            android:name=".glance.LeetCodePlusGlanceAppWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/leetcode_plus_glance_appwidget_info" />
+        </receiver>
 
     </application>
 

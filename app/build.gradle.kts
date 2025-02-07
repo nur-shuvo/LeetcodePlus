@@ -46,6 +46,9 @@ android {
             excludes += "META-INF/gradle/incremental.annotation.processors"
         }
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+    }
     configurations.all {
         exclude(group = "org.apache.httpcomponents", module = "httpclient")
     }
@@ -84,6 +87,9 @@ dependencies {
     implementation(libs.bytebeats.charts)
     implementation(libs.androidx.splashscreen)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.glance)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
     kapt(libs.room.compiler)
 
     testImplementation(libs.junit)
