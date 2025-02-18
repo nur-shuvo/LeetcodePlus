@@ -53,8 +53,8 @@ import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 
 @Composable
 fun GoalProgressScreen(
-    onPopCurrent: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {}
+    onPopCurrent: () -> Unit,
+    onNavigateToWebView: (String) -> Unit
 ) {
     val viewmodel: GoalProgressViewModel = hiltViewModel()
     viewmodel.init()
@@ -66,8 +66,8 @@ fun GoalProgressScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 fun ProgressScreenContent(
     uiState: ProgressUiState,
-    onPopCurrent: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {}
+    onPopCurrent: () -> Unit,
+    onNavigateToWebView: (String) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -121,7 +121,7 @@ fun ProgressScreenContent(
 @Composable
 fun ProblemCard(
     problemStatus: ProblemStatus,
-    onNavigateToWebView: (String) -> Unit = {}
+    onNavigateToWebView: (String) -> Unit
 ) {
     val backgroundColor = when (problemStatus.status) {
         "Completed" -> Color(0xFFE8F5E9)
@@ -278,6 +278,8 @@ fun LeetCodeProgressScreenPreview() {
         ProgressUiState(
             problemStatuses,
             WeeklyGoalPeriod("14 June 2024", "21 June 2024")
-        )
-    ) {}
+        ),
+        onPopCurrent = {},
+        onNavigateToWebView = {}
+    )
 }

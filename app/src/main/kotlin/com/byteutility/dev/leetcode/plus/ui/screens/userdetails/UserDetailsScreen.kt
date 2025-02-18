@@ -92,13 +92,13 @@ fun UserProfileScreen(
     val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
     viewModel.startsSync(LocalContext.current)
     UserProfileLayout(
-        uiState,
-        dailyProblem,
-        dailyProblemSolved,
-        onSetGoal,
-        onGoalStatus,
-        onTroubleShoot,
-        onNavigateToWebView
+        uiState = uiState,
+        dailyProblem = dailyProblem,
+        dailyProblemSolved = dailyProblemSolved,
+        onSetGoal = onSetGoal,
+        onGoalStatus = onGoalStatus,
+        onTroubleShoot = onTroubleShoot,
+        onNavigateToWebView = onNavigateToWebView
     )
 }
 
@@ -108,10 +108,10 @@ fun UserProfileLayout(
     uiState: UserDetailsUiState,
     dailyProblem: LeetCodeProblem,
     dailyProblemSolved: Boolean,
-    onSetGoal: () -> Unit = {},
-    onGoalStatus: () -> Unit = {},
-    onTroubleShoot: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {}
+    onSetGoal: () -> Unit,
+    onGoalStatus: () -> Unit,
+    onTroubleShoot: () -> Unit,
+    onNavigateToWebView: (String) -> Unit
 ) {
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
@@ -165,11 +165,11 @@ fun UserProfileLayout(
         },
     ) { paddingValues ->
         UserProfileContent(
-            uiState,
-            dailyProblem,
-            dailyProblemSolved,
-            onNavigateToWebView,
-            Modifier.padding(paddingValues),
+            uiState = uiState,
+            dailyProblem = dailyProblem,
+            dailyProblemSolved = dailyProblemSolved,
+            onNavigateToWebView = onNavigateToWebView,
+            modifier = Modifier.padding(paddingValues),
         )
     }
 }
@@ -179,8 +179,8 @@ fun UserProfileContent(
     uiState: UserDetailsUiState,
     dailyProblem: LeetCodeProblem,
     dailyProblemSolved: Boolean,
-    onNavigateToWebView: (String) -> Unit = {},
-    modifier: Modifier = Modifier,
+    onNavigateToWebView: (String) -> Unit,
+    modifier: Modifier,
 ) {
     LazyColumn(
         modifier = modifier
@@ -576,14 +576,14 @@ fun ProblemTextPlaceholder() {
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.Start
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = "LeetCode Daily Problem",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Solve today for a streak!",
                     style = MaterialTheme.typography.bodyMedium,
@@ -631,7 +631,8 @@ fun ProblemDetailsCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = title,
@@ -640,7 +641,6 @@ fun ProblemDetailsCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = verdict,
                     style = MaterialTheme.typography.bodyMedium,
@@ -718,6 +718,10 @@ fun PreviewUserDetails() {
             ), userSubmissions = submissions
         ),
         LeetCodeProblem("Two Sum", "", ""),
-        false
+        false,
+        onSetGoal = {},
+        onGoalStatus = {},
+        onTroubleShoot = {},
+        onNavigateToWebView = {}
     )
 }
