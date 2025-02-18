@@ -3,11 +3,10 @@ package com.byteutility.dev.leetcode.plus.ui.screens.login
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -74,43 +73,46 @@ fun UserLoginScreen(
 fun LeetCodeUsernameScreen(
     onProceedClick: (userName: String) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    var username by remember { mutableStateOf("") }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.leetcode_logo),
-            contentDescription = "App Logo",
-            contentScale = ContentScale.FillWidth,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 32.dp, end = 32.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        var username by remember { mutableStateOf("") }
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Button(
-            onClick = {
-                if (username.isNotEmpty()) {
-                    onProceedClick(username)
-                }
-            },
-            shape = RoundedCornerShape(32.dp),
-            elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 6.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Proceed")
+            Image(
+                painter = painterResource(id = R.drawable.leetcode_logo),
+                contentDescription = "App Logo",
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
+                    .padding(start = 32.dp, end = 32.dp)
+                    .fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                label = { Text(text = "Enter your LeetCode username") },
+                value = username,
+                onValueChange = { username = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Button(
+                onClick = {
+                    if (username.isNotEmpty()) {
+                        onProceedClick(username)
+                    }
+                },
+                shape = RoundedCornerShape(32.dp),
+                elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 6.dp)
+            ) {
+                Text(text = "Proceed")
+            }
         }
     }
 }
