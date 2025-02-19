@@ -7,14 +7,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -55,8 +53,8 @@ import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 
 @Composable
 fun GoalProgressScreen(
-    onPopCurrent: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {}
+    onPopCurrent: () -> Unit,
+    onNavigateToWebView: (String) -> Unit
 ) {
     val viewmodel: GoalProgressViewModel = hiltViewModel()
     viewmodel.init()
@@ -68,8 +66,8 @@ fun GoalProgressScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 fun ProgressScreenContent(
     uiState: ProgressUiState,
-    onPopCurrent: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {}
+    onPopCurrent: () -> Unit,
+    onNavigateToWebView: (String) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -98,14 +96,15 @@ fun ProgressScreenContent(
         ) {
             LazyColumn(
                 modifier = Modifier
-                    .padding(top = 8.dp, start = 10.dp, end = 10.dp)
+                    .padding(start = 16.dp, end = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 item {
-                    DateRow(uiState.period.startDate, uiState.period.endDate)
+                    DateRow(startDate = uiState.period.startDate, endDate = uiState.period.endDate)
                 }
                 items(uiState.problemsWithStatus) {
                     ProblemCard(it, onNavigateToWebView)
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
             Image(
@@ -122,7 +121,7 @@ fun ProgressScreenContent(
 @Composable
 fun ProblemCard(
     problemStatus: ProblemStatus,
-    onNavigateToWebView: (String) -> Unit = {}
+    onNavigateToWebView: (String) -> Unit
 ) {
     val backgroundColor = when (problemStatus.status) {
         "Completed" -> Color(0xFFE8F5E9)
@@ -138,19 +137,20 @@ fun ProblemCard(
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                val encodedUrl =
-                    Uri.encode("https://leetcode.com/problems/${problemStatus.titleSlug}/description")
-                onNavigateToWebView.invoke(encodedUrl)
-            }
-            .padding(vertical = 8.dp, horizontal = 16.dp)
-            .background(backgroundColor),
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        ),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Row(
             modifier = Modifier
+                .clickable {
+                    val encodedUrl =
+                        Uri.encode("https://leetcode.com/problems/${problemStatus.titleSlug}/description")
+                    onNavigateToWebView.invoke(encodedUrl)
+                }
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -158,7 +158,8 @@ fun ProblemCard(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
+                    .fillMaxWidth(0.8f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = problemStatus.title,
@@ -167,18 +168,21 @@ fun ProblemCard(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Status: ${problemStatus.status}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = statusColor
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Attempts Count: ${problemStatus.attemptsCount}",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Color.DarkGray
-                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "Status: ${problemStatus.status}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = statusColor
+                    )
+                    Text(
+                        text = "Attempts Count: ${problemStatus.attemptsCount}",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color.DarkGray
+                    )
+                }
+
             }
 
             if (problemStatus.status == "In Progress" || problemStatus.status == "Not Started") {
@@ -214,13 +218,12 @@ fun ProblemCard(
 fun DateRow(startDate: String, endDate: String) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         DateItem(label = "Start Date", date = startDate)
-        Spacer(modifier = Modifier.width(16.dp))
         DateItem(label = "End Date", date = endDate)
     }
 }
@@ -275,6 +278,8 @@ fun LeetCodeProgressScreenPreview() {
         ProgressUiState(
             problemStatuses,
             WeeklyGoalPeriod("14 June 2024", "21 June 2024")
-        )
-    ) {}
+        ),
+        onPopCurrent = {},
+        onNavigateToWebView = {}
+    )
 }

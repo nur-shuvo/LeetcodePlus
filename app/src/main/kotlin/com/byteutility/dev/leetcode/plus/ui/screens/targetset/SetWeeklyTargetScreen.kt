@@ -6,7 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -128,6 +130,7 @@ fun ProblemSelection(
     Column(
         modifier = Modifier
             .background(Color.White)
+            .fillMaxSize()
             .then(modifier)
     ) {
         TextField(
@@ -146,10 +149,11 @@ fun ProblemSelection(
 
         LazyColumn(
             modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp)
                 .weight(1.0f)
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
         ) {
             items(displayedItems) { problem ->
                 ProblemItem(
@@ -165,8 +169,8 @@ fun ProblemSelection(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp),
+                .padding(16.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -190,7 +194,9 @@ fun ProblemSelection(
         Button(
             onClick = { onConfirm(selectedProblems) },
             enabled = selectedProblems.size == 7,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
         ) {
             Text("Confirm")
         }
@@ -211,16 +217,16 @@ fun ProblemItem(
         else -> Color(0xFFE0F7FA)
     }
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        modifier = Modifier.clickable {
-            val encodedUrl =
-                Uri.encode("https://leetcode.com/problems/${problem.titleSlug}/description")
-            onNavigateToWebView.invoke(encodedUrl)
-        }
     ) {
         Row(
             modifier = Modifier
+                .clickable {
+                    val encodedUrl =
+                        Uri.encode("https://leetcode.com/problems/${problem.titleSlug}/description")
+                    onNavigateToWebView.invoke(encodedUrl)
+                }
                 .fillMaxWidth()
                 .background(backgroundColor)
                 .padding(16.dp),
