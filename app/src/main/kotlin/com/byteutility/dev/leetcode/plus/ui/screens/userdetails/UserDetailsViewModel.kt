@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.byteutility.dev.leetcode.plus.data.pagination.DefaultPaginator
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -29,8 +31,16 @@ data class UserDetailsUiState(
     val userBasicInfo: UserBasicInfo = UserBasicInfo(),
     val userContestInfo: UserContestInfo = UserContestInfo(),
     val userProblemSolvedInfo: UserProblemSolvedInfo = UserProblemSolvedInfo(),
-    val userSubmissions: List<UserSubmission> = emptyList(),
+    val userSubmissionState: UserSubmissionState = UserSubmissionState(),
     val isWeeklyGoalSet: Boolean = false,
+)
+
+data class UserSubmissionState(
+    val isLoading: Boolean = false,
+    val submissions: List<UserSubmission> = emptyList(),
+    val error: String? = null,
+    val endReached: Boolean = false,
+    val page: Int = 0
 )
 
 @HiltViewModel
@@ -39,6 +49,38 @@ class UserDetailsViewModel @Inject constructor(
     private val goalRepository: WeeklyGoalRepository,
     private val dailyProblemStatusMonitor: DailyProblemStatusMonitor
 ) : ViewModel() {
+
+    private val userSubmissionState =
+        MutableStateFlow(UserSubmissionState())
+
+    private val pagination = DefaultPaginator(
+        initialKey = userSubmissionState.value.page,
+        onLoadUpdated = { isLoading ->
+            userSubmissionState.update {
+                it.copy(isLoading = isLoading)
+            }
+        },
+        onRequest = { nextPage ->
+            userDetailsRepository.getUserRecentAcSubmissionsPaginated(nextPage, 5)
+        },
+        getNextKey = {
+            userSubmissionState.value.page + 1
+        },
+        onError = { error ->
+            userSubmissionState.update {
+                it.copy(error = error?.message)
+            }
+        },
+        onSuccess = { items, newKey ->
+            userSubmissionState.update {
+                it.copy(
+                    submissions = it.submissions + items,
+                    page = newKey,
+                    endReached = items.isEmpty()
+                )
+            }
+        }
+    )
 
     private val userBasicInfo =
         MutableStateFlow(UserBasicInfo())
@@ -49,9 +91,6 @@ class UserDetailsViewModel @Inject constructor(
     private val userProblemSolvedInfo =
         MutableStateFlow(UserProblemSolvedInfo())
 
-    private val userSubmissions =
-        MutableStateFlow<List<UserSubmission>>(listOf())
-
     private val isWeeklyGoalSet = MutableStateFlow(false)
 
     private val _dailyProblem =
@@ -59,9 +98,9 @@ class UserDetailsViewModel @Inject constructor(
     val dailyProblem = _dailyProblem.asStateFlow()
 
     val dailyProblemSolved = dailyProblemStatusMonitor.dailyProblemSolved.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        false
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
     )
 
     // TODO Combine does not accept more than 5 args, need to find a cleaner way to add more flows
@@ -70,14 +109,14 @@ class UserDetailsViewModel @Inject constructor(
             userBasicInfo,
             userContestInfo,
             userProblemSolvedInfo,
-            userSubmissions,
+            userSubmissionState,
             isWeeklyGoalSet
-        ) { userBasicInfo, userContestInfo, userProblemSolvedInfo, userSubmissions, isWeeklyGoalSet ->
+        ) { userBasicInfo, userContestInfo, userProblemSolvedInfo, userSubmissionState, isWeeklyGoalSet ->
             UserDetailsUiState(
                 userBasicInfo = userBasicInfo,
                 userContestInfo = userContestInfo,
                 userProblemSolvedInfo = userProblemSolvedInfo,
-                userSubmissions = userSubmissions,
+                userSubmissionState = userSubmissionState,
                 isWeeklyGoalSet = isWeeklyGoalSet
             )
         }.stateIn(
@@ -87,6 +126,8 @@ class UserDetailsViewModel @Inject constructor(
         )
 
     init {
+        loadNextAcSubmissions()
+
         viewModelScope.launch {
             userDetailsRepository
                 .getUserBasicInfo()
@@ -117,16 +158,6 @@ class UserDetailsViewModel @Inject constructor(
                 }
         }
 
-        viewModelScope.launch {
-            userDetailsRepository
-                .getUserRecentAcSubmissions()
-                .collect {
-                    if (it != null) {
-                        userSubmissions.value = it
-                    }
-                }
-        }
-
         viewModelScope.launch(Dispatchers.IO) {
             goalRepository.weeklyGoal.collect {
                 isWeeklyGoalSet.value = (it != null)
@@ -151,6 +182,12 @@ class UserDetailsViewModel @Inject constructor(
                     _dailyProblem.value = it
                 }
             }
+        }
+    }
+
+    fun loadNextAcSubmissions() {
+        viewModelScope.launch {
+            pagination.loadNextItems()
         }
     }
 

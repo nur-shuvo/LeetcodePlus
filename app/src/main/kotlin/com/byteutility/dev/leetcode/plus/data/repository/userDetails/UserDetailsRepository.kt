@@ -14,4 +14,5 @@ interface UserDetailsRepository {
     suspend fun getUserRecentAcSubmissions(): Flow<List<UserSubmission>?>
     suspend fun getUserLastSubmissions(): Flow<List<UserSubmission>?>
     suspend fun getDailyProblem(): Flow<LeetCodeProblem?>
+    suspend fun getUserRecentAcSubmissionsPaginated(page: Int, pageSize: Int): Result<List<UserSubmission>>
 }
