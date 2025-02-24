@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,6 +27,7 @@ import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -98,7 +98,10 @@ fun UserProfileScreen(
         onSetGoal = onSetGoal,
         onGoalStatus = onGoalStatus,
         onTroubleShoot = onTroubleShoot,
-        onNavigateToWebView = onNavigateToWebView
+        onNavigateToWebView = onNavigateToWebView,
+        onLoadMoreSubmission = {
+            viewModel.loadNextAcSubmissions()
+        },
     )
 }
 
@@ -111,7 +114,8 @@ fun UserProfileLayout(
     onSetGoal: () -> Unit,
     onGoalStatus: () -> Unit,
     onTroubleShoot: () -> Unit,
-    onNavigateToWebView: (String) -> Unit
+    onNavigateToWebView: (String) -> Unit,
+    onLoadMoreSubmission: () -> Unit,
 ) {
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
@@ -170,6 +174,7 @@ fun UserProfileLayout(
             dailyProblemSolved = dailyProblemSolved,
             onNavigateToWebView = onNavigateToWebView,
             modifier = Modifier.padding(paddingValues),
+            onLoadMoreSubmission = onLoadMoreSubmission
         )
     }
 }
@@ -180,6 +185,7 @@ fun UserProfileContent(
     dailyProblem: LeetCodeProblem,
     dailyProblemSolved: Boolean,
     onNavigateToWebView: (String) -> Unit,
+    onLoadMoreSubmission: () -> Unit,
     modifier: Modifier,
 ) {
     LazyColumn(
@@ -204,7 +210,7 @@ fun UserProfileContent(
                 UserStatisticsCard(uiState.userContestInfo)
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
 
-                if (uiState.userSubmissions.isEmpty()) {
+                if (uiState.userSubmissionState.submissions.isEmpty()) {
                     Text(
                         text = "You have no recent submissions",
                         modifier = Modifier.fillMaxWidth(),
@@ -223,8 +229,25 @@ fun UserProfileContent(
             }
         }
 
-        items(uiState.userSubmissions) { submission ->
-            SubmissionItem(submission = submission)
+        items(uiState.userSubmissionState.submissions.size) { index ->
+            val item = uiState.userSubmissionState.submissions[index]
+            if (index >= uiState.userSubmissionState.submissions.size - 1 && !uiState.userSubmissionState.endReached && !uiState.userSubmissionState.isLoading) {
+                onLoadMoreSubmission()
+            }
+            SubmissionItem(submission = item)
+        }
+
+        item {
+            if (uiState.userSubmissionState.isLoading) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }
@@ -707,21 +730,24 @@ fun PreviewUserDetails() {
                 avatar = "venenatis",
                 ranking = 8869,
                 country = "Gambia, The"
-            ), userContestInfo = UserContestInfo(
+            ),
+            userContestInfo = UserContestInfo(
                 rating = 14.15,
                 globalRanking = 3679,
                 attend = 7232
-            ), userProblemSolvedInfo = UserProblemSolvedInfo(
+            ),
+            userProblemSolvedInfo = UserProblemSolvedInfo(
                 easy = 4592,
                 medium = 5761,
                 hard = 6990
-            ), userSubmissions = submissions
+            ),
         ),
         LeetCodeProblem("Two Sum", "", ""),
         false,
         onSetGoal = {},
         onGoalStatus = {},
         onTroubleShoot = {},
-        onNavigateToWebView = {}
+        onNavigateToWebView = {},
+        onLoadMoreSubmission = {},
     )
 }
