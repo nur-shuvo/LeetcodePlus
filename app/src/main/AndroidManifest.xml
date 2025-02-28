@@ -18,14 +18,17 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.LeetcodePlus">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.byteutility.dev.leetcode.plus.main" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
