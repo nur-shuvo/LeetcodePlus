@@ -18,6 +18,7 @@ Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
     <img src="./ss/Goal-Status.png" alt="Screenshot 4" width="200"/>
     <img src="./ss/Goal-Notification-1.png" alt="Screenshot 5" width="200"/>
     <img src="./ss/Goal-Notification-2.png" alt="Screenshot 6" width="200"/>
+    <img src="./ss/widget.png" alt="Screenshot 6" width="200"/>
 </p>
 
 ## Built With 🛠️
