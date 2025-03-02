@@ -56,3 +56,6 @@ This app leverages modern Android development technologies:
 Leetcode Plus does not collect, store, or share any personal data. The app operates without requiring user registration or accessing sensitive information. Any permissions requested are solely for app functionality and are not used to collect personal information.
 
 For any questions, contact us at nurshuvo51@gmail.com .
+
+## License
+This project is licensed under the [MIT License](LICENSE).
