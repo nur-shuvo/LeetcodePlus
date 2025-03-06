@@ -1,13 +1,17 @@
 package com.byteutility.dev.leetcode.plus.data.worker
 
 import android.content.Context
+import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorker
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
+import com.byteutility.dev.leetcode.plus.glance.ui.LeetcodePlusGlanceAppWidget
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
 import com.byteutility.dev.leetcode.plus.network.RestApiService
@@ -54,17 +58,18 @@ class UserDetailsSyncWorker @AssistedInject constructor(
                     val userAcSubmission = userAcSubmissionDeferred.await()
                     val userLastSubmissions = userLastSubmissionsDeferred.await()
                     val userSolved = userSolvedDeferred.await()
-                    val dailProblem = dailyProblemDeferred.await()
+                    val dailyProblem = dailyProblemDeferred.await()
 
                     userDatastore.saveUserBasicInfo(userProfile.toInternalModel())
                     userDatastore.saveUserContestInfo(userContest.toInternalModel())
                     userDatastore.saveUserAcSubmissions(userAcSubmission.toInternalModel())
                     userDatastore.saveUserLastSubmissions(userLastSubmissions.toInternalModel())
                     userDatastore.saveUserProblemSolvedInfo(userSolved.toInternalModel())
-                    userDatastore.saveDailyProblem(dailProblem.toInternalModel())
+                    userDatastore.saveDailyProblem(dailyProblem.toInternalModel())
 
                     goalStatusMonitor.start()
                     dailyProblemStatusMonitor.start()
+                    LeetcodePlusGlanceAppWidget().updateAll(applicationContext)
                     delay(1.seconds)
 
                     Result.success()
@@ -78,9 +83,15 @@ class UserDetailsSyncWorker @AssistedInject constructor(
 
     companion object {
         fun enqueuePeriodicWork(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
             val workRequest = PeriodicWorkRequestBuilder<UserDetailsSyncWorker>(
                 repeatInterval = Duration.ofMinutes(20)
-            ).build()
+            ).setConstraints(constraints)
+                .build()
+
             WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(
                     "UserDetailsSyncWorker",
