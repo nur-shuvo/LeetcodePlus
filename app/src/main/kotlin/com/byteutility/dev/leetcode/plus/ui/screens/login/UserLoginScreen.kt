@@ -86,7 +86,7 @@ fun LeetCodeUsernameScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.leetcode_logo),
+                painter = painterResource(id = R.drawable.leetcode_plus_logo),
                 contentDescription = "App Logo",
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier
