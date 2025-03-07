@@ -39,7 +39,7 @@ object NotificationHandler {
         )
 
         val builder = NotificationCompat.Builder(context, GOAL_CHANNEL_ID)
-            .setSmallIcon(R.drawable.leetcode_plus_logo)
+            .setSmallIcon(R.drawable.leetcode_plus_logo_small)
             .setContentTitle("Finish your goal")
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -81,7 +81,7 @@ object NotificationHandler {
         )
 
         val builder = NotificationCompat.Builder(context, DAILY_PROBLEM_CHANNEL_ID)
-            .setSmallIcon(R.drawable.leetcode_plus_logo)
+            .setSmallIcon(R.drawable.leetcode_plus_logo_small)
             .setContentTitle("Leetcode daily")
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
