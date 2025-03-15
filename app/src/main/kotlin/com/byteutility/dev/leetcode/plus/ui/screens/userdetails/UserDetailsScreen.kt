@@ -76,6 +76,8 @@ import me.bytebeats.views.charts.pie.PieChart
 import me.bytebeats.views.charts.pie.PieChartData
 import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
 import me.bytebeats.views.charts.simpleChartAnimation
+import java.util.Calendar
+import java.util.TimeZone
 import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -205,6 +207,7 @@ fun UserProfileContent(
                     title = dailyProblem.title,
                     verdict = if (dailyProblemSolved) "Completed" else "Pending",
                     titleSlug = dailyProblem.titleSlug,
+                    difficulty = dailyProblem.difficulty,
                     onNavigateToWebView = onNavigateToWebView
                 )
                 UserStatisticsCard(uiState.userContestInfo)
@@ -554,6 +557,7 @@ fun DailyProblemCard(
     title: String,
     verdict: String,
     titleSlug: String,
+    difficulty: String,
     onNavigateToWebView: (String) -> Unit
 ) {
     var animatedContent by remember { mutableStateOf(true) }
@@ -563,7 +567,7 @@ fun DailyProblemCard(
             animatedContent = true
             delay(1.seconds.inWholeMilliseconds)
             animatedContent = false
-            delay(5.seconds.inWholeMilliseconds)
+            delay(15.seconds.inWholeMilliseconds)
         }
     }
 
@@ -575,9 +579,26 @@ fun DailyProblemCard(
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
     ) { state ->
+        var remainingTime by remember { mutableStateOf(calculateRemainingTime()) }
+
+        LaunchedEffect(Unit) {
+            while (true) {
+                delay(1000L)
+                remainingTime = calculateRemainingTime()
+            }
+        }
         when (state) {
-            true -> ProblemTextPlaceholder()
-            false -> ProblemDetailsCard(title = title, titleSlug = titleSlug, verdict = verdict) {
+            true -> ProblemTextPlaceholder(
+                remainingTime = remainingTime
+            )
+
+            false -> ProblemDetailsCard(
+                title = title,
+                titleSlug = titleSlug,
+                remainingTime = remainingTime,
+                difficulty = difficulty,
+                verdict = verdict,
+            ) {
                 onNavigateToWebView(it)
             }
         }
@@ -585,7 +606,7 @@ fun DailyProblemCard(
 }
 
 @Composable
-fun ProblemTextPlaceholder() {
+fun ProblemTextPlaceholder(remainingTime: String) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
@@ -613,6 +634,10 @@ fun ProblemTextPlaceholder() {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            Text(
+                text = remainingTime,
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }
@@ -622,8 +647,11 @@ fun ProblemDetailsCard(
     title: String,
     titleSlug: String,
     verdict: String,
+    difficulty: String,
+    remainingTime: String,
     onNavigateToWebView: (String) -> Unit
 ) {
+
     val backgroundColor = when (verdict) {
         "Completed" -> MaterialTheme.colorScheme.secondaryContainer
         "Pending" -> MaterialTheme.colorScheme.errorContainer
@@ -670,10 +698,49 @@ fun ProblemDetailsCard(
                     color = textColor
                 )
             }
+            Column(
+                modifier = Modifier.fillMaxWidth(0.25f),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = difficulty,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = when (difficulty) {
+                        "Easy" -> Color(0xFF4CAF50)
+                        "Medium" -> Color(0xFFFFC107)
+
+                        else -> Color(0xFFF44336)
+                    }
+                )
+                Text(
+                    text = remainingTime,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
     }
 }
 
+private fun calculateRemainingTime(): String {
+    val now = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    val midnight = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+        add(Calendar.DAY_OF_MONTH, 1)
+    }
+
+    val diffMillis = midnight.timeInMillis - now.timeInMillis
+    val hours = (diffMillis / (1000 * 60 * 60)) % 24
+    val minutes = (diffMillis / (1000 * 60)) % 60
+    val seconds = (diffMillis / 1000) % 60
+
+    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -750,4 +817,16 @@ fun PreviewUserDetails() {
         onNavigateToWebView = {},
         onLoadMoreSubmission = {},
     )
+}
+
+@Preview
+@Composable
+fun PreviewProblemDetailsCard() {
+    ProblemDetailsCard(
+        title = "Two Sum of Integers of all the time very long",
+        titleSlug = "",
+        verdict = "Pending",
+        difficulty = "Easy",
+        "05:19:09"
+    ) { }
 }
