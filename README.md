@@ -14,6 +14,7 @@ Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
 ## Screenshots
 <p align="center">
     <img src="./ss/Home.png" alt="Screenshot 1" width="200"/>
+    <img src="./ss/Home-recent-ac.png" alt="Screenshot 1" width="200"/>
     <img src="./ss/Goal.png" alt="Screenshot 2" width="200"/>
     <img src="./ss/Goal-Status.png" alt="Screenshot 4" width="200"/>
     <img src="ss/daily_widget.png" alt="Screenshot 6" width="200"/>
