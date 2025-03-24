@@ -91,6 +91,7 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
     kapt(libs.room.compiler)
+    implementation(libs.msz.progress.indicator)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
