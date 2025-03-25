@@ -20,6 +20,9 @@ Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
     <img src="ss/image5.jpeg" alt="Screenshot 1" width="200"/>
 </p>
 
+## Contributing 🤝
+Contributions to LeetcodePlus are welcome! If you have suggestions for improvements, bug fixes, or new features, please open an issue or submit a pull request.
+
 ## Built With 🛠️
 
 This app leverages modern Android development technologies:
