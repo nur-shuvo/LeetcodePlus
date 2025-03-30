@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -92,7 +93,8 @@ fun UserProfileScreen(
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
     onTroubleShoot: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {}
+    onNavigateToWebView: (String) -> Unit = {},
+    onNavigateToVideoSolutions: () -> Unit = {},
 ) {
     val viewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -113,6 +115,7 @@ fun UserProfileScreen(
         onLoadMoreVideos = {
             viewModel.loadNextVideos()
         },
+        onSearchClick = onNavigateToVideoSolutions
     )
 }
 
@@ -128,6 +131,7 @@ fun UserProfileLayout(
     onNavigateToWebView: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
     onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit
 ) {
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
@@ -187,7 +191,8 @@ fun UserProfileLayout(
             onNavigateToWebView = onNavigateToWebView,
             modifier = Modifier.padding(paddingValues),
             onLoadMoreSubmission = onLoadMoreSubmission,
-            onLoadMoreVideos = onLoadMoreVideos
+            onLoadMoreVideos = onLoadMoreVideos,
+            onSearchClick = onSearchClick
         )
     }
 }
@@ -200,6 +205,7 @@ fun UserProfileContent(
     onNavigateToWebView: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
     onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit,
     modifier: Modifier,
 ) {
     LazyColumn(
@@ -223,7 +229,11 @@ fun UserProfileContent(
                     onNavigateToWebView = onNavigateToWebView
                 )
                 UserStatisticsCard(uiState.userContestInfo)
-                YouTubeVideoRowContent(uiState.videosByPlayListState, onLoadMoreVideos)
+                YouTubeVideoRowContent(
+                    uiState.videosByPlayListState,
+                    onLoadMoreVideos,
+                    onSearchClick
+                )
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
 
                 if (uiState.userSubmissionState.submissions.isEmpty()) {
@@ -739,7 +749,11 @@ fun ProblemDetailsCard(
 
 
 @Composable
-fun YouTubeVideoRowContent(state: VideosByPlayListState, onLoadMoreVideos: () -> Unit) {
+fun YouTubeVideoRowContent(
+    state: VideosByPlayListState,
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit
+) {
     val videos = state.videos.map {
         YouTubeVideo(
             videoId = it.id,
@@ -747,27 +761,31 @@ fun YouTubeVideoRowContent(state: VideosByPlayListState, onLoadMoreVideos: () ->
             title = it.snippet.title
         )
     }
-    YouTubeVideoRow(state, videos, onLoadMoreVideos)
+    YouTubeVideoRow(state, videos, onLoadMoreVideos, onSearchClick)
 }
 
 @Composable
 fun YouTubeVideoRow(
     state: VideosByPlayListState,
     videos: List<YouTubeVideo> = mutableListOf(),
-    onLoadMoreVideos: () -> Unit
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit
 ) {
     val context = LocalContext.current
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        item {
+            SearchVideosButton(onClick = onSearchClick)
+        }
         itemsIndexed(videos) { index, video ->
             if (index >= state.videos.size - 1 && !state.endReached && !state.isLoading) {
                 onLoadMoreVideos()
             }
             Box(
                 modifier = Modifier
-                    .size(160.dp, 100.dp)
+                    .size(135.dp, 100.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color.Gray)
                     .clickable {
@@ -781,10 +799,29 @@ fun YouTubeVideoRow(
                 AsyncImage(
                     model = video.thumbnailUrl,
                     contentDescription = "YouTube Thumbnail",
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun SearchVideosButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(135.dp, 100.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                brush = Brush.horizontalGradient(listOf(Color.Blue, Color.Cyan))
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White)
+            Text("Search Videos", color = Color.White, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -881,7 +918,8 @@ fun PreviewUserDetails() {
         onTroubleShoot = {},
         onNavigateToWebView = {},
         onLoadMoreSubmission = {},
-        onLoadMoreVideos = {}
+        onLoadMoreVideos = {},
+        onSearchClick = {}
     )
 }
 

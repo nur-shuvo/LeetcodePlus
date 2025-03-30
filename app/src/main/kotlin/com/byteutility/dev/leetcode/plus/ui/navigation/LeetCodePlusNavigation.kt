@@ -10,6 +10,7 @@ object LeetCodePlusNavigationDestinations {
     const val GOAL_STATUS_ROUTE = "goal_status"
     const val TROUBLE_SHOOT_ROUTE = "trouble_shoot"
     const val WEB_VIEW_ROUTE = "web_view"
+    const val VIDEO_SOLUTIONS_ROUTE = "video_solutions"
 }
 
 class LeetCodePlusNavigation(navController: NavController) {
@@ -48,6 +49,12 @@ class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToTroubleShoot: () -> Unit = {
         navController.navigate(LeetCodePlusNavigationDestinations.TROUBLE_SHOOT_ROUTE) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToVideoSolutions: () -> Unit = {
+        navController.navigate(LeetCodePlusNavigationDestinations.VIDEO_SOLUTIONS_ROUTE) {
             launchSingleTop = true
         }
     }
