@@ -1,6 +1,8 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.solutions
 
 import android.content.Intent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,11 +30,13 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -43,6 +47,9 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.google.api.services.youtube.model.Video
 
@@ -137,11 +144,25 @@ fun YouTubeVideoGrid(
                             context.startActivity(intent)
                         }
                 ) {
+                    val painter = rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(context)
+                            .data(video.thumbnailUrl)
+                            .crossfade(true)
+                            .build()
+                    )
+
+                    val alphaAnim = remember { Animatable(0f) }
+                    LaunchedEffect(painter.state) {
+                        alphaAnim.animateTo(1f, animationSpec = tween(durationMillis = 500))
+                    }
+
                     AsyncImage(
                         model = video.thumbnailUrl,
                         contentDescription = "YouTube Thumbnail",
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(alphaAnim.value),
                     )
                 }
             }
