@@ -1,6 +1,7 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,12 +20,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -51,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -69,6 +75,7 @@ import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
+import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -86,7 +93,8 @@ fun UserProfileScreen(
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
     onTroubleShoot: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {}
+    onNavigateToWebView: (String) -> Unit = {},
+    onNavigateToVideoSolutions: () -> Unit = {},
 ) {
     val viewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -104,6 +112,10 @@ fun UserProfileScreen(
         onLoadMoreSubmission = {
             viewModel.loadNextAcSubmissions()
         },
+        onLoadMoreVideos = {
+            viewModel.loadNextVideos()
+        },
+        onSearchClick = onNavigateToVideoSolutions
     )
 }
 
@@ -118,6 +130,8 @@ fun UserProfileLayout(
     onTroubleShoot: () -> Unit,
     onNavigateToWebView: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit
 ) {
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
@@ -130,7 +144,7 @@ fun UserProfileLayout(
                     /**
                      * 5 times click in a shorter period will open troubleshoot page
                      */
-                    Text(text = "My Profile", modifier = Modifier.clickable {
+                    Text(text = "Home", modifier = Modifier.clickable {
                         val currentTime = System.currentTimeMillis()
                         if (currentTime - lastClickTime <= 1000) {
                             clickCount++
@@ -176,7 +190,9 @@ fun UserProfileLayout(
             dailyProblemSolved = dailyProblemSolved,
             onNavigateToWebView = onNavigateToWebView,
             modifier = Modifier.padding(paddingValues),
-            onLoadMoreSubmission = onLoadMoreSubmission
+            onLoadMoreSubmission = onLoadMoreSubmission,
+            onLoadMoreVideos = onLoadMoreVideos,
+            onSearchClick = onSearchClick
         )
     }
 }
@@ -188,6 +204,8 @@ fun UserProfileContent(
     dailyProblemSolved: Boolean,
     onNavigateToWebView: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit,
     modifier: Modifier,
 ) {
     LazyColumn(
@@ -211,6 +229,11 @@ fun UserProfileContent(
                     onNavigateToWebView = onNavigateToWebView
                 )
                 UserStatisticsCard(uiState.userContestInfo)
+                YouTubeVideoRowContent(
+                    uiState.videosByPlayListState,
+                    onLoadMoreVideos,
+                    onSearchClick
+                )
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
 
                 if (uiState.userSubmissionState.submissions.isEmpty()) {
@@ -724,6 +747,85 @@ fun ProblemDetailsCard(
     }
 }
 
+
+@Composable
+fun YouTubeVideoRowContent(
+    state: VideosByPlayListState,
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit
+) {
+    val videos = state.videos.map {
+        YouTubeVideo(
+            videoId = it.id,
+            thumbnailUrl = it.snippet.thumbnails.high.url,
+            title = it.snippet.title
+        )
+    }
+    YouTubeVideoRow(state, videos, onLoadMoreVideos, onSearchClick)
+}
+
+@Composable
+fun YouTubeVideoRow(
+    state: VideosByPlayListState,
+    videos: List<YouTubeVideo> = mutableListOf(),
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit
+) {
+    val context = LocalContext.current
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            SearchVideosButton(onClick = onSearchClick)
+        }
+        itemsIndexed(videos) { index, video ->
+            if (index >= state.videos.size - 1 && !state.endReached && !state.isLoading) {
+                onLoadMoreVideos()
+            }
+            Box(
+                modifier = Modifier
+                    .size(135.dp, 100.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.Gray)
+                    .clickable {
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.youtube.com/watch?v=${video.videoId}")
+                        )
+                        context.startActivity(intent)
+                    }
+            ) {
+                AsyncImage(
+                    model = video.thumbnailUrl,
+                    contentDescription = "YouTube Thumbnail",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SearchVideosButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(135.dp, 100.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                brush = Brush.horizontalGradient(listOf(Color.Blue, Color.Cyan))
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White)
+            Text("Search Videos", color = Color.White, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
 private fun calculateRemainingTime(): String {
     val now = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
     val midnight = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
@@ -816,6 +918,8 @@ fun PreviewUserDetails() {
         onTroubleShoot = {},
         onNavigateToWebView = {},
         onLoadMoreSubmission = {},
+        onLoadMoreVideos = {},
+        onSearchClick = {}
     )
 }
 
