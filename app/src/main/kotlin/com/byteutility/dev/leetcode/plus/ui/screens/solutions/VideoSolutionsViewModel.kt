@@ -24,8 +24,14 @@ class VideoSolutionsViewModel @Inject constructor(
     private val userDetailsRepository: UserDetailsRepository
 ) : ViewModel() {
 
+    companion object {
+        private val playListIDList = listOf(
+            "PLiX7zQQX6FZMwPNeACDFvPDsUiu7AbZ8R", // Ethos typos leetcode problems
+            "PLot-Xpze53ldVwtstag2TL4HQhAnC8ATf" // Neetcode blind 75
+        )
+    }
+
     private val videosState = MutableStateFlow(mutableListOf<Video>())
-    private var pageTokenForPlayList: String? = null
 
     val uiState: StateFlow<VideoSolutionsUiState> = combine(
         listOf(videosState)
@@ -41,18 +47,21 @@ class VideoSolutionsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            do {
-                runCatching {
-                    val result = userDetailsRepository.getVideosByPlayList(
-                        pageTokenForPlayList,
-                        "PLiX7zQQX6FZMwPNeACDFvPDsUiu7AbZ8R"
-                    )
-                    pageTokenForPlayList = result.nextPageToken
-                    videosState.update { currentVideos ->
-                        currentVideos.plus(result.videos) as MutableList<Video>
-                    }
-                }.onFailure {}
-            } while (!pageTokenForPlayList.isNullOrBlank())
+            playListIDList.forEach { id ->
+                var pageTokenForPlayList: String? = null
+                do {
+                    runCatching {
+                        val result = userDetailsRepository.getVideosByPlayList(
+                            pageTokenForPlayList,
+                            id
+                        )
+                        pageTokenForPlayList = result.nextPageToken
+                        videosState.update { currentVideos ->
+                            currentVideos.plus(result.videos) as MutableList<Video>
+                        }
+                    }.onFailure {}
+                } while (!pageTokenForPlayList.isNullOrBlank())
+            }
         }
     }
 }
