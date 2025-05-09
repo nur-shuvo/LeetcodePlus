@@ -11,6 +11,8 @@ Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
 - **Recent Submissions & User Stats**: Keep tabs on your latest Accepted submissions and view detailed user statistics from LeetCode.
 - **Glance widget for quick access to the Problem of the Day**: Glance widget that lets you see the Problem of the Day right from your home screen—making it easier than ever to stay consistent with your problem-solving!
 
+<img src="ss/leetcode_features.png.jpeg" alt="Screenshot 1" width="200"/>
+
 ## Screenshots
 <p align="center">
     <img src="./ss/image1.jpeg" alt="Screenshot 1" width="200"/>
