@@ -11,6 +11,7 @@ Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
 - **Weekly Goals Tracking**: Set weekly problem-solving targets, track your progress, and stay motivated to achieve your goals.
 - **Recent Submissions & User Stats**: Keep tabs on your latest Accepted submissions and view detailed user statistics from LeetCode.
 - **Glance widget for quick access to the Problem of the Day**: Glance widget that lets you see the Problem of the Day right from your home screen—making it easier than ever to stay consistent with your problem-solving!
+- **Leetcode solution videos**: Search with problem tag or problem name and get the turorial videos to watch.
 
 ## Screenshots
 <p align="center">
