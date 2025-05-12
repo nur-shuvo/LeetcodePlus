@@ -24,7 +24,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 @Composable
 fun WebViewScreen(
     url: String,
-    caller: String,
     onPopCurrent: () -> Unit = {}
 ) {
     Scaffold(

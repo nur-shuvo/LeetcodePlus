@@ -19,6 +19,8 @@ import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavGraph
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavigationDestinations
+import com.byteutility.dev.leetcode.plus.ui.navigation.Login
+import com.byteutility.dev.leetcode.plus.ui.navigation.Profile
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -54,9 +56,9 @@ class MainActivity : ComponentActivity() {
 
                     val startDestination =
                         if (userLoggedIn) {
-                            LeetCodePlusNavigationDestinations.USER_PROFILE_ROUTE
+                            Profile
                         } else {
-                            LeetCodePlusNavigationDestinations.LOGIN_ROUTE
+                            Login
                         }
 
                     LeetCodePlusNavGraph(navController, startDestination)
