@@ -86,7 +86,7 @@ fun LeetCodePlusNavGraph(
             TroubleShootScreen()
         }
 
-        composable(route = LeetCodePlusNavigationDestinations.VIDEO_SOLUTIONS_ROUTE) {
+        composable<VideoSolution> {
             VideoSolutionsScreen() {
                 navigationActions.popCurrentDestination()
             }

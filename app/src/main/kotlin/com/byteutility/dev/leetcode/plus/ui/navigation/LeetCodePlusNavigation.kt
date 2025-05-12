@@ -3,15 +3,6 @@ package com.byteutility.dev.leetcode.plus.ui.navigation
 import androidx.navigation.NavController
 import kotlinx.serialization.Serializable
 
-
-object LeetCodePlusNavigationDestinations {
-    const val USER_PROFILE_ROUTE = "user_profile"
-    const val SET_GOAL_ROUTE = "set_goal"
-    const val LOGIN_ROUTE = "login"
-    const val GOAL_STATUS_ROUTE = "goal_status"
-    const val VIDEO_SOLUTIONS_ROUTE = "video_solutions"
-}
-
 @Serializable
 object Home
 
@@ -31,6 +22,9 @@ object Login
 object TroubleShoot
 
 @Serializable
+object VideoSolution
+
+@Serializable
 data class WebView(
     val url: String
 )
@@ -40,7 +34,7 @@ class LeetCodePlusNavigation(navController: NavController) {
     val navigateToUserProfile: () -> Unit = {
         navController.navigate(Profile) {
             launchSingleTop = true
-            popUpTo(LeetCodePlusNavigationDestinations.LOGIN_ROUTE) {
+            popUpTo(Login) {
                 inclusive = true
             }
         }
@@ -69,7 +63,7 @@ class LeetCodePlusNavigation(navController: NavController) {
     }
 
     val navigateToVideoSolutions: () -> Unit = {
-        navController.navigate(LeetCodePlusNavigationDestinations.VIDEO_SOLUTIONS_ROUTE) {
+        navController.navigate(VideoSolution) {
             launchSingleTop = true
         }
     }

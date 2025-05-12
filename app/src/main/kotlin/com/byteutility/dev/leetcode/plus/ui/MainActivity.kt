@@ -18,7 +18,6 @@ import com.byteutility.dev.leetcode.plus.data.worker.ReminderNotificationWorker
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavGraph
-import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavigationDestinations
 import com.byteutility.dev.leetcode.plus.ui.navigation.Login
 import com.byteutility.dev.leetcode.plus.ui.navigation.Profile
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
