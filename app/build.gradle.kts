@@ -94,6 +94,13 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
     kapt(libs.room.compiler)
+    implementation(libs.msz.progress.indicator)
+
+    // To work with youtube v3 client
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.api.client.gson)
+    implementation(libs.google.api.services.youtube)
+    implementation(libs.google.http.client.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

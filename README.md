@@ -5,22 +5,27 @@ Additionally, you can set your own weekly goal through this application and this
 Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
 
 ## Key Features 🌟
+<img src="ss/leetcode_features.png" alt="Screenshot 1" style="display: block; margin: auto;" />
 
 - **Daily Reminder Notifications**: Stay on top of your coding practice with daily notifications based on your **LeetCode daily problem progress**.
 - **Weekly Goals Tracking**: Set weekly problem-solving targets, track your progress, and stay motivated to achieve your goals.
 - **Recent Submissions & User Stats**: Keep tabs on your latest Accepted submissions and view detailed user statistics from LeetCode.
 - **Glance widget for quick access to the Problem of the Day**: Glance widget that lets you see the Problem of the Day right from your home screen—making it easier than ever to stay consistent with your problem-solving!
+- **Leetcode solution videos**: Search with problem tag or problem name and get the turorial videos to watch.
 
 ## Screenshots
 <p align="center">
-    <img src="./ss/Home.png" alt="Screenshot 1" width="200"/>
-    <img src="./ss/Goal.png" alt="Screenshot 2" width="200"/>
-    <img src="./ss/Goal-Dialog.png" alt="Screenshot 3" width="200"/>
-    <img src="./ss/Goal-Status.png" alt="Screenshot 4" width="200"/>
-    <img src="./ss/Goal-Notification-1.png" alt="Screenshot 5" width="200"/>
-    <img src="./ss/Goal-Notification-2.png" alt="Screenshot 6" width="200"/>
-    <img src="ss/daily_widget.png" alt="Screenshot 6" width="200"/>
+    <img src="./ss/image1.jpeg" alt="Screenshot 1" width="200"/>
+    <img src="./ss/image2.jpeg" alt="Screenshot 1" width="200"/>
+    <img src="./ss/image3.jpeg" alt="Screenshot 1" width="200"/>
+    <img src="./ss/image4.jpeg" alt="Screenshot 1" width="200"/>
+    <img src="ss/image5.jpeg" alt="Screenshot 1" width="200"/>
 </p>
+
+Template from [here](https://previewed.app/template/16DCE402)
+
+## Contributing 🤝
+Contributions to LeetcodePlus are welcome! If you have suggestions for improvements, bug fixes, or new features, please open an issue or submit a pull request.
 
 ## Built With 🛠️
 

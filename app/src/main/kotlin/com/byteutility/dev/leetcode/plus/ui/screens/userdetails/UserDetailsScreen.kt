@@ -1,6 +1,7 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,16 +20,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -52,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -69,6 +74,8 @@ import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
+import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -76,6 +83,8 @@ import me.bytebeats.views.charts.pie.PieChart
 import me.bytebeats.views.charts.pie.PieChartData
 import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
 import me.bytebeats.views.charts.simpleChartAnimation
+import java.util.Calendar
+import java.util.TimeZone
 import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -84,7 +93,8 @@ fun UserProfileScreen(
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
     onTroubleShoot: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {}
+    onNavigateToWebView: (String) -> Unit = {},
+    onNavigateToVideoSolutions: () -> Unit = {},
 ) {
     val viewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -102,6 +112,10 @@ fun UserProfileScreen(
         onLoadMoreSubmission = {
             viewModel.loadNextAcSubmissions()
         },
+        onLoadMoreVideos = {
+            viewModel.loadNextVideos()
+        },
+        onSearchClick = onNavigateToVideoSolutions
     )
 }
 
@@ -116,6 +130,8 @@ fun UserProfileLayout(
     onTroubleShoot: () -> Unit,
     onNavigateToWebView: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit
 ) {
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
@@ -128,7 +144,7 @@ fun UserProfileLayout(
                     /**
                      * 5 times click in a shorter period will open troubleshoot page
                      */
-                    Text(text = "My Profile", modifier = Modifier.clickable {
+                    Text(text = "Home", modifier = Modifier.clickable {
                         val currentTime = System.currentTimeMillis()
                         if (currentTime - lastClickTime <= 1000) {
                             clickCount++
@@ -174,7 +190,9 @@ fun UserProfileLayout(
             dailyProblemSolved = dailyProblemSolved,
             onNavigateToWebView = onNavigateToWebView,
             modifier = Modifier.padding(paddingValues),
-            onLoadMoreSubmission = onLoadMoreSubmission
+            onLoadMoreSubmission = onLoadMoreSubmission,
+            onLoadMoreVideos = onLoadMoreVideos,
+            onSearchClick = onSearchClick
         )
     }
 }
@@ -186,6 +204,8 @@ fun UserProfileContent(
     dailyProblemSolved: Boolean,
     onNavigateToWebView: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit,
     modifier: Modifier,
 ) {
     LazyColumn(
@@ -205,9 +225,15 @@ fun UserProfileContent(
                     title = dailyProblem.title,
                     verdict = if (dailyProblemSolved) "Completed" else "Pending",
                     titleSlug = dailyProblem.titleSlug,
+                    difficulty = dailyProblem.difficulty,
                     onNavigateToWebView = onNavigateToWebView
                 )
                 UserStatisticsCard(uiState.userContestInfo)
+                YouTubeVideoRowContent(
+                    uiState.videosByPlayListState,
+                    onLoadMoreVideos,
+                    onSearchClick
+                )
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
 
                 if (uiState.userSubmissionState.submissions.isEmpty()) {
@@ -245,7 +271,7 @@ fun UserProfileContent(
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    CircularProgressIndicator()
+                    ProgressIndicator()
                 }
             }
         }
@@ -554,6 +580,7 @@ fun DailyProblemCard(
     title: String,
     verdict: String,
     titleSlug: String,
+    difficulty: String,
     onNavigateToWebView: (String) -> Unit
 ) {
     var animatedContent by remember { mutableStateOf(true) }
@@ -563,7 +590,7 @@ fun DailyProblemCard(
             animatedContent = true
             delay(1.seconds.inWholeMilliseconds)
             animatedContent = false
-            delay(5.seconds.inWholeMilliseconds)
+            delay(15.seconds.inWholeMilliseconds)
         }
     }
 
@@ -575,9 +602,26 @@ fun DailyProblemCard(
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
     ) { state ->
+        var remainingTime by remember { mutableStateOf(calculateRemainingTime()) }
+
+        LaunchedEffect(Unit) {
+            while (true) {
+                delay(1000L)
+                remainingTime = calculateRemainingTime()
+            }
+        }
         when (state) {
-            true -> ProblemTextPlaceholder()
-            false -> ProblemDetailsCard(title = title, titleSlug = titleSlug, verdict = verdict) {
+            true -> ProblemTextPlaceholder(
+                remainingTime = remainingTime
+            )
+
+            false -> ProblemDetailsCard(
+                title = title,
+                titleSlug = titleSlug,
+                remainingTime = remainingTime,
+                difficulty = difficulty,
+                verdict = verdict,
+            ) {
                 onNavigateToWebView(it)
             }
         }
@@ -585,7 +629,7 @@ fun DailyProblemCard(
 }
 
 @Composable
-fun ProblemTextPlaceholder() {
+fun ProblemTextPlaceholder(remainingTime: String) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
@@ -613,6 +657,10 @@ fun ProblemTextPlaceholder() {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            Text(
+                text = remainingTime,
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }
@@ -622,8 +670,11 @@ fun ProblemDetailsCard(
     title: String,
     titleSlug: String,
     verdict: String,
+    difficulty: String,
+    remainingTime: String,
     onNavigateToWebView: (String) -> Unit
 ) {
+
     val backgroundColor = when (verdict) {
         "Completed" -> MaterialTheme.colorScheme.secondaryContainer
         "Pending" -> MaterialTheme.colorScheme.errorContainer
@@ -670,10 +721,128 @@ fun ProblemDetailsCard(
                     color = textColor
                 )
             }
+            Column(
+                modifier = Modifier.fillMaxWidth(0.25f),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = difficulty,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = when (difficulty) {
+                        "Easy" -> Color(0xFF4CAF50)
+                        "Medium" -> Color(0xFFFFC107)
+
+                        else -> Color(0xFFF44336)
+                    }
+                )
+                Text(
+                    text = remainingTime,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
     }
 }
 
+
+@Composable
+fun YouTubeVideoRowContent(
+    state: VideosByPlayListState,
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit
+) {
+    val videos = state.videos.map {
+        YouTubeVideo(
+            videoId = it.id,
+            thumbnailUrl = it.snippet.thumbnails.high.url,
+            title = it.snippet.title
+        )
+    }
+    YouTubeVideoRow(state, videos, onLoadMoreVideos, onSearchClick)
+}
+
+@Composable
+fun YouTubeVideoRow(
+    state: VideosByPlayListState,
+    videos: List<YouTubeVideo> = mutableListOf(),
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit
+) {
+    val context = LocalContext.current
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            SearchVideosButton(onClick = onSearchClick)
+        }
+        itemsIndexed(videos) { index, video ->
+            if (index >= state.videos.size - 1 && !state.endReached && !state.isLoading) {
+                onLoadMoreVideos()
+            }
+            Box(
+                modifier = Modifier
+                    .size(135.dp, 100.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.Gray)
+                    .clickable {
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.youtube.com/watch?v=${video.videoId}")
+                        )
+                        context.startActivity(intent)
+                    }
+            ) {
+                AsyncImage(
+                    model = video.thumbnailUrl,
+                    contentDescription = "YouTube Thumbnail",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SearchVideosButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(135.dp, 100.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                brush = Brush.horizontalGradient(listOf(Color.Blue, Color.Cyan))
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White)
+            Text("Search Videos", color = Color.White, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+private fun calculateRemainingTime(): String {
+    val now = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    val midnight = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+        add(Calendar.DAY_OF_MONTH, 1)
+    }
+
+    val diffMillis = midnight.timeInMillis - now.timeInMillis
+    val hours = (diffMillis / (1000 * 60 * 60)) % 24
+    val minutes = (diffMillis / (1000 * 60)) % 60
+    val seconds = (diffMillis / 1000) % 60
+
+    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -749,5 +918,19 @@ fun PreviewUserDetails() {
         onTroubleShoot = {},
         onNavigateToWebView = {},
         onLoadMoreSubmission = {},
+        onLoadMoreVideos = {},
+        onSearchClick = {}
     )
+}
+
+@Preview
+@Composable
+fun PreviewProblemDetailsCard() {
+    ProblemDetailsCard(
+        title = "Two Sum of Integers of all the time very long",
+        titleSlug = "",
+        verdict = "Pending",
+        difficulty = "Easy",
+        "05:19:09"
+    ) { }
 }

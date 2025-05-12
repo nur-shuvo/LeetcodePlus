@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.solutions.VideoSolutionsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetset.SetWeeklyTargetScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetstatus.GoalProgressScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.userdetails.UserProfileScreen
@@ -75,11 +76,20 @@ fun LeetCodePlusNavGraph(
                     navigationActions.navigateToWebView(
                         WebView(url),
                     )
+                },
+                {
+                    navigationActions.navigateToVideoSolutions()
                 }
             )
         }
         composable<TroubleShoot> {
             TroubleShootScreen()
+        }
+
+        composable(route = LeetCodePlusNavigationDestinations.VIDEO_SOLUTIONS_ROUTE) {
+            VideoSolutionsScreen() {
+                navigationActions.popCurrentDestination()
+            }
         }
 
         composable<WebView> { backstackEntry ->

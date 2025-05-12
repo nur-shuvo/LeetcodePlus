@@ -1,5 +1,8 @@
 [versions]
 agp = "8.7.3"
+googleApiClientAndroid = "2.2.0"
+googleApiServicesYoutube = "v3-rev20231011-2.0.0"
+googleHttpClientAndroid = "1.43.3"
 kotlin = "2.0.20"
 coreKtx = "1.13.1"
 lifecycleRuntimeKtx = "2.8.7"
@@ -7,6 +10,7 @@ activityCompose = "1.9.3"
 composeBom = "2024.11.00"
 compose-compiler = "1.5.4"
 materialIconsExtended = "1.7.5"
+mszProgressIndicator = "0.8.0"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
 tikxml = "0.8.13"
@@ -30,6 +34,10 @@ kotlinxSerializationJson = "1.6.0"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "googleApiClientAndroid" }
+google-api-client-gson = { module = "com.google.api-client:google-api-client-gson", version.ref = "googleApiClientAndroid" }
+google-api-services-youtube = { module = "com.google.apis:google-api-services-youtube", version.ref = "googleApiServicesYoutube" }
+google-http-client-android = { module = "com.google.http-client:google-http-client-android", version.ref = "googleHttpClientAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -43,6 +51,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+msz-progress-indicator = { module = "com.ehsanmsz:msz-progress-indicator", version.ref = "mszProgressIndicator" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-gson-converter = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 tikxml-annotation = { module = "com.tickaroo.tikxml:annotation", version.ref = "tikxml" }

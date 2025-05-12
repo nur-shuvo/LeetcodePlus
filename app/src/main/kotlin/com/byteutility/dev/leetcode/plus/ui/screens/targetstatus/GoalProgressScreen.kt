@@ -107,13 +107,6 @@ fun ProgressScreenContent(
                     ProblemCard(it, onNavigateToWebView)
                 }
             }
-            Image(
-                painter = painterResource(id = R.drawable.img),
-                contentDescription = null,
-                contentScale = ContentScale.FillHeight,
-                modifier = Modifier.fillMaxSize(),
-                alpha = 0.08f
-            )
         }
     }
 }

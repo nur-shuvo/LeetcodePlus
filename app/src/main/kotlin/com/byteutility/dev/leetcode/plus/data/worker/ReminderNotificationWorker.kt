@@ -40,7 +40,7 @@ class ReminderNotificationWorker @AssistedInject constructor(
         fun enqueuePeriodicWork(context: Context) {
             val notificationRequest =
                 PeriodicWorkRequestBuilder<ReminderNotificationWorker>(
-                    1,
+                    3,
                     TimeUnit.HOURS
                 ).addTag("TAG_REMINDER_WORKER")
                     .build()

@@ -9,6 +9,7 @@ object LeetCodePlusNavigationDestinations {
     const val SET_GOAL_ROUTE = "set_goal"
     const val LOGIN_ROUTE = "login"
     const val GOAL_STATUS_ROUTE = "goal_status"
+    const val VIDEO_SOLUTIONS_ROUTE = "video_solutions"
 }
 
 @Serializable
@@ -63,6 +64,12 @@ class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToTroubleShoot: () -> Unit = {
         navController.navigate(TroubleShoot) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToVideoSolutions: () -> Unit = {
+        navController.navigate(LeetCodePlusNavigationDestinations.VIDEO_SOLUTIONS_ROUTE) {
             launchSingleTop = true
         }
     }

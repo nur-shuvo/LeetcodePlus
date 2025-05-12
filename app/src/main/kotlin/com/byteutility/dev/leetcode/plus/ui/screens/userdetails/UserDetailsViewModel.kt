@@ -3,16 +3,17 @@ package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.byteutility.dev.leetcode.plus.data.pagination.DefaultPaginator
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import com.byteutility.dev.leetcode.plus.data.pagination.DefaultPaginator
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
+import com.google.api.services.youtube.model.Video
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +34,7 @@ data class UserDetailsUiState(
     val userProblemSolvedInfo: UserProblemSolvedInfo = UserProblemSolvedInfo(),
     val userSubmissionState: UserSubmissionState = UserSubmissionState(),
     val isWeeklyGoalSet: Boolean = false,
+    val videosByPlayListState: VideosByPlayListState = VideosByPlayListState(),
 )
 
 data class UserSubmissionState(
@@ -43,44 +45,30 @@ data class UserSubmissionState(
     val page: Int = 0
 )
 
+data class VideosByPlayListState(
+    val isLoading: Boolean = false,
+    val videos: List<Video> = mutableListOf(),
+    val error: String? = null,
+    val endReached: Boolean = false,
+)
+
 @HiltViewModel
 class UserDetailsViewModel @Inject constructor(
     private val userDetailsRepository: UserDetailsRepository,
     private val goalRepository: WeeklyGoalRepository,
-    private val dailyProblemStatusMonitor: DailyProblemStatusMonitor
+    dailyProblemStatusMonitor: DailyProblemStatusMonitor
 ) : ViewModel() {
 
+    // Submissions
     private val userSubmissionState =
         MutableStateFlow(UserSubmissionState())
+    private val userSubmissionPagination = getUserSubmissionPaginator()
 
-    private val pagination = DefaultPaginator(
-        initialKey = userSubmissionState.value.page,
-        onLoadUpdated = { isLoading ->
-            userSubmissionState.update {
-                it.copy(isLoading = isLoading)
-            }
-        },
-        onRequest = { nextPage ->
-            userDetailsRepository.getUserRecentAcSubmissionsPaginated(nextPage, 5)
-        },
-        getNextKey = {
-            userSubmissionState.value.page + 1
-        },
-        onError = { error ->
-            userSubmissionState.update {
-                it.copy(error = error?.message)
-            }
-        },
-        onSuccess = { items, newKey ->
-            userSubmissionState.update {
-                it.copy(
-                    submissions = it.submissions + items,
-                    page = newKey,
-                    endReached = items.isEmpty()
-                )
-            }
-        }
-    )
+    // Videos
+    private val videosByPlayListState = MutableStateFlow(VideosByPlayListState())
+    private var pageTokenForPlayList: String? = null
+    private val videosByPlayListPagination = getVideosPaginator()
+
 
     private val userBasicInfo =
         MutableStateFlow(UserBasicInfo())
@@ -103,21 +91,24 @@ class UserDetailsViewModel @Inject constructor(
         initialValue = false
     )
 
-    // TODO Combine does not accept more than 5 args, need to find a cleaner way to add more flows
     val uiState: StateFlow<UserDetailsUiState> =
         combine(
-            userBasicInfo,
-            userContestInfo,
-            userProblemSolvedInfo,
-            userSubmissionState,
-            isWeeklyGoalSet
-        ) { userBasicInfo, userContestInfo, userProblemSolvedInfo, userSubmissionState, isWeeklyGoalSet ->
+            listOf(
+                userBasicInfo,
+                userContestInfo,
+                userProblemSolvedInfo,
+                userSubmissionState,
+                isWeeklyGoalSet,
+                videosByPlayListState
+            )
+        ) { values ->
             UserDetailsUiState(
-                userBasicInfo = userBasicInfo,
-                userContestInfo = userContestInfo,
-                userProblemSolvedInfo = userProblemSolvedInfo,
-                userSubmissionState = userSubmissionState,
-                isWeeklyGoalSet = isWeeklyGoalSet
+                userBasicInfo = values[0] as UserBasicInfo,
+                userContestInfo = values[1] as UserContestInfo,
+                userProblemSolvedInfo = values[2] as UserProblemSolvedInfo,
+                userSubmissionState = values[3] as UserSubmissionState,
+                isWeeklyGoalSet = values[4] as Boolean,
+                videosByPlayListState = values[5] as VideosByPlayListState
             )
         }.stateIn(
             scope = viewModelScope,
@@ -183,11 +174,85 @@ class UserDetailsViewModel @Inject constructor(
                 }
             }
         }
+
+        loadNextVideos()
+    }
+
+    private fun getUserSubmissionPaginator() = DefaultPaginator(
+        initialKey = userSubmissionState.value.page,
+        onLoadUpdated = { isLoading ->
+            userSubmissionState.update {
+                it.copy(isLoading = isLoading)
+            }
+        },
+        onRequest = { nextPage ->
+            userDetailsRepository.getUserRecentAcSubmissionsPaginated(nextPage, 5)
+        },
+        getNextKey = {
+            userSubmissionState.value.page + 1
+        },
+        onError = { error ->
+            userSubmissionState.update {
+                it.copy(error = error?.message)
+            }
+        },
+        onSuccess = { items, newKey ->
+            userSubmissionState.update {
+                it.copy(
+                    submissions = it.submissions + items,
+                    page = newKey,
+                    endReached = items.isEmpty()
+                )
+            }
+        }
+    )
+
+    private fun getVideosPaginator() = DefaultPaginator(
+        initialKey = pageTokenForPlayList,
+        onLoadUpdated = { isLoading ->
+            videosByPlayListState.update {
+                it.copy(isLoading = isLoading)
+            }
+        },
+        onRequest = { nextPage ->
+            runCatching {
+                val result = userDetailsRepository.getVideosByPlayList(
+                    nextPage,
+                    "PLiX7zQQX6FZMwPNeACDFvPDsUiu7AbZ8R"
+                )
+                pageTokenForPlayList = result.nextPageToken
+                return@DefaultPaginator Result.success(result.videos)
+            }.onFailure {
+                return@DefaultPaginator Result.failure(it)
+            }
+        },
+        getNextKey = {
+            pageTokenForPlayList
+        },
+        onError = { error ->
+            videosByPlayListState.update {
+                it.copy(error = error?.message)
+            }
+        },
+        onSuccess = { items, newKey ->
+            videosByPlayListState.update {
+                it.copy(
+                    videos = it.videos + items,
+                    endReached = items.isEmpty()
+                )
+            }
+        }
+    )
+
+    fun loadNextVideos() {
+        viewModelScope.launch(Dispatchers.IO) {
+            videosByPlayListPagination.loadNextItems()
+        }
     }
 
     fun loadNextAcSubmissions() {
-        viewModelScope.launch {
-            pagination.loadNextItems()
+        viewModelScope.launch(Dispatchers.IO) {
+            userSubmissionPagination.loadNextItems()
         }
     }
 
