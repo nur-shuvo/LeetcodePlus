@@ -1,44 +1,53 @@
 package com.byteutility.dev.leetcode.plus.ui.navigation
 
 import androidx.navigation.NavController
+import kotlinx.serialization.Serializable
 
+@Serializable
+object Home
 
-object LeetCodePlusNavigationDestinations {
-    const val USER_PROFILE_ROUTE = "user_profile"
-    const val SET_GOAL_ROUTE = "set_goal"
-    const val LOGIN_ROUTE = "login"
-    const val GOAL_STATUS_ROUTE = "goal_status"
-    const val TROUBLE_SHOOT_ROUTE = "trouble_shoot"
-    const val WEB_VIEW_ROUTE = "web_view"
-    const val VIDEO_SOLUTIONS_ROUTE = "video_solutions"
-}
+@Serializable
+object Profile
+
+@Serializable
+object Goal
+
+@Serializable
+object GoalStatus
+
+@Serializable
+object Login
+
+@Serializable
+object TroubleShoot
+
+@Serializable
+object VideoSolution
+
+@Serializable
+data class WebView(
+    val url: String
+)
 
 class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToUserProfile: () -> Unit = {
-        navController.navigate(LeetCodePlusNavigationDestinations.USER_PROFILE_ROUTE) {
+        navController.navigate(Profile) {
             launchSingleTop = true
-            popUpTo(LeetCodePlusNavigationDestinations.LOGIN_ROUTE) {
+            popUpTo(Login) {
                 inclusive = true
             }
         }
     }
 
     val navigateToSetGoal: () -> Unit = {
-        navController.navigate(LeetCodePlusNavigationDestinations.SET_GOAL_ROUTE) {
+        navController.navigate(Goal) {
             launchSingleTop = true
         }
     }
 
     val navigateToGoalStatus: () -> Unit = {
-        navController.navigate(LeetCodePlusNavigationDestinations.GOAL_STATUS_ROUTE) {
-            launchSingleTop = true
-        }
-    }
-
-
-    val navigateToLogin: () -> Unit = {
-        navController.navigate(LeetCodePlusNavigationDestinations.LOGIN_ROUTE) {
+        navController.navigate(GoalStatus) {
             launchSingleTop = true
         }
     }
@@ -48,20 +57,20 @@ class LeetCodePlusNavigation(navController: NavController) {
     }
 
     val navigateToTroubleShoot: () -> Unit = {
-        navController.navigate(LeetCodePlusNavigationDestinations.TROUBLE_SHOOT_ROUTE) {
+        navController.navigate(TroubleShoot) {
             launchSingleTop = true
         }
     }
 
     val navigateToVideoSolutions: () -> Unit = {
-        navController.navigate(LeetCodePlusNavigationDestinations.VIDEO_SOLUTIONS_ROUTE) {
+        navController.navigate(VideoSolution) {
             launchSingleTop = true
         }
     }
 
-    val navigateToWebView: (String, String) -> Unit = { url, caller ->
+    val navigateToWebView: (WebView) -> Unit = { webView ->
         navController.navigate(
-            LeetCodePlusNavigationDestinations.WEB_VIEW_ROUTE + "/" + url + "/" + caller
+            webView
         ) {
             launchSingleTop = true
         }

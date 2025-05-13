@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
     id("org.jetbrains.kotlin.kapt")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
@@ -60,6 +61,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.navigation.compose)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
@@ -69,6 +71,7 @@ dependencies {
     implementation(libs.tikxml.annotation)
     implementation(libs.tikxml.core)
     implementation(libs.tikxml.retrofit.converter)
+    implementation(libs.kotlinx.serialization.json)
     kapt(libs.tikxml.processor)
     kapt(libs.tikxml.auto.value)
     compileOnly(libs.tikxml.auto.value)

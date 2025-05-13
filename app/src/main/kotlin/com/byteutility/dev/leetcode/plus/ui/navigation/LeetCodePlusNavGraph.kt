@@ -3,11 +3,10 @@ package com.byteutility.dev.leetcode.plus.ui.navigation
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.solutions.VideoSolutionsScreen
@@ -19,7 +18,7 @@ import com.byteutility.dev.leetcode.plus.ui.screens.webview.WebViewScreen
 @Composable
 fun LeetCodePlusNavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = LeetCodePlusNavigationDestinations.LOGIN_ROUTE
+    startDestination: Any = Login
 ) {
     NavHost(
         navController = navController,
@@ -27,41 +26,43 @@ fun LeetCodePlusNavGraph(
     ) {
         val navigationActions = LeetCodePlusNavigation(navController)
 
-        composable(route = LeetCodePlusNavigationDestinations.LOGIN_ROUTE) {
+        composable<Login> {
             UserLoginScreen {
                 navigationActions.navigateToUserProfile()
             }
         }
 
-        composable(route = LeetCodePlusNavigationDestinations.SET_GOAL_ROUTE) {
+        composable<Goal> {
             SetWeeklyTargetScreen(
                 {
                     navigationActions.popCurrentDestination()
                 },
                 { url ->
                     navigationActions.navigateToWebView(
-                        url,
-                        LeetCodePlusNavigationDestinations.SET_GOAL_ROUTE
+                        WebView(
+                            url
+                        )
                     )
                 }
             )
         }
 
-        composable(route = LeetCodePlusNavigationDestinations.GOAL_STATUS_ROUTE) {
+        composable<GoalStatus> {
             GoalProgressScreen(
                 {
                     navigationActions.popCurrentDestination()
                 },
                 { url ->
                     navigationActions.navigateToWebView(
-                        url,
-                        LeetCodePlusNavigationDestinations.GOAL_STATUS_ROUTE
+                        WebView(
+                            url
+                        )
                     )
                 }
             )
         }
 
-        composable(route = LeetCodePlusNavigationDestinations.USER_PROFILE_ROUTE) {
+        composable<Profile> {
             UserProfileScreen(
                 {
                     navigationActions.navigateToSetGoal()
@@ -73,8 +74,7 @@ fun LeetCodePlusNavGraph(
                 },
                 { url ->
                     navigationActions.navigateToWebView(
-                        url,
-                        LeetCodePlusNavigationDestinations.USER_PROFILE_ROUTE
+                        WebView(url),
                     )
                 },
                 {
@@ -82,27 +82,21 @@ fun LeetCodePlusNavGraph(
                 }
             )
         }
-
-        composable(route = LeetCodePlusNavigationDestinations.TROUBLE_SHOOT_ROUTE) {
+        composable<TroubleShoot> {
             TroubleShootScreen()
         }
 
-        composable(route = LeetCodePlusNavigationDestinations.VIDEO_SOLUTIONS_ROUTE) {
+        composable<VideoSolution> {
             VideoSolutionsScreen() {
                 navigationActions.popCurrentDestination()
             }
         }
 
-        composable(
-            route = LeetCodePlusNavigationDestinations.WEB_VIEW_ROUTE + "/" + "{url}" + "/" + "{caller}",
-            arguments = listOf(
-                navArgument("url") { type = NavType.StringType },
-                navArgument("caller") { type = NavType.StringType })
-        ) { backstackEntry ->
-            val url = backstackEntry.arguments?.getString("url") ?: ""
-            val caller = backstackEntry.arguments?.getString("caller") ?: ""
+        composable<WebView> { backstackEntry ->
+            val webView = backstackEntry.toRoute<WebView>()
+            val url = webView.url
             val decodedUrl = Uri.decode(url)
-            WebViewScreen(decodedUrl, caller) {
+            WebViewScreen(decodedUrl) {
                 navigationActions.popCurrentDestination()
             }
         }

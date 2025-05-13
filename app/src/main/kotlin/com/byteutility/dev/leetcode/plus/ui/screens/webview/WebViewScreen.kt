@@ -32,7 +32,6 @@ import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 @Composable
 fun WebViewScreen(
     url: String,
-    caller: String,
     onPopCurrent: () -> Unit = {}
 ) {
     Scaffold(
