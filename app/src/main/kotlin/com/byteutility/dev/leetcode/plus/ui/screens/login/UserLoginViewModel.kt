@@ -1,6 +1,7 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.login
 
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
@@ -31,6 +32,10 @@ class UserLoginViewModel @Inject constructor(
     val loginState = _loginState.asStateFlow()
 
     fun saveUserName(userName: String, context: Context) {
+        if (userName.isEmpty()) {
+            Toast.makeText(context, "Username cannot be empty.", Toast.LENGTH_SHORT).show()
+            return
+        }
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
             try {
@@ -41,8 +46,9 @@ class UserLoginViewModel @Inject constructor(
                 )
                 _loginState.value = LoginState.Success(userName)
                 UserDetailsSyncWorker.enqueuePeriodicWork(context)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 _loginState.value = LoginState.Error("Failed to retrieve user profile.")
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
