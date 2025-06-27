@@ -12,7 +12,7 @@ import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.solutions.VideoSolutionsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetset.SetWeeklyTargetScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetstatus.GoalProgressScreen
-import com.byteutility.dev.leetcode.plus.ui.screens.userdetails.UserProfileScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.home.HomeScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.webview.WebViewScreen
 
 @Composable
@@ -62,8 +62,8 @@ fun LeetCodePlusNavGraph(
             )
         }
 
-        composable<Profile> {
-            UserProfileScreen(
+        composable<Home> {
+            HomeScreen(
                 {
                     navigationActions.navigateToSetGoal()
                 }, {

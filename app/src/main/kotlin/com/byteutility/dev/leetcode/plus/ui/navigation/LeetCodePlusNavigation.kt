@@ -7,9 +7,6 @@ import kotlinx.serialization.Serializable
 object Home
 
 @Serializable
-object Profile
-
-@Serializable
 object Goal
 
 @Serializable
@@ -32,7 +29,7 @@ data class WebView(
 class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToUserProfile: () -> Unit = {
-        navController.navigate(Profile) {
+        navController.navigate(Home) {
             launchSingleTop = true
             popUpTo(Login) {
                 inclusive = true

@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
+package com.byteutility.dev.leetcode.plus.ui.screens.home
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -89,7 +89,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun UserProfileScreen(
+fun HomeScreen(
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
     onTroubleShoot: () -> Unit = {},
@@ -101,7 +101,7 @@ fun UserProfileScreen(
     val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
     val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
     viewModel.startsSync(LocalContext.current)
-    UserProfileLayout(
+    HomeLayout(
         uiState = uiState,
         dailyProblem = dailyProblem,
         dailyProblemSolved = dailyProblemSolved,
@@ -121,7 +121,7 @@ fun UserProfileScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserProfileLayout(
+fun HomeLayout(
     uiState: UserDetailsUiState,
     dailyProblem: LeetCodeProblem,
     dailyProblemSolved: Boolean,
@@ -169,10 +169,11 @@ fun UserProfileLayout(
                         } else {
                             onSetGoal()
                         }
-                    }, modifier = Modifier.padding(end = 8.dp)) {
+                    }, modifier = Modifier.padding(end = 12.dp)) {
                         Text(
                             text = if (uiState.isWeeklyGoalSet) "See Goal Status" else "Set Goal",
-                            fontSize = 12.sp
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 },
@@ -891,7 +892,7 @@ fun PreviewUserDetails() {
             title = "reformidans"
         ),
     )
-    UserProfileLayout(
+    HomeLayout(
         uiState = UserDetailsUiState(
             userBasicInfo = UserBasicInfo(
                 name = "Mindy Shannon",
@@ -922,6 +923,9 @@ fun PreviewUserDetails() {
         onSearchClick = {}
     )
 }
+
+
+
 
 @Preview
 @Composable

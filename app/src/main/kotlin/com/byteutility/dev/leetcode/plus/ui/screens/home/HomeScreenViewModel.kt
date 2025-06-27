@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.screens.userdetails
+package com.byteutility.dev.leetcode.plus.ui.screens.home
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
