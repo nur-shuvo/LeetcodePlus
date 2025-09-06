@@ -8,9 +8,11 @@ import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.network.RestApiService
+import com.byteutility.dev.leetcode.plus.utils.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,6 +21,7 @@ import javax.inject.Inject
 class UserLoginViewModel @Inject constructor(
     private val userDatastore: UserDatastore,
     private val restApiService: RestApiService,
+    private val networkMonitor: NetworkMonitor,
 ) : ViewModel() {
 
     sealed class LoginState {
@@ -37,6 +40,10 @@ class UserLoginViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
+            if (networkMonitor.isOnline.firstOrNull() != true) {
+                Toast.makeText(context, "No internet connection.", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
             _loginState.value = LoginState.Loading
             try {
                 // TODO: need parse message if user name does not exist
