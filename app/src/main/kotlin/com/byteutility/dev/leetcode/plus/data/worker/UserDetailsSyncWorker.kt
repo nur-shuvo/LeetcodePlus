@@ -82,13 +82,14 @@ class UserDetailsSyncWorker @AssistedInject constructor(
     }
 
     companion object {
+        private const val HOUR_IN_MINUTES = 60L
         fun enqueuePeriodicWork(context: Context) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 
             val workRequest = PeriodicWorkRequestBuilder<UserDetailsSyncWorker>(
-                repeatInterval = Duration.ofMinutes(20)
+                repeatInterval = Duration.ofMinutes(HOUR_IN_MINUTES)
             ).setConstraints(constraints)
                 .build()
 
