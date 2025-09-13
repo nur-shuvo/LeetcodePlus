@@ -13,6 +13,7 @@ import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetails
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
+import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.google.api.services.youtube.model.Video
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +36,13 @@ data class UserDetailsUiState(
     val userSubmissionState: UserSubmissionState = UserSubmissionState(),
     val isWeeklyGoalSet: Boolean = false,
     val videosByPlayListState: VideosByPlayListState = VideosByPlayListState(),
+    val leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState = LeetcodeUpcomingContestsState()
+)
+
+data class LeetcodeUpcomingContestsState(
+    val isLoading: Boolean = false,
+    val contests: List<Contest> = emptyList(),
+    val error: String? = null
 )
 
 data class UserSubmissionState(
@@ -70,6 +78,9 @@ class UserDetailsViewModel @Inject constructor(
     private val videosByPlayListPagination = getVideosPaginator()
 
 
+    private val _leetcodeUpcomingContestsState = MutableStateFlow(LeetcodeUpcomingContestsState())
+
+
     private val userBasicInfo =
         MutableStateFlow(UserBasicInfo())
 
@@ -99,7 +110,8 @@ class UserDetailsViewModel @Inject constructor(
                 userProblemSolvedInfo,
                 userSubmissionState,
                 isWeeklyGoalSet,
-                videosByPlayListState
+                videosByPlayListState,
+                _leetcodeUpcomingContestsState
             )
         ) { values ->
             UserDetailsUiState(
@@ -108,7 +120,8 @@ class UserDetailsViewModel @Inject constructor(
                 userProblemSolvedInfo = values[2] as UserProblemSolvedInfo,
                 userSubmissionState = values[3] as UserSubmissionState,
                 isWeeklyGoalSet = values[4] as Boolean,
-                videosByPlayListState = values[5] as VideosByPlayListState
+                videosByPlayListState = values[5] as VideosByPlayListState,
+                leetcodeUpcomingContestsState = values[6] as LeetcodeUpcomingContestsState
             )
         }.stateIn(
             scope = viewModelScope,
@@ -171,6 +184,22 @@ class UserDetailsViewModel @Inject constructor(
             userDetailsRepository.getDailyProblem().collect {
                 if (it != null) {
                     _dailyProblem.value = it
+                }
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _leetcodeUpcomingContestsState.update {
+                it.copy(isLoading = true)
+            }
+            runCatching {
+                val contests = userDetailsRepository.getLeetcodeUpcomingContests()
+                _leetcodeUpcomingContestsState.update {
+                    it.copy(isLoading = false, contests = contests.objects)
+                }
+            }.onFailure {
+                _leetcodeUpcomingContestsState.update {
+                    it.copy(isLoading = false, error = it.error)
                 }
             }
         }

@@ -7,6 +7,8 @@ import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import com.byteutility.dev.leetcode.plus.network.RestApiService
+import com.byteutility.dev.leetcode.plus.network.responseVo.LeetcodeUpcomingContestsResponse
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.youtube.YouTube
@@ -19,6 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class UserDetailsRepositoryImpl @Inject constructor(
     private val userDatastore: UserDatastore,
+    private val restApiService: RestApiService,
 ) : UserDetailsRepository {
 
     private val youtubeDataApi =
@@ -99,6 +102,13 @@ class UserDetailsRepositoryImpl @Inject constructor(
             .execute()
 
         return VideosByPlaylist(videoListResponse.items, playListItemListResponse.nextPageToken)
+    }
+
+    override suspend fun getLeetcodeUpcomingContests(): LeetcodeUpcomingContestsResponse {
+        return restApiService.getLeetcodeUpcomingContests(
+            "Baker_vai",
+            "90dfbb9b3cd0f74ea4fb530077348d3367eccf70"
+        )
     }
 
     companion object {

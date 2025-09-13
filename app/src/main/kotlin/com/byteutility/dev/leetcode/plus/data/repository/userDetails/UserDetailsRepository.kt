@@ -6,6 +6,7 @@ import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import com.byteutility.dev.leetcode.plus.network.responseVo.LeetcodeUpcomingContestsResponse
 import kotlinx.coroutines.flow.Flow
 
 
@@ -18,4 +19,5 @@ interface UserDetailsRepository {
     suspend fun getDailyProblem(): Flow<LeetCodeProblem?>
     suspend fun getUserRecentAcSubmissionsPaginated(page: Int, pageSize: Int): Result<List<UserSubmission>>
     suspend fun getVideosByPlayList(nextPageToken: String?, playListId: String): VideosByPlaylist
+    suspend fun getLeetcodeUpcomingContests(): LeetcodeUpcomingContestsResponse
 }

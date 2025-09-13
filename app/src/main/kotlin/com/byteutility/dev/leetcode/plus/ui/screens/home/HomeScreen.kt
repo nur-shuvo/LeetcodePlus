@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,11 +18,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,6 +35,9 @@ import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -37,10 +45,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -74,8 +86,14 @@ import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
+import com.byteutility.dev.leetcode.plus.utils.formatContestDate
+import android.provider.CalendarContract
+import com.byteutility.dev.leetcode.plus.ui.theme.PurpleGrey80
+import java.time.Duration
+import java.time.OffsetDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -136,31 +154,49 @@ fun HomeLayout(
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
     val scope = rememberCoroutineScope()
+    val scaffoldState = rememberBottomSheetScaffoldState()
 
-    Scaffold(
+    LaunchedEffect(Unit) {
+        scope.launch {
+            scaffoldState.bottomSheetState.expand()
+        }
+    }
+
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetContent = {
+            AutoScrollingContestList(
+                contests = uiState.leetcodeUpcomingContestsState.contests,
+                modifier = Modifier.navigationBarsPadding()
+            )
+        },
+        sheetPeekHeight = 130.dp,
         topBar = {
             TopAppBar(
                 title = {
                     /**
                      * 5 times click in a shorter period will open troubleshoot page
                      */
-                    Text(text = "Home", modifier = Modifier.clickable {
-                        val currentTime = System.currentTimeMillis()
-                        if (currentTime - lastClickTime <= 1000) {
-                            clickCount++
-                            if (clickCount == 5) {
-                                onTroubleShoot.invoke()
+                    Text(
+                        text = "Home",
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable {
+                            val currentTime = System.currentTimeMillis()
+                            if (currentTime - lastClickTime <= 1000) {
+                                clickCount++
+                                if (clickCount == 5) {
+                                    onTroubleShoot.invoke()
+                                    clickCount = 0
+                                }
+                            } else {
+                                clickCount = 1
+                            }
+                            lastClickTime = currentTime
+                            scope.launch {
+                                delay(2000)
                                 clickCount = 0
                             }
-                        } else {
-                            clickCount = 1
-                        }
-                        lastClickTime = currentTime
-                        scope.launch {
-                            delay(2000)
-                            clickCount = 0
-                        }
-                    })
+                        })
                 },
                 actions = {
                     TextButton(onClick = {
@@ -183,7 +219,7 @@ fun HomeLayout(
                     )
                 )
             )
-        },
+        }
     ) { paddingValues ->
         UserProfileContent(
             uiState = uiState,
@@ -827,6 +863,96 @@ fun SearchVideosButton(onClick: () -> Unit) {
     }
 }
 
+@Composable
+fun AutoScrollingContestList(
+    contests: List<Contest>,
+    modifier: Modifier = Modifier,
+    scrollIntervalMillis: Long = 6000L
+) {
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    var currentIndex by remember { mutableStateOf(0) }
+    val context = LocalContext.current
+
+    LaunchedEffect(contests) {
+        if (contests.isEmpty()) return@LaunchedEffect
+        while (true) {
+            delay(scrollIntervalMillis)
+            currentIndex = (currentIndex + 1) % contests.size
+            scope.launch {
+                listState.animateScrollToItem(currentIndex)
+            }
+        }
+    }
+
+    LazyRow(
+        state = listState,
+        modifier = modifier.padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(contests) { contest ->
+            Column(
+                modifier = Modifier
+                    .fillParentMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = contest.event,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Icon(
+                    imageVector = Icons.Default.Link,
+                    contentDescription = "Link to contest",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(contest.href))
+                            context.startActivity(intent)
+                        },
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Icon(
+                    imageVector = Icons.Default.Event,
+                    contentDescription = "Add to calendar",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable {
+                            val beginTime =
+                                OffsetDateTime.parse(contest.start + "Z").toInstant().toEpochMilli()
+                            val endTime =
+                                beginTime + Duration.ofSeconds(contest.duration.toLong()).toMillis()
+
+                            val intent = Intent(Intent.ACTION_INSERT)
+                                .setData(CalendarContract.Events.CONTENT_URI)
+                                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime)
+                                .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime)
+                                .putExtra(CalendarContract.Events.TITLE, contest.event)
+                                .putExtra(
+                                    CalendarContract.Events.DESCRIPTION,
+                                    "LeetCode Contest: ${contest.event}"
+                                )
+                                .putExtra(CalendarContract.Events.EVENT_LOCATION, contest.href)
+                                .putExtra(
+                                    CalendarContract.Events.AVAILABILITY,
+                                    CalendarContract.Events.AVAILABILITY_BUSY
+                                )
+
+                            context.startActivity(intent)
+                        },
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = formatContestDate(contest.start),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Red
+                )
+            }
+        }
+    }
+}
+
 private fun calculateRemainingTime(): String {
     val now = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
     val midnight = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
@@ -924,9 +1050,6 @@ fun PreviewUserDetails() {
     )
 }
 
-
-
-
 @Preview
 @Composable
 fun PreviewProblemDetailsCard() {
@@ -937,4 +1060,43 @@ fun PreviewProblemDetailsCard() {
         difficulty = "Easy",
         "05:19:09"
     ) { }
+}
+
+@Preview
+@Composable
+fun PreviewContestScreen() {
+    val sampleContests = listOf(
+        Contest(
+            duration = 5400,
+            end = "2025-09-27T16:00:00",
+            event = "Biweekly Contest 166",
+            host = "leetcode.com",
+            href = "https://leetcode.com/contest/biweekly-contest-166",
+            id = 61794058,
+            nProblems = null,
+            nStatistics = null,
+            parsedAt = null,
+            problems = null,
+            resource = "leetcode.com",
+            resourceId = 102,
+            start = "2025-09-27T14:30:00"
+        ),
+        Contest(
+            duration = 5400,
+            end = "2025-09-21T04:00:00",
+            event = "Weekly Contest 468",
+            host = "leetcode.com",
+            href = "https://leetcode.com/contest/weekly-contest-468",
+            id = 61794059,
+            nProblems = null,
+            nStatistics = null,
+            parsedAt = null,
+            problems = null,
+            resource = "leetcode.com",
+            resourceId = 102,
+            start = "2025-09-21T02:30:00"
+        )
+    )
+
+    AutoScrollingContestList(contests = sampleContests)
 }

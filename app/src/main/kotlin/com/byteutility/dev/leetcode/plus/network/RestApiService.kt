@@ -6,6 +6,7 @@ import com.byteutility.dev.leetcode.plus.network.responseVo.DailyQuestionRespons
 import com.byteutility.dev.leetcode.plus.network.responseVo.ProblemSetResponseVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserContestVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserProfileVo
+import com.byteutility.dev.leetcode.plus.network.responseVo.LeetcodeUpcomingContestsResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserSolvedVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserSubmissionVo
 import retrofit2.http.GET
@@ -55,4 +56,11 @@ interface RestApiService {
     @ResponseFormat(Format.JSON)
     @GET("/daily")
     suspend fun getDailyProblem(): DailyQuestionResponse
+
+    @ResponseFormat(Format.JSON)
+    @GET("https://clist.by/api/v4/contest/?host=leetcode.com&upcoming=true&format=json")
+    suspend fun getLeetcodeUpcomingContests(
+        @Query("username") username: String,
+        @Query("api_key") apiKey: String,
+    ): LeetcodeUpcomingContestsResponse
 }
