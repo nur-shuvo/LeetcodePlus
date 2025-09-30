@@ -878,76 +878,93 @@ fun AutoScrollingContestList(
         if (contests.isEmpty()) return@LaunchedEffect
         while (true) {
             delay(scrollIntervalMillis)
-            currentIndex = (currentIndex + 1) % contests.size
-            scope.launch {
-                listState.animateScrollToItem(currentIndex)
+            if (contests.isNotEmpty()) {
+                currentIndex = (currentIndex + 1) % contests.size
+                scope.launch {
+                    listState.animateScrollToItem(currentIndex)
+                }
             }
         }
     }
 
     LazyRow(
         state = listState,
-        modifier = modifier.padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = modifier.padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         items(contests) { contest ->
-            Column(
-                modifier = Modifier
-                    .fillParentMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                modifier = Modifier.width(IntrinsicSize.Max)
             ) {
-                Text(
-                    text = contest.event,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Icon(
-                    imageVector = Icons.Default.Link,
-                    contentDescription = "Link to contest",
+                Column(
                     modifier = Modifier
-                        .size(32.dp)
-                        .clickable {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(contest.href))
-                            context.startActivity(intent)
-                        },
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Icon(
-                    imageVector = Icons.Default.Event,
-                    contentDescription = "Add to calendar",
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clickable {
-                            val beginTime =
-                                OffsetDateTime.parse(contest.start + "Z").toInstant().toEpochMilli()
-                            val endTime =
-                                beginTime + Duration.ofSeconds(contest.duration.toLong()).toMillis()
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = contest.event,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = formatContestDate(contest.start),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Red,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Link,
+                            contentDescription = "Link to contest",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(contest.href))
+                                    context.startActivity(intent)
+                                },
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Event,
+                            contentDescription = "Add to calendar",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable {
+                                    val beginTime =
+                                        OffsetDateTime.parse(contest.start + "Z").toInstant().toEpochMilli()
+                                    val endTime =
+                                        beginTime + Duration.ofSeconds(contest.duration.toLong()).toMillis()
 
-                            val intent = Intent(Intent.ACTION_INSERT)
-                                .setData(CalendarContract.Events.CONTENT_URI)
-                                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime)
-                                .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime)
-                                .putExtra(CalendarContract.Events.TITLE, contest.event)
-                                .putExtra(
-                                    CalendarContract.Events.DESCRIPTION,
-                                    "LeetCode Contest: ${contest.event}"
-                                )
-                                .putExtra(CalendarContract.Events.EVENT_LOCATION, contest.href)
-                                .putExtra(
-                                    CalendarContract.Events.AVAILABILITY,
-                                    CalendarContract.Events.AVAILABILITY_BUSY
-                                )
+                                    val intent = Intent(Intent.ACTION_INSERT)
+                                        .setData(CalendarContract.Events.CONTENT_URI)
+                                        .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime)
+                                        .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime)
+                                        .putExtra(CalendarContract.Events.TITLE, contest.event)
+                                        .putExtra(
+                                            CalendarContract.Events.DESCRIPTION,
+                                            "LeetCode Contest: ${contest.event}"
+                                        )
+                                        .putExtra(CalendarContract.Events.EVENT_LOCATION, contest.href)
+                                        .putExtra(
+                                            CalendarContract.Events.AVAILABILITY,
+                                            CalendarContract.Events.AVAILABILITY_BUSY
+                                        )
 
-                            context.startActivity(intent)
-                        },
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = formatContestDate(contest.start),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Red
-                )
+                                    context.startActivity(intent)
+                                },
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             }
         }
     }
