@@ -164,13 +164,14 @@ fun HomeLayout(
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
+        sheetContainerColor = MaterialTheme.colorScheme.primaryContainer,
         sheetContent = {
             AutoScrollingContestList(
                 contests = uiState.leetcodeUpcomingContestsState.contests,
                 modifier = Modifier.navigationBarsPadding()
             )
         },
-        sheetPeekHeight = 130.dp,
+        sheetPeekHeight = 100.dp,
         topBar = {
             TopAppBar(
                 title = {
