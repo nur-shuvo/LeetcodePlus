@@ -1,18 +1,24 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.login
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -74,6 +81,7 @@ fun LeetCodeUsernameScreen(
     onProceedClick: (userName: String) -> Unit,
 ) {
     var username by remember { mutableStateOf("") }
+    var showHelp by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -90,28 +98,50 @@ fun LeetCodeUsernameScreen(
                 contentDescription = "App Logo",
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier
-                    .padding(start = 32.dp, end = 32.dp)
-                    .fillMaxWidth()
+                    .padding(horizontal = 48.dp)
+                    .size(36.dp)
             )
 
             OutlinedTextField(
-                label = { Text(text = "Enter your LeetCode username") },
+                label = { Text("Enter your LeetCode username") },
                 value = username,
                 onValueChange = { username = it },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
+            TextButton(onClick = { showHelp = !showHelp }) {
+                Text(
+                    text = if (showHelp) "Hide help" else "How to find your username?",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
+
+            AnimatedVisibility(visible = showHelp) {
+                Image(
+                    painter = painterResource(id = R.drawable.leetcode_username_guide),
+                    contentDescription = "LeetCode Username Guide",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                            RoundedCornerShape(12.dp)
+                        )
+                )
+            }
+
             Button(
                 onClick = {
-                    if (username.isNotEmpty()) {
-                        onProceedClick(username)
-                    }
+                    if (username.isNotEmpty()) onProceedClick(username)
                 },
                 shape = RoundedCornerShape(32.dp),
                 elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 6.dp)
             ) {
-                Text(text = "Proceed")
+                Text("Proceed")
             }
         }
     }
