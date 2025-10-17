@@ -366,7 +366,7 @@ fun UserProblemCategoryStats(
 @Composable
 fun UserProfileCard(user: UserBasicInfo) {
     val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
+        colors = listOf(Color(0xFF4CAF50), Color.LightGray)
     )
 
     Card(
@@ -448,7 +448,7 @@ fun UserProfileCard(user: UserBasicInfo) {
 @Composable
 fun UserStatisticsCard(user: UserContestInfo) {
     val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
+        colors = listOf(Color(0xFF4CAF50), Color.LightGray)
     )
 
     Card(
@@ -941,20 +941,28 @@ fun AutoScrollingContestList(
                                 .size(24.dp)
                                 .clickable {
                                     val beginTime =
-                                        OffsetDateTime.parse(contest.start + "Z").toInstant().toEpochMilli()
+                                        OffsetDateTime.parse(contest.start + "Z").toInstant()
+                                            .toEpochMilli()
                                     val endTime =
-                                        beginTime + Duration.ofSeconds(contest.duration.toLong()).toMillis()
+                                        beginTime + Duration.ofSeconds(contest.duration.toLong())
+                                            .toMillis()
 
                                     val intent = Intent(Intent.ACTION_INSERT)
                                         .setData(CalendarContract.Events.CONTENT_URI)
-                                        .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime)
+                                        .putExtra(
+                                            CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                                            beginTime
+                                        )
                                         .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime)
                                         .putExtra(CalendarContract.Events.TITLE, contest.event)
                                         .putExtra(
                                             CalendarContract.Events.DESCRIPTION,
                                             "LeetCode Contest: ${contest.event}"
                                         )
-                                        .putExtra(CalendarContract.Events.EVENT_LOCATION, contest.href)
+                                        .putExtra(
+                                            CalendarContract.Events.EVENT_LOCATION,
+                                            contest.href
+                                        )
                                         .putExtra(
                                             CalendarContract.Events.AVAILABILITY,
                                             CalendarContract.Events.AVAILABILITY_BUSY
