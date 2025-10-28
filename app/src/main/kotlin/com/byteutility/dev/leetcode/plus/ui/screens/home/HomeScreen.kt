@@ -44,15 +44,13 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -91,6 +89,10 @@ import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.byteutility.dev.leetcode.plus.utils.formatContestDate
 import android.provider.CalendarContract
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.OutlinedButton
 import com.byteutility.dev.leetcode.plus.ui.theme.PurpleGrey80
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -113,6 +115,7 @@ fun HomeScreen(
     onTroubleShoot: () -> Unit = {},
     onNavigateToWebView: (String) -> Unit = {},
     onNavigateToVideoSolutions: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val viewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -133,7 +136,11 @@ fun HomeScreen(
         onLoadMoreVideos = {
             viewModel.loadNextVideos()
         },
-        onSearchClick = onNavigateToVideoSolutions
+        onSearchClick = onNavigateToVideoSolutions,
+        onLogout = {
+            viewModel.logout()
+            onLogout.invoke()
+        }
     )
 }
 
@@ -149,8 +156,21 @@ fun HomeLayout(
     onNavigateToWebView: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
     onLoadMoreVideos: () -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    onLogout: () -> Unit
 ) {
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
+    if (showLogoutDialog) {
+        LogoutConfirmationDialog(
+            onConfirm = {
+                showLogoutDialog = false
+                onLogout()
+            },
+            onDismiss = { showLogoutDialog = false }
+        )
+    }
+
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
     val scope = rememberCoroutineScope()
@@ -200,19 +220,25 @@ fun HomeLayout(
                         })
                 },
                 actions = {
-                    TextButton(onClick = {
-                        if (uiState.isWeeklyGoalSet) {
-                            onGoalStatus()
-                        } else {
-                            onSetGoal()
-                        }
-                    }, modifier = Modifier.padding(end = 12.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            if (uiState.isWeeklyGoalSet) {
+                                onGoalStatus()
+                            } else {
+                                onSetGoal()
+                            }
+                        },
+                        modifier = Modifier.padding(end = 12.dp),
+                        border = BorderStroke(1.dp, Color.Gray),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
                         Text(
                             text = if (uiState.isWeeklyGoalSet) "See Goal Status" else "Set Goal",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                         )
                     }
+                    LogoutButton({ showLogoutDialog = true }, uiState.userBasicInfo.avatar)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFABDEF5).copy(
@@ -442,6 +468,34 @@ fun UserProfileCard(user: UserBasicInfo) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun LogoutButton(
+    onLogout: () -> Unit,
+    avatar: String
+) {
+    val gradientBrush = Brush.horizontalGradient(
+        colors = listOf(Color(0xFFE91E63), Color(0xFFFFC107))
+    )
+    Box(
+        modifier = Modifier
+            .padding(end = 16.dp)
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(gradientBrush)
+            .clickable { onLogout() },
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = avatar,
+            placeholder = painterResource(R.drawable.profile_placeholder),
+            contentDescription = "User avatar",
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+        )
     }
 }
 
@@ -979,6 +1033,32 @@ fun AutoScrollingContestList(
     }
 }
 
+@Composable
+fun LogoutConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Confirm Logout") },
+        text = { Text(text = "Are you sure you want to logout?") },
+        confirmButton = {
+            Button(
+                onClick = onConfirm
+            ) {
+                Text("Logout")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
 private fun calculateRemainingTime(): String {
     val now = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
     val midnight = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
@@ -1072,7 +1152,8 @@ fun PreviewUserDetails() {
         onNavigateToWebView = {},
         onLoadMoreSubmission = {},
         onLoadMoreVideos = {},
-        onSearchClick = {}
+        onSearchClick = {},
+        onLogout = {}
     )
 }
 

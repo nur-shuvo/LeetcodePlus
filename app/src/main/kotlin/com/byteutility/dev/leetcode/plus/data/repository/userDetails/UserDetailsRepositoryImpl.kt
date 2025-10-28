@@ -111,6 +111,10 @@ class UserDetailsRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun clearAllData() {
+        userDatastore.clearAllData()
+    }
+
     companion object {
         const val YOUTUBE_PLAYLIST_MAX_RESULTS: Long = 10L
         const val YOUTUBE_PLAYLIST_PART: String = "snippet"

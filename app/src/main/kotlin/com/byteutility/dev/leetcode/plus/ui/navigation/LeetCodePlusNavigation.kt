@@ -72,4 +72,13 @@ class LeetCodePlusNavigation(navController: NavController) {
             launchSingleTop = true
         }
     }
+
+    val navigateToLogin: () -> Unit = {
+        navController.navigate(Login) {
+            launchSingleTop = true
+            popUpTo(Home) {
+                inclusive = true
+            }
+        }
+    }
 }

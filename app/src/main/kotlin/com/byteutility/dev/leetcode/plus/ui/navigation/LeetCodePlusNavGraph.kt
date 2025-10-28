@@ -64,21 +64,24 @@ fun LeetCodePlusNavGraph(
 
         composable<Home> {
             HomeScreen(
-                {
+                onSetGoal = {
                     navigationActions.navigateToSetGoal()
-                }, {
+                }, onGoalStatus = {
                     navigationActions.navigateToGoalStatus()
                 },
-                {
+                onTroubleShoot = {
                     navigationActions.navigateToTroubleShoot()
                 },
-                { url ->
+                onNavigateToWebView = { url ->
                     navigationActions.navigateToWebView(
                         WebView(url),
                     )
                 },
-                {
+                onNavigateToVideoSolutions = {
                     navigationActions.navigateToVideoSolutions()
+                },
+                onLogout = {
+                    navigationActions.navigateToLogin()
                 }
             )
         }

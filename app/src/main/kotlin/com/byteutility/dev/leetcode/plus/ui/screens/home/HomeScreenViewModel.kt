@@ -1,8 +1,10 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.home
-
+import androidx.work.WorkManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.byteutility.dev.leetcode.plus.data.datastore.NotificationDataStore
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
@@ -62,8 +64,10 @@ data class VideosByPlayListState(
 
 @HiltViewModel
 class UserDetailsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val userDetailsRepository: UserDetailsRepository,
     private val goalRepository: WeeklyGoalRepository,
+    private val notificationDataStore: NotificationDataStore,
     dailyProblemStatusMonitor: DailyProblemStatusMonitor
 ) : ViewModel() {
 
@@ -286,4 +290,12 @@ class UserDetailsViewModel @Inject constructor(
     }
 
     fun startsSync(context: Context) = UserDetailsSyncWorker.enqueuePeriodicWork(context)
+
+    fun logout() {
+        viewModelScope.launch {
+            WorkManager.getInstance(context).cancelAllWork()
+            userDetailsRepository.clearAllData()
+            notificationDataStore.clearAll()
+        }
+    }
 }

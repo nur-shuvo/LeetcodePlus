@@ -169,4 +169,10 @@ class UserDatastore @Inject constructor(
                 }
             }
     }
+
+    suspend fun clearAllData() {
+        context.userPreferencesDataStore.edit {
+            it.clear()
+        }
+    }
 }

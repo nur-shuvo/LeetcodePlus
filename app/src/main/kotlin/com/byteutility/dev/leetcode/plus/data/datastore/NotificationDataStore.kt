@@ -54,4 +54,10 @@ class NotificationDataStore @Inject constructor(
             }
     }
 
+    suspend fun clearAll() {
+        context.dataStore.edit {
+            it.clear()
+        }
+    }
+
 }

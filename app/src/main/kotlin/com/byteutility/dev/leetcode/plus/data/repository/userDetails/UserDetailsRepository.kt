@@ -20,4 +20,5 @@ interface UserDetailsRepository {
     suspend fun getUserRecentAcSubmissionsPaginated(page: Int, pageSize: Int): Result<List<UserSubmission>>
     suspend fun getVideosByPlayList(nextPageToken: String?, playListId: String): VideosByPlaylist
     suspend fun getLeetcodeUpcomingContests(): LeetcodeUpcomingContestsResponse
+    suspend fun clearAllData()
 }
