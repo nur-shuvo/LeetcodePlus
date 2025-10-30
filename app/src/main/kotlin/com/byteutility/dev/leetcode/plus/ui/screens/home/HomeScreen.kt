@@ -3,7 +3,9 @@ package com.byteutility.dev.leetcode.plus.ui.screens.home
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.provider.CalendarContract
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,12 +33,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.Event
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -44,13 +49,11 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -67,7 +70,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -88,14 +93,6 @@ import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.byteutility.dev.leetcode.plus.utils.formatContestDate
-import android.provider.CalendarContract
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonElevation
-import androidx.compose.material3.OutlinedButton
-import com.byteutility.dev.leetcode.plus.ui.theme.PurpleGrey80
-import java.time.Duration
-import java.time.OffsetDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -103,6 +100,8 @@ import me.bytebeats.views.charts.pie.PieChart
 import me.bytebeats.views.charts.pie.PieChartData
 import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
 import me.bytebeats.views.charts.simpleChartAnimation
+import java.time.Duration
+import java.time.OffsetDateTime
 import java.util.Calendar
 import java.util.TimeZone
 import kotlin.time.Duration.Companion.seconds
@@ -175,23 +174,43 @@ fun HomeLayout(
     var lastClickTime by remember { mutableLongStateOf(0L) }
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
-
-    LaunchedEffect(Unit) {
-        scope.launch {
-            scaffoldState.bottomSheetState.expand()
-        }
-    }
+    var sheetPeekHeight by remember { mutableStateOf(72.dp) }
+    val density = LocalDensity.current
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        sheetContainerColor = MaterialTheme.colorScheme.primaryContainer,
+        sheetContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
         sheetContent = {
-            AutoScrollingContestList(
-                contests = uiState.leetcodeUpcomingContestsState.contests,
-                modifier = Modifier.navigationBarsPadding()
-            )
+            Column {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .onGloballyPositioned {
+                            val newHeight = with(density) { it.size.height.toDp() + 60.dp }
+                            sheetPeekHeight = newHeight
+                        }
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Upcoming contests",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Expand",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                AutoScrollingContestList(
+                    contests = uiState.leetcodeUpcomingContestsState.contests,
+                    modifier = Modifier.navigationBarsPadding()
+                )
+            }
         },
-        sheetPeekHeight = 100.dp,
+        sheetPeekHeight = sheetPeekHeight,
         topBar = {
             TopAppBar(
                 title = {
