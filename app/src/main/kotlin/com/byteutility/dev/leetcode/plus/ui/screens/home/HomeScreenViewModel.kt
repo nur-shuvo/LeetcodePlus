@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.byteutility.dev.leetcode.plus.data.datastore.NotificationDataStore
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -113,6 +115,7 @@ class UserDetailsViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = false
     )
+
 
     val uiState: StateFlow<UserDetailsUiState> =
         combine(
@@ -345,5 +348,11 @@ class UserDetailsViewModel @Inject constructor(
                 Toast.LENGTH_LONG
             ).show()
         }
+    }
+
+    suspend fun checkInAppContestReminderStatus(contest: Contest): Boolean = withContext(Dispatchers.IO) {
+        val workManager = WorkManager.getInstance(context)
+        val workInfos = workManager.getWorkInfosForUniqueWork("contest-reminder-${contest.id}").get()
+        workInfos.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
     }
 }

@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -36,7 +37,8 @@ object NotificationHandler {
             context,
             "Weekly Goal",
             GOAL_CHANNEL_ID,
-            "Notification for your weekly leetcode goal"
+            "Notification for your weekly leetcode goal",
+            false
         )
 
         val builder = NotificationCompat.Builder(context, GOAL_CHANNEL_ID)
@@ -78,7 +80,8 @@ object NotificationHandler {
             context,
             "Leetcode Daily",
             DAILY_PROBLEM_CHANNEL_ID,
-            "Notification for leetcode daily problem"
+            "Notification for leetcode daily problem",
+            false
         )
 
         val builder = NotificationCompat.Builder(context, DAILY_PROBLEM_CHANNEL_ID)
@@ -117,7 +120,8 @@ object NotificationHandler {
             context,
             "Contest Reminder",
             CONTEST_REMINDER_CHANNEL_ID,
-            "Notification for upcoming leetcode contests"
+            "Notification for upcoming leetcode contests",
+            true
         )
 
         val builder = NotificationCompat.Builder(context, CONTEST_REMINDER_CHANNEL_ID)
@@ -144,11 +148,22 @@ object NotificationHandler {
         context: Context,
         channelName: String,
         channelID: String,
-        descriptionText: String
+        descriptionText: String,
+        isHighImportance: Boolean = false
     ) {
-        val importance = NotificationManager.IMPORTANCE_HIGH
+        val importance =
+            if (isHighImportance) NotificationManager.IMPORTANCE_HIGH else NotificationManager.IMPORTANCE_DEFAULT
         val channel = NotificationChannel(channelID, channelName, importance).apply {
             description = descriptionText
+        }
+        if (isHighImportance) {
+            val soundUri =
+                Uri.parse("android.resource://" + context.packageName + "/" + R.raw.in_app_contest_notify)
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_ALARM)
+                .build()
+            channel.setSound(soundUri, audioAttributes)
         }
         val notificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

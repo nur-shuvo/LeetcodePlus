@@ -143,6 +143,9 @@ fun HomeScreen(
         },
         onSetInAppReminder = { contest ->
             viewModel.setInAppReminder(contest)
+        },
+        checkInAppContestReminderStatus = {
+            viewModel.checkInAppContestReminderStatus(it)
         }
     )
 }
@@ -161,7 +164,8 @@ fun HomeLayout(
     onLoadMoreVideos: () -> Unit,
     onSearchClick: () -> Unit,
     onLogout: () -> Unit,
-    onSetInAppReminder: (Contest) -> Unit
+    onSetInAppReminder: (Contest) -> Unit,
+    checkInAppContestReminderStatus: suspend (Contest) -> Boolean
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -212,7 +216,8 @@ fun HomeLayout(
                 AutoScrollingContestList(
                     contests = uiState.leetcodeUpcomingContestsState.contests,
                     modifier = Modifier.navigationBarsPadding(),
-                    onSetInAppReminder = onSetInAppReminder
+                    onSetInAppReminder = onSetInAppReminder,
+                    checkInAppContestReminderStatus = checkInAppContestReminderStatus
                 )
             }
         },
@@ -949,14 +954,16 @@ fun AutoScrollingContestList(
     contests: List<Contest>,
     modifier: Modifier = Modifier,
     scrollIntervalMillis: Long = 6000L,
-    onSetInAppReminder: (Contest) -> Unit
+    onSetInAppReminder: (Contest) -> Unit,
+    checkInAppContestReminderStatus: suspend (Contest) -> Boolean
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    var currentIndex by remember { mutableStateOf(0) }
+    var currentIndex by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedContest by remember { mutableStateOf<Contest?>(null) }
+    var isInAppContestReminderSet by remember { mutableStateOf(false) }
 
     LaunchedEffect(contests) {
         if (contests.isEmpty()) return@LaunchedEffect
@@ -1024,7 +1031,10 @@ fun AutoScrollingContestList(
                                 .size(24.dp)
                                 .clickable {
                                     selectedContest = contest
-                                    showBottomSheet = true
+                                    scope.launch {
+                                        isInAppContestReminderSet = checkInAppContestReminderStatus(contest)
+                                        showBottomSheet = true
+                                    }
                                 },
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -1073,7 +1083,8 @@ fun AutoScrollingContestList(
                 onSetInAppReminder = {
                     onSetInAppReminder(contest)
                     showBottomSheet = false
-                }
+                },
+                isInAppContestReminderSet = isInAppContestReminderSet
             )
         }
     }
@@ -1084,7 +1095,8 @@ fun AutoScrollingContestList(
 fun AddReminderBottomSheet(
     onDismiss: () -> Unit,
     onAddToCalendar: () -> Unit,
-    onSetInAppReminder: () -> Unit
+    onSetInAppReminder: () -> Unit,
+    isInAppContestReminderSet: Boolean
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -1100,8 +1112,8 @@ fun AddReminderBottomSheet(
             Button(onClick = onAddToCalendar) {
                 Text("Add to Google Calendar")
             }
-            Button(onClick = onSetInAppReminder) {
-                Text("Set in-app reminder")
+            Button(onClick = onSetInAppReminder, enabled = !isInAppContestReminderSet) {
+                Text(if (isInAppContestReminderSet) "In-App reminder already set" else "Set in-app reminder")
             }
         }
     }
@@ -1228,7 +1240,8 @@ fun PreviewUserDetails() {
         onLoadMoreVideos = {},
         onSearchClick = {},
         onLogout = {},
-        onSetInAppReminder = {}
+        onSetInAppReminder = {},
+        checkInAppContestReminderStatus = { false }
     )
 }
 
@@ -1280,5 +1293,8 @@ fun PreviewContestScreen() {
         )
     )
 
-    AutoScrollingContestList(contests = sampleContests, onSetInAppReminder = {})
+    AutoScrollingContestList(
+        contests = sampleContests,
+        onSetInAppReminder = {},
+        checkInAppContestReminderStatus = { false })
 }
