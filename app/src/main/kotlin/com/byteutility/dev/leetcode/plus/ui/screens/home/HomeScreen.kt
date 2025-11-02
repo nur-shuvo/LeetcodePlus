@@ -49,6 +49,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -139,6 +140,9 @@ fun HomeScreen(
         onLogout = {
             viewModel.logout()
             onLogout.invoke()
+        },
+        onSetInAppReminder = { contest ->
+            viewModel.setInAppReminder(contest)
         }
     )
 }
@@ -156,7 +160,8 @@ fun HomeLayout(
     onLoadMoreSubmission: () -> Unit,
     onLoadMoreVideos: () -> Unit,
     onSearchClick: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onSetInAppReminder: (Contest) -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -206,7 +211,8 @@ fun HomeLayout(
                 }
                 AutoScrollingContestList(
                     contests = uiState.leetcodeUpcomingContestsState.contests,
-                    modifier = Modifier.navigationBarsPadding()
+                    modifier = Modifier.navigationBarsPadding(),
+                    onSetInAppReminder = onSetInAppReminder
                 )
             }
         },
@@ -937,16 +943,20 @@ fun SearchVideosButton(onClick: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AutoScrollingContestList(
     contests: List<Contest>,
     modifier: Modifier = Modifier,
-    scrollIntervalMillis: Long = 6000L
+    scrollIntervalMillis: Long = 6000L,
+    onSetInAppReminder: (Contest) -> Unit
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     var currentIndex by remember { mutableStateOf(0) }
     val context = LocalContext.current
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var selectedContest by remember { mutableStateOf<Contest?>(null) }
 
     LaunchedEffect(contests) {
         if (contests.isEmpty()) return@LaunchedEffect
@@ -1009,44 +1019,89 @@ fun AutoScrollingContestList(
                         )
                         Icon(
                             imageVector = Icons.Default.Event,
-                            contentDescription = "Add to calendar",
+                            contentDescription = "Add a reminder",
                             modifier = Modifier
                                 .size(24.dp)
                                 .clickable {
-                                    val beginTime =
-                                        OffsetDateTime.parse(contest.start + "Z").toInstant()
-                                            .toEpochMilli()
-                                    val endTime =
-                                        beginTime + Duration.ofSeconds(contest.duration.toLong())
-                                            .toMillis()
-
-                                    val intent = Intent(Intent.ACTION_INSERT)
-                                        .setData(CalendarContract.Events.CONTENT_URI)
-                                        .putExtra(
-                                            CalendarContract.EXTRA_EVENT_BEGIN_TIME,
-                                            beginTime
-                                        )
-                                        .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime)
-                                        .putExtra(CalendarContract.Events.TITLE, contest.event)
-                                        .putExtra(
-                                            CalendarContract.Events.DESCRIPTION,
-                                            "LeetCode Contest: ${contest.event}"
-                                        )
-                                        .putExtra(
-                                            CalendarContract.Events.EVENT_LOCATION,
-                                            contest.href
-                                        )
-                                        .putExtra(
-                                            CalendarContract.Events.AVAILABILITY,
-                                            CalendarContract.Events.AVAILABILITY_BUSY
-                                        )
-
-                                    context.startActivity(intent)
+                                    selectedContest = contest
+                                    showBottomSheet = true
                                 },
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
+            }
+        }
+    }
+
+    if (showBottomSheet) {
+        selectedContest?.let { contest ->
+            AddReminderBottomSheet(
+                onDismiss = { showBottomSheet = false },
+                onAddToCalendar = {
+                    val beginTime =
+                        OffsetDateTime.parse(contest.start + "Z").toInstant()
+                            .toEpochMilli()
+                    val endTime =
+                        beginTime + Duration.ofSeconds(contest.duration.toLong())
+                            .toMillis()
+
+                    val intent = Intent(Intent.ACTION_INSERT)
+                        .setData(CalendarContract.Events.CONTENT_URI)
+                        .putExtra(
+                            CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                            beginTime
+                        )
+                        .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime)
+                        .putExtra(CalendarContract.Events.TITLE, contest.event)
+                        .putExtra(
+                            CalendarContract.Events.DESCRIPTION,
+                            "LeetCode Contest: ${contest.event}"
+                        )
+                        .putExtra(
+                            CalendarContract.Events.EVENT_LOCATION,
+                            contest.href
+                        )
+                        .putExtra(
+                            CalendarContract.Events.AVAILABILITY,
+                            CalendarContract.Events.AVAILABILITY_BUSY
+                        )
+
+                    context.startActivity(intent)
+                    showBottomSheet = false
+                },
+                onSetInAppReminder = {
+                    onSetInAppReminder(contest)
+                    showBottomSheet = false
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddReminderBottomSheet(
+    onDismiss: () -> Unit,
+    onAddToCalendar: () -> Unit,
+    onSetInAppReminder: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Add a reminder for the contest", style = MaterialTheme.typography.titleLarge)
+            Button(onClick = onAddToCalendar) {
+                Text("Add to Google Calendar")
+            }
+            Button(onClick = onSetInAppReminder) {
+                Text("Set in-app reminder")
             }
         }
     }
@@ -1172,7 +1227,8 @@ fun PreviewUserDetails() {
         onLoadMoreSubmission = {},
         onLoadMoreVideos = {},
         onSearchClick = {},
-        onLogout = {}
+        onLogout = {},
+        onSetInAppReminder = {}
     )
 }
 
@@ -1224,5 +1280,5 @@ fun PreviewContestScreen() {
         )
     )
 
-    AutoScrollingContestList(contests = sampleContests)
+    AutoScrollingContestList(contests = sampleContests, onSetInAppReminder = {})
 }

@@ -20,6 +20,7 @@ object NotificationHandler {
 
     private const val GOAL_CHANNEL_ID = "goal_reminder_channel"
     private const val DAILY_PROBLEM_CHANNEL_ID = "daily_problem_channel"
+    private const val CONTEST_REMINDER_CHANNEL_ID = "contest_reminder_channel"
 
     @SuppressLint("MissingPermission")
     fun createWeeklyGoalNotification(context: Context, message: String) {
@@ -96,6 +97,45 @@ object NotificationHandler {
                 }
             } else {
                 notify(2, builder.build())
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun createContestReminderNotification(context: Context, title: String, url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        createNotificationChannel(
+            context,
+            "Contest Reminder",
+            CONTEST_REMINDER_CHANNEL_ID,
+            "Notification for upcoming leetcode contests"
+        )
+
+        val builder = NotificationCompat.Builder(context, CONTEST_REMINDER_CHANNEL_ID)
+            .setSmallIcon(R.drawable.leetcode_plus_logo)
+            .setContentTitle("Contest Reminder")
+            .setContentText("Contest '$title' is about to start!")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
+        with(NotificationManagerCompat.from(context)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (hasPostNotificationsPermission(context)) {
+                    notify(3, builder.build())
+                }
+            } else {
+                notify(3, builder.build())
             }
         }
     }
