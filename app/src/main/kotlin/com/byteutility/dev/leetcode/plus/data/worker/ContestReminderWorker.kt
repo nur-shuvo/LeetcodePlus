@@ -1,9 +1,11 @@
 package com.byteutility.dev.leetcode.plus.data.worker
 
 import android.content.Context
+import android.content.Intent
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.byteutility.dev.leetcode.plus.service.ContestSoundPlayerService
 import com.byteutility.dev.leetcode.plus.utils.NotificationHandler
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -23,6 +25,8 @@ class ContestReminderWorker @AssistedInject constructor(
             title = contestTitle,
             url = contestUrl
         )
+
+        appContext.startService(Intent(appContext, ContestSoundPlayerService::class.java))
 
         return Result.success()
     }

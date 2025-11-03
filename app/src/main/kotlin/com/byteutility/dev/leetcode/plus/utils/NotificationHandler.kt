@@ -163,6 +163,8 @@ object NotificationHandler {
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .setUsage(AudioAttributes.USAGE_ALARM)
                 .build()
+            channel.enableLights(true)
+            channel.enableVibration(true)
             channel.setSound(soundUri, audioAttributes)
         }
         val notificationManager: NotificationManager =
