@@ -48,6 +48,10 @@
                 android:resource="@xml/leetcode_plus_glance_appwidget_info" />
         </receiver>
 
+        <service
+            android:name=".service.ContestSoundPlayerService"
+            android:exported="false" />
+
     </application>
 
 </manifest>
