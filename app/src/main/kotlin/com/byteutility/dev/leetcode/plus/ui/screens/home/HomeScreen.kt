@@ -93,6 +93,8 @@ import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListState
 import com.byteutility.dev.leetcode.plus.utils.formatContestDate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -1032,7 +1034,8 @@ fun AutoScrollingContestList(
                                 .clickable {
                                     selectedContest = contest
                                     scope.launch {
-                                        isInAppContestReminderSet = checkInAppContestReminderStatus(contest)
+                                        isInAppContestReminderSet =
+                                            checkInAppContestReminderStatus(contest)
                                         showBottomSheet = true
                                     }
                                 },

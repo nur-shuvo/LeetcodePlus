@@ -8,6 +8,7 @@ import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.network.RestApiService
+import com.byteutility.dev.leetcode.plus.ui.screens.login.model.LoginState
 import com.byteutility.dev.leetcode.plus.utils.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,13 +24,6 @@ class UserLoginViewModel @Inject constructor(
     private val restApiService: RestApiService,
     private val networkMonitor: NetworkMonitor,
 ) : ViewModel() {
-
-    sealed class LoginState {
-        object Idle : LoginState()
-        object Loading : LoginState()
-        data class Success(val userName: String) : LoginState()
-        data class Error(val message: String) : LoginState()
-    }
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState = _loginState.asStateFlow()
@@ -55,7 +49,11 @@ class UserLoginViewModel @Inject constructor(
                 UserDetailsSyncWorker.enqueuePeriodicWork(context)
             } catch (e: Exception) {
                 _loginState.value = LoginState.Error("Failed to retrieve user profile.")
-                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Error: ${e.message}, try again after 15 mints",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

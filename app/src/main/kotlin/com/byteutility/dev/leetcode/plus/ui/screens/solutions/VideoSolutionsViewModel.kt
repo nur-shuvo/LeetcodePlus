@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.solutions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
+import com.byteutility.dev.leetcode.plus.ui.screens.solutions.model.VideoSolutionsUiState
 import com.google.api.services.youtube.model.Video
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -14,10 +15,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class VideoSolutionsUiState(
-    val videoState: MutableList<Video> = mutableListOf<Video>()
-)
 
 @HiltViewModel
 class VideoSolutionsViewModel @Inject constructor(

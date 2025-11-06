@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
+import com.byteutility.dev.leetcode.plus.ui.screens.login.model.LoginState
 
 @Composable
 fun UserLoginScreen(
@@ -45,23 +46,23 @@ fun UserLoginScreen(
     val context = LocalContext.current
 
     when (loginState) {
-        is UserLoginViewModel.LoginState.Idle -> {
+        is LoginState.Idle -> {
             LeetCodeUsernameScreen { username ->
                 viewModel.saveUserName(username, context)
             }
         }
 
-        is UserLoginViewModel.LoginState.Success -> {
+        is LoginState.Success -> {
             LaunchedEffect(Unit) {
                 onProceedClick()
             }
         }
 
-        is UserLoginViewModel.LoginState.Error -> {
+        is LoginState.Error -> {
             LaunchedEffect(Unit) {
                 Toast.makeText(
                     context,
-                    (loginState as UserLoginViewModel.LoginState.Error).message,
+                    (loginState as LoginState.Error).message,
                     Toast.LENGTH_SHORT
                 ).show()
             }

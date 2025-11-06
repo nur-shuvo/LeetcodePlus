@@ -14,7 +14,6 @@ import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
-import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.data.pagination.DefaultPaginator
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
@@ -22,7 +21,10 @@ import com.byteutility.dev.leetcode.plus.data.worker.ContestReminderWorker
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
-import com.google.api.services.youtube.model.Video
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.LeetcodeUpcomingContestsState
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserSubmissionState
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -40,37 +42,6 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-
-data class UserDetailsUiState(
-    val userBasicInfo: UserBasicInfo = UserBasicInfo(),
-    val userContestInfo: UserContestInfo = UserContestInfo(),
-    val userProblemSolvedInfo: UserProblemSolvedInfo = UserProblemSolvedInfo(),
-    val userSubmissionState: UserSubmissionState = UserSubmissionState(),
-    val isWeeklyGoalSet: Boolean = false,
-    val videosByPlayListState: VideosByPlayListState = VideosByPlayListState(),
-    val leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState = LeetcodeUpcomingContestsState()
-)
-
-data class LeetcodeUpcomingContestsState(
-    val isLoading: Boolean = false,
-    val contests: List<Contest> = emptyList(),
-    val error: String? = null
-)
-
-data class UserSubmissionState(
-    val isLoading: Boolean = false,
-    val submissions: List<UserSubmission> = emptyList(),
-    val error: String? = null,
-    val endReached: Boolean = false,
-    val page: Int = 0
-)
-
-data class VideosByPlayListState(
-    val isLoading: Boolean = false,
-    val videos: List<Video> = mutableListOf(),
-    val error: String? = null,
-    val endReached: Boolean = false,
-)
 
 @HiltViewModel
 class UserDetailsViewModel @Inject constructor(
@@ -350,9 +321,11 @@ class UserDetailsViewModel @Inject constructor(
         }
     }
 
-    suspend fun checkInAppContestReminderStatus(contest: Contest): Boolean = withContext(Dispatchers.IO) {
-        val workManager = WorkManager.getInstance(context)
-        val workInfos = workManager.getWorkInfosForUniqueWork("contest-reminder-${contest.id}").get()
-        workInfos.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
-    }
+    suspend fun checkInAppContestReminderStatus(contest: Contest): Boolean =
+        withContext(Dispatchers.IO) {
+            val workManager = WorkManager.getInstance(context)
+            val workInfos =
+                workManager.getWorkInfosForUniqueWork("contest-reminder-${contest.id}").get()
+            workInfos.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
+        }
 }
