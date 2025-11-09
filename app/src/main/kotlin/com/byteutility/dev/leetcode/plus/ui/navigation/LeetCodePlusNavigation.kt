@@ -22,8 +22,16 @@ object TroubleShoot
 object VideoSolution
 
 @Serializable
-data class WebView(
+data class CommonWebView(
     val url: String
+)
+
+@Serializable
+object LeetCodeLoginWebView
+
+@Serializable
+data class ProblemDetails(
+    val titleSlug: String
 )
 
 class LeetCodePlusNavigation(navController: NavController) {
@@ -65,7 +73,13 @@ class LeetCodePlusNavigation(navController: NavController) {
         }
     }
 
-    val navigateToWebView: (WebView) -> Unit = { webView ->
+    val navigateLeetcodeLoginWebView: () -> Unit = {
+        navController.navigate(LeetCodeLoginWebView) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToWebView: (CommonWebView) -> Unit = { webView ->
         navController.navigate(
             webView
         ) {
@@ -79,6 +93,14 @@ class LeetCodePlusNavigation(navController: NavController) {
             popUpTo(Home) {
                 inclusive = true
             }
+        }
+    }
+
+    val navigateToProblemDetails: (ProblemDetails) -> Unit = { problemDetails ->
+        navController.navigate(
+            problemDetails
+        ) {
+            launchSingleTop = true
         }
     }
 }

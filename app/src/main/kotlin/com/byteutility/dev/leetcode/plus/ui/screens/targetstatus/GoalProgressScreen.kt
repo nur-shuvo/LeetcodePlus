@@ -1,6 +1,5 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.targetstatus
 
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,12 +52,12 @@ import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 @Composable
 fun GoalProgressScreen(
     onPopCurrent: () -> Unit,
-    onNavigateToWebView: (String) -> Unit
+    onNavigateToProblemDetails: (String) -> Unit
 ) {
     val viewmodel: GoalProgressViewModel = hiltViewModel()
     viewmodel.init()
     val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
-    ProgressScreenContent(uiState, onPopCurrent, onNavigateToWebView)
+    ProgressScreenContent(uiState, onPopCurrent, onNavigateToProblemDetails)
 }
 
 @Composable
@@ -67,7 +65,7 @@ fun GoalProgressScreen(
 fun ProgressScreenContent(
     uiState: ProgressUiState,
     onPopCurrent: () -> Unit,
-    onNavigateToWebView: (String) -> Unit
+    onNavigateToProblemDetails: (String) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -104,7 +102,7 @@ fun ProgressScreenContent(
                     DateRow(startDate = uiState.period.startDate, endDate = uiState.period.endDate)
                 }
                 items(uiState.problemsWithStatus) {
-                    ProblemCard(it, onNavigateToWebView)
+                    ProblemCard(it, onNavigateToProblemDetails)
                 }
             }
         }
@@ -114,7 +112,7 @@ fun ProgressScreenContent(
 @Composable
 fun ProblemCard(
     problemStatus: ProblemStatus,
-    onNavigateToWebView: (String) -> Unit
+    onNavigateToProblemDetails: (String) -> Unit
 ) {
     val backgroundColor = when (problemStatus.status) {
         "Completed" -> Color(0xFFE8F5E9)
@@ -140,9 +138,7 @@ fun ProblemCard(
         Row(
             modifier = Modifier
                 .clickable {
-                    val encodedUrl =
-                        Uri.encode("https://leetcode.com/problems/${problemStatus.titleSlug}/description")
-                    onNavigateToWebView.invoke(encodedUrl)
+                    onNavigateToProblemDetails.invoke(problemStatus.titleSlug)
                 }
                 .fillMaxWidth()
                 .padding(16.dp),
@@ -273,6 +269,6 @@ fun LeetCodeProgressScreenPreview() {
             WeeklyGoalPeriod("14 June 2024", "21 June 2024")
         ),
         onPopCurrent = {},
-        onNavigateToWebView = {}
+        onNavigateToProblemDetails = {}
     )
 }

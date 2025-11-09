@@ -8,12 +8,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.home.HomeScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.leetcode_login.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.ProblemDetailsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.solutions.VideoSolutionsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetset.SetWeeklyTargetScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetstatus.GoalProgressScreen
-import com.byteutility.dev.leetcode.plus.ui.screens.home.HomeScreen
-import com.byteutility.dev.leetcode.plus.ui.screens.webview.WebViewScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.webview.CommonWebViewScreen
 
 @Composable
 fun LeetCodePlusNavGraph(
@@ -37,11 +39,9 @@ fun LeetCodePlusNavGraph(
                 {
                     navigationActions.popCurrentDestination()
                 },
-                { url ->
-                    navigationActions.navigateToWebView(
-                        WebView(
-                            url
-                        )
+                { titleSLug ->
+                    navigationActions.navigateToProblemDetails(
+                        ProblemDetails(titleSLug)
                     )
                 }
             )
@@ -52,10 +52,10 @@ fun LeetCodePlusNavGraph(
                 {
                     navigationActions.popCurrentDestination()
                 },
-                { url ->
-                    navigationActions.navigateToWebView(
-                        WebView(
-                            url
+                { titleSlug ->
+                    navigationActions.navigateToProblemDetails(
+                        ProblemDetails(
+                            titleSlug
                         )
                     )
                 }
@@ -72,9 +72,9 @@ fun LeetCodePlusNavGraph(
                 onTroubleShoot = {
                     navigationActions.navigateToTroubleShoot()
                 },
-                onNavigateToWebView = { url ->
-                    navigationActions.navigateToWebView(
-                        WebView(url),
+                onNavigateToProblemDetails = { titleSlug ->
+                    navigationActions.navigateToProblemDetails(
+                        ProblemDetails(titleSlug)
                     )
                 },
                 onNavigateToVideoSolutions = {
@@ -90,18 +90,30 @@ fun LeetCodePlusNavGraph(
         }
 
         composable<VideoSolution> {
-            VideoSolutionsScreen() {
+            VideoSolutionsScreen {
                 navigationActions.popCurrentDestination()
             }
         }
 
-        composable<WebView> { backstackEntry ->
-            val webView = backstackEntry.toRoute<WebView>()
-            val url = webView.url
+        composable<LeetCodeLoginWebView> {
+            LeetCodeLoginWebView {
+
+            }
+        }
+
+        composable<CommonWebView> { backstackEntry ->
+            val commonWebView = backstackEntry.toRoute<CommonWebView>()
+            val url = commonWebView.url
             val decodedUrl = Uri.decode(url)
-            WebViewScreen(decodedUrl) {
+            CommonWebViewScreen(decodedUrl) {
                 navigationActions.popCurrentDestination()
             }
+        }
+
+        composable<ProblemDetails> { backstackEntry ->
+            val problemDetails = backstackEntry.toRoute<ProblemDetails>()
+            val titleSlug = problemDetails.titleSlug
+            ProblemDetailsScreen(titleSlug)
         }
     }
 }

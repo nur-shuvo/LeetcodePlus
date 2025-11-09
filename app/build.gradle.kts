@@ -34,6 +34,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -101,6 +102,10 @@ dependencies {
     implementation(libs.google.api.client.gson)
     implementation(libs.google.api.services.youtube)
     implementation(libs.google.http.client.android)
+
+    implementation(libs.sora.editor)
+    implementation(libs.sora.textmate)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
