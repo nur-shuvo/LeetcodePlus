@@ -97,7 +97,7 @@ fun LeetCodePlusNavGraph(
 
         composable<LeetCodeLoginWebView> {
             LeetCodeLoginWebView {
-
+                navigationActions.popCurrentDestination()
             }
         }
 
@@ -113,7 +113,9 @@ fun LeetCodePlusNavGraph(
         composable<ProblemDetails> { backstackEntry ->
             val problemDetails = backstackEntry.toRoute<ProblemDetails>()
             val titleSlug = problemDetails.titleSlug
-            ProblemDetailsScreen(titleSlug)
+            ProblemDetailsScreen(titleSlug) {
+                navigationActions.navigateLeetcodeLoginWebView()
+            }
         }
     }
 }

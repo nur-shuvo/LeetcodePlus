@@ -23,7 +23,7 @@ data class RawQuestion(
     val contributors: List<String>,
     val topicTags: List<RawTopicTag> = emptyList(),
     val companyTagStats: String? = null,
-    val codeSnippets: List<CodeSnippet>,
+    val codeSnippets: List<CodeSnippet> = emptyList(),
     val stats: String,
     val hints: List<String> = emptyList(),
     val solution: RawSolution? = null,

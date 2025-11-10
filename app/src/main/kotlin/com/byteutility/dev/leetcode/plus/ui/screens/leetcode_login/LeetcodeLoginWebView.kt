@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.runBlocking
 
 private const val LEETCODE_LOGIN_URL = "https://leetcode.com/accounts/login"
 
@@ -22,8 +24,9 @@ private const val LEETCODE_LOGIN_URL = "https://leetcode.com/accounts/login"
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun LeetCodeLoginWebView(
-    onCookiesReceived: (cookieString: String) -> Unit
+    onPopCurrent: () -> Unit = {},
 ) {
+    val viewModel: LeetcodeLoginViewModel = hiltViewModel()
     AndroidView(
         factory = { ctx ->
             WebView(ctx).apply {
@@ -56,7 +59,19 @@ fun LeetCodeLoginWebView(
                                 "SHUVO-${this::class.java.simpleName}",
                                 "onPageFinished: url: $url cookies: $cookies"
                             )
-                            onCookiesReceived(cookies)
+                            // need to extract cookies and save (session and x-csrftoken) in datastore.
+                            val cookieMap = cookies.split(";")
+                                .map { it.trim() }
+                                .associate {
+                                    val pair = it.split("=")
+                                    if (pair.size == 2) pair[0] to pair[1] else it to ""
+                                }
+                            val csrf = cookieMap["csrftoken"]
+                            val session = cookieMap["LEETCODE_SESSION"]
+                            runBlocking {
+                                viewModel.saveCookies(csrf!!, session!!)
+                                onPopCurrent.invoke()
+                            }
                         }
                     }
 

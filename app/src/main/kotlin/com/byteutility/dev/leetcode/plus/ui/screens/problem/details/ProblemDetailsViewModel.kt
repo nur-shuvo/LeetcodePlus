@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.problem.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
+import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.ProblemDetailsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +34,13 @@ class ProblemDetailsViewModel @Inject constructor(
                             topicTag.name
                         },
                         content = result.question.content,
+                        codeSnippets = result.question.codeSnippets.map {
+                            CodeSnippet(
+                                lang = it.lang,
+                                langSlug = it.langSlug,
+                                code = it.code
+                            )
+                        },
                         isLoading = false
                     )
                 }
