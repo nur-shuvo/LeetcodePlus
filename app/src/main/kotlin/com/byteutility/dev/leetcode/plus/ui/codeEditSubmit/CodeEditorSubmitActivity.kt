@@ -30,12 +30,15 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     private val viewModel: CodeEditorSubmitViewModel by viewModels()
 
-    private var progressDialog: AlertDialog? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_code_editor_submit)
-        codeEditor.setText(initialCode)
+
+        lifecycleScope.launch {
+            val savedCode = viewModel.getSavedCode(questionId!!, language!!)
+            codeEditor.setText(savedCode ?: initialCode)
+        }
+
         languageButton.text = "Lang: $language"
 
         submitButton.setOnClickListener {
@@ -51,29 +54,24 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             viewModel.submissionState.collect { state ->
                 when (state) {
                     is SubmissionState.Submitting -> {
-                        progressDialog = AlertDialog.Builder(this@CodeEditorSubmitActivity)
-                            .setMessage("Submitting...")
-                            .setCancelable(false)
-                            .show()
+                        Toast.makeText(
+                            this@CodeEditorSubmitActivity,
+                            "Submitting...",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
 
                     is SubmissionState.Success -> {
-                        progressDialog?.dismiss()
-                        var message = state.response.statusMessage
-                        if (state.response.compileError != null) {
-                            message += "\nCompile error: ${state.response.compileError}"
-                        }
                         AlertDialog.Builder(this@CodeEditorSubmitActivity)
                             .setTitle("Submission Result")
-                            .setMessage(message)
-                            .setPositiveButton("OK") { dialog, _ ->
-                                dialog.dismiss()
+                            .setMessage(state.response.statusMessage + "\n" + "compile error: ${state.response.compileError ?: ""}")
+                            .setPositiveButton("OK") { _, _ ->
+                                finish()
                             }
                             .show()
                     }
 
                     is SubmissionState.Error -> {
-                        progressDialog?.dismiss()
                         Toast.makeText(
                             this@CodeEditorSubmitActivity,
                             "${state.exception}",
@@ -82,11 +80,16 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     }
 
                     is SubmissionState.Idle -> {
-                        progressDialog?.dismiss()
+                        // Do nothing
                     }
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.saveCode(questionId!!, language!!, codeEditor.text.toString())
     }
 
     companion object {

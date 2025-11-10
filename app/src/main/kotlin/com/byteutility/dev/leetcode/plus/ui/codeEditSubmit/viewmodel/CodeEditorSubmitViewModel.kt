@@ -2,7 +2,9 @@ package com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepositoryImpl
+import com.byteutility.dev.leetcode.plus.LeetCodePlusApplication.Companion.appCoroutineScope
+import com.byteutility.dev.leetcode.plus.data.datastore.CodeHistoryDataStore
+import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepository
 import com.byteutility.dev.leetcode.plus.network.responseVo.SubmissionCheckResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -15,11 +17,22 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class CodeEditorSubmitViewModel @Inject constructor(
-    private val codeEditorSubmitRepository: CodeEditorSubmitRepositoryImpl
+    private val codeEditorSubmitRepository: CodeEditorSubmitRepository,
+    private val codeHistoryDataStore: CodeHistoryDataStore
 ) : ViewModel() {
 
     private val _submissionState = MutableStateFlow<SubmissionState>(SubmissionState.Idle)
     val submissionState: StateFlow<SubmissionState> = _submissionState
+
+    suspend fun getSavedCode(questionId: String, language: String): String? {
+        return codeHistoryDataStore.getCode(questionId, language)
+    }
+
+    fun saveCode(questionId: String, language: String, code: String) {
+        appCoroutineScope.launch {
+            codeHistoryDataStore.saveCode(questionId, language, code)
+        }
+    }
 
     fun submit(titleSlug: String, language: String, code: String, questionId: String) {
         viewModelScope.launch {
@@ -40,7 +53,7 @@ class CodeEditorSubmitViewModel @Inject constructor(
                 delay(1.seconds)
                 try {
                     val result = codeEditorSubmitRepository.getSubmissionResult(submissionId)
-                    if (result.state == SUCCESS_STATE) {
+                    if (result.state == "SUCCESS") {
                         _submissionState.value = SubmissionState.Success(result)
                         break
                     }
@@ -50,10 +63,6 @@ class CodeEditorSubmitViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    companion object {
-        private const val SUCCESS_STATE = "SUCCESS"
     }
 }
 
