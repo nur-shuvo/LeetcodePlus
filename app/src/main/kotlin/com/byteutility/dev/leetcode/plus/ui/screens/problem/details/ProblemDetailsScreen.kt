@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.byteutility.dev.leetcode.plus.ui.CodeEditorSubmitActivity
+import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.CodeEditorSubmitActivity
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.ProblemDetailsUiState
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
