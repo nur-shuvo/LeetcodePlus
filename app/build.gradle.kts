@@ -106,9 +106,11 @@ dependencies {
     implementation(libs.google.api.services.youtube)
     implementation(libs.google.http.client.android)
 
-    implementation(libs.sora.editor)
-    implementation(libs.sora.textmate)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    implementation(platform(libs.rosemoe.editor.bom))
+    implementation(libs.rosemoe.editor)
+    implementation(libs.rosemoe.language.textmate)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

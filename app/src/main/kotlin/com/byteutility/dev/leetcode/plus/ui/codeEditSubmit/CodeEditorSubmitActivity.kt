@@ -38,7 +38,6 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             val savedCode = viewModel.getSavedCode(questionId!!, language!!)
             codeEditor.setText(savedCode ?: initialCode)
         }
-
         languageButton.text = "Lang: $language"
 
         submitButton.setOnClickListener {
@@ -90,6 +89,11 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         viewModel.saveCode(questionId!!, language!!, codeEditor.text.toString())
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        codeEditor.release()
     }
 
     companion object {

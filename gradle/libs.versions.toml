@@ -31,7 +31,7 @@ espressoCore = "3.6.1"
 androidx-glance = "1.1.1"
 navigation-compose = "2.8.4"
 kotlinxSerializationJson = "1.6.0"
-soraEditorVersion = "0.23.7"
+rosemoe-bom = "0.23.7"
 appcompat = "1.7.0"
 material = "1.13.0"
 activity = "1.8.0"
@@ -40,7 +40,9 @@ activity = "1.8.0"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
-sora-editor = { module = "io.github.rosemoe:editor", version.ref = "soraEditorVersion" }
+rosemoe-editor-bom = { module = "io.github.rosemoe:editor-bom", version.ref = "rosemoe-bom" }
+rosemoe-editor = { module = "io.github.rosemoe:editor" }
+rosemoe-language-textmate = { module = "io.github.rosemoe:language-textmate" }
 google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "googleApiClientAndroid" }
 google-api-client-gson = { module = "com.google.api-client:google-api-client-gson", version.ref = "googleApiClientAndroid" }
 google-api-services-youtube = { module = "com.google.apis:google-api-services-youtube", version.ref = "googleApiServicesYoutube" }
@@ -58,7 +60,6 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-sora-textmate = { module = "io.github.rosemoe:language-textmate", version.ref = "soraEditorVersion" }
 msz-progress-indicator = { module = "com.ehsanmsz:msz-progress-indicator", version.ref = "mszProgressIndicator" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-gson-converter = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
