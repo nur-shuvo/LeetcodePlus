@@ -2,6 +2,8 @@ package com.byteutility.dev.leetcode.plus.data.repository.problems
 
 import android.content.Context
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
+import com.byteutility.dev.leetcode.plus.network.RestApiService
+import com.byteutility.dev.leetcode.plus.network.responseVo.LeetCodeQuestionResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.ProblemSetResponseVo
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -10,7 +12,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ProblemsRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val restApiService: RestApiService
 ) : ProblemsRepository {
 
     override suspend fun getProblems(
@@ -46,5 +49,10 @@ class ProblemsRepositoryImpl @Inject constructor(
         fileName: String
     ): String {
         return context.assets.open(fileName).bufferedReader().use { it.readText() }
+    }
+
+    @Throws
+    override suspend fun getSelectedRawQuestion(titleSlug: String): LeetCodeQuestionResponse {
+        return restApiService.getRawSelectedQuestionDetails(titleSlug)
     }
 }

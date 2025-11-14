@@ -30,7 +30,7 @@ import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WebViewScreen(
+fun CommonWebViewScreen(
     url: String,
     onPopCurrent: () -> Unit = {}
 ) {

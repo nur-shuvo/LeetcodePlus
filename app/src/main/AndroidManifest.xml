@@ -18,10 +18,14 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ui.codeEditSubmit.CodeEditorSubmitActivity"
+            android:exported="false"
+            android:theme="@style/LeetcodePlus.Transparent" />
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
+            android:hardwareAccelerated="true"
             android:theme="@style/Theme.LeetcodePlus">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,6 +47,7 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/leetcode_plus_glance_appwidget_info" />
@@ -51,7 +56,6 @@
         <service
             android:name=".service.ContestSoundPlayerService"
             android:exported="false" />
-
     </application>
 
 </manifest>

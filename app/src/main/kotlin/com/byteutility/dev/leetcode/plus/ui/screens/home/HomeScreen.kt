@@ -115,7 +115,7 @@ fun HomeScreen(
     onSetGoal: () -> Unit = {},
     onGoalStatus: () -> Unit = {},
     onTroubleShoot: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {},
+    onNavigateToProblemDetails: (String) -> Unit = {},
     onNavigateToVideoSolutions: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
@@ -131,7 +131,7 @@ fun HomeScreen(
         onSetGoal = onSetGoal,
         onGoalStatus = onGoalStatus,
         onTroubleShoot = onTroubleShoot,
-        onNavigateToWebView = onNavigateToWebView,
+        onNavigateToProblemDetails = onNavigateToProblemDetails,
         onLoadMoreSubmission = {
             viewModel.loadNextAcSubmissions()
         },
@@ -161,7 +161,7 @@ fun HomeLayout(
     onSetGoal: () -> Unit,
     onGoalStatus: () -> Unit,
     onTroubleShoot: () -> Unit,
-    onNavigateToWebView: (String) -> Unit,
+    onNavigateToProblemDetails: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
     onLoadMoreVideos: () -> Unit,
     onSearchClick: () -> Unit,
@@ -284,7 +284,7 @@ fun HomeLayout(
             uiState = uiState,
             dailyProblem = dailyProblem,
             dailyProblemSolved = dailyProblemSolved,
-            onNavigateToWebView = onNavigateToWebView,
+            onNavigateToProblemDetails = onNavigateToProblemDetails,
             modifier = Modifier.padding(paddingValues),
             onLoadMoreSubmission = onLoadMoreSubmission,
             onLoadMoreVideos = onLoadMoreVideos,
@@ -298,7 +298,7 @@ fun UserProfileContent(
     uiState: UserDetailsUiState,
     dailyProblem: LeetCodeProblem,
     dailyProblemSolved: Boolean,
-    onNavigateToWebView: (String) -> Unit,
+    onNavigateToProblemDetails: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
     onLoadMoreVideos: () -> Unit,
     onSearchClick: () -> Unit,
@@ -322,7 +322,7 @@ fun UserProfileContent(
                     verdict = if (dailyProblemSolved) "Completed" else "Pending",
                     titleSlug = dailyProblem.titleSlug,
                     difficulty = dailyProblem.difficulty,
-                    onNavigateToWebView = onNavigateToWebView
+                    onNavigateToProblemDetails = onNavigateToProblemDetails
                 )
                 UserStatisticsCard(uiState.userContestInfo)
                 YouTubeVideoRowContent(
@@ -705,7 +705,7 @@ fun DailyProblemCard(
     verdict: String,
     titleSlug: String,
     difficulty: String,
-    onNavigateToWebView: (String) -> Unit
+    onNavigateToProblemDetails: (String) -> Unit
 ) {
     var animatedContent by remember { mutableStateOf(true) }
 
@@ -746,7 +746,7 @@ fun DailyProblemCard(
                 difficulty = difficulty,
                 verdict = verdict,
             ) {
-                onNavigateToWebView(it)
+                onNavigateToProblemDetails(it)
             }
         }
     }
@@ -796,7 +796,7 @@ fun ProblemDetailsCard(
     verdict: String,
     difficulty: String,
     remainingTime: String,
-    onNavigateToWebView: (String) -> Unit
+    onNavigateToProblemDetails: (String) -> Unit
 ) {
 
     val backgroundColor = when (verdict) {
@@ -815,9 +815,7 @@ fun ProblemDetailsCard(
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         modifier = Modifier
             .clickable {
-                val encodedUrl =
-                    Uri.encode("https://leetcode.com/problems/${titleSlug}/description")
-                onNavigateToWebView.invoke(encodedUrl)
+                onNavigateToProblemDetails.invoke(titleSlug)
             }
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .fillMaxWidth()
@@ -1238,7 +1236,7 @@ fun PreviewUserDetails() {
         onSetGoal = {},
         onGoalStatus = {},
         onTroubleShoot = {},
-        onNavigateToWebView = {},
+        onNavigateToProblemDetails = {},
         onLoadMoreSubmission = {},
         onLoadMoreVideos = {},
         onSearchClick = {},

@@ -34,6 +34,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -72,6 +73,9 @@ dependencies {
     implementation(libs.tikxml.core)
     implementation(libs.tikxml.retrofit.converter)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
     kapt(libs.tikxml.processor)
     kapt(libs.tikxml.auto.value)
     compileOnly(libs.tikxml.auto.value)
@@ -101,6 +105,12 @@ dependencies {
     implementation(libs.google.api.client.gson)
     implementation(libs.google.api.services.youtube)
     implementation(libs.google.http.client.android)
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    implementation(platform(libs.rosemoe.editor.bom))
+    implementation(libs.rosemoe.editor)
+    implementation(libs.rosemoe.language.textmate)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

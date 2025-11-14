@@ -170,6 +170,26 @@ class UserDatastore @Inject constructor(
             }
     }
 
+    suspend fun saveLeetcodeCsrfToken(csrfToken: String) {
+        context.userPreferencesDataStore.edit { preferences ->
+            preferences[stringPreferencesKey("csrf_token")] = csrfToken
+        }
+    }
+
+    suspend fun getLeetcodeCsrfToken(): String? {
+        return context.userPreferencesDataStore.data.first()[stringPreferencesKey("csrf_token")]
+    }
+
+    suspend fun saveLeetcodeSessionToken(sessionToken: String) {
+        context.userPreferencesDataStore.edit { preferences ->
+            preferences[stringPreferencesKey("session_token")] = sessionToken
+        }
+    }
+
+    suspend fun getLeetcodeSessionToken(): String? {
+        return context.userPreferencesDataStore.data.first()[stringPreferencesKey("session_token")]
+    }
+
     suspend fun clearAllData() {
         context.userPreferencesDataStore.edit {
             it.clear()

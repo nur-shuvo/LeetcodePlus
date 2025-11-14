@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.3"
+desugar_jdk_libs = "2.1.5"
 googleApiClientAndroid = "2.2.0"
 googleApiServicesYoutube = "v3-rev20231011-2.0.0"
 googleHttpClientAndroid = "1.43.3"
@@ -16,7 +17,7 @@ okhttp = "4.12.0"
 tikxml = "0.8.13"
 hilt = "2.52"
 hilt-navigation-compose = "1.2.0"
-room = "2.6.1"
+room = "2.8.3"
 work = "2.8.1"
 hilt-work = "1.2.0"
 androidxDatastore = "1.1.1"
@@ -30,10 +31,18 @@ espressoCore = "3.6.1"
 androidx-glance = "1.1.1"
 navigation-compose = "2.8.4"
 kotlinxSerializationJson = "1.6.0"
+rosemoe-bom = "0.23.7"
+appcompat = "1.7.0"
+material = "1.13.0"
+activity = "1.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+rosemoe-editor-bom = { module = "io.github.rosemoe:editor-bom", version.ref = "rosemoe-bom" }
+rosemoe-editor = { module = "io.github.rosemoe:editor" }
+rosemoe-language-textmate = { module = "io.github.rosemoe:language-textmate" }
 google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "googleApiClientAndroid" }
 google-api-client-gson = { module = "com.google.api-client:google-api-client-gson", version.ref = "googleApiClientAndroid" }
 google-api-services-youtube = { module = "com.google.apis:google-api-services-youtube", version.ref = "googleApiServicesYoutube" }
@@ -80,6 +89,9 @@ androidx-glance = { group = "androidx.glance", name = "glance", version.ref = "a
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "androidx-glance" }
 androidx-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "androidx-glance" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

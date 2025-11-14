@@ -1,6 +1,5 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.targetset
 
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,7 +53,7 @@ import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalSetDialog
 @Composable
 fun SetWeeklyTargetScreen(
     onPopCurrent: () -> Unit = {},
-    onNavigateToWebView: (String) -> Unit = {}
+    onNavigateToProblemDetails: (String) -> Unit = {}
 ) {
     val viewModel: SetWeeklyTargetViewModel = hiltViewModel()
     val problems by viewModel.problemsList.collectAsStateWithLifecycle()
@@ -93,7 +92,7 @@ fun SetWeeklyTargetScreen(
                 Log.i("SetWeeklyTargetScreen", "Problems selected for week")
                 needToShowConfirmDialog = true
             },
-            onNavigateToWebView = onNavigateToWebView,
+            onNavigateToProblemDetails = onNavigateToProblemDetails,
             onProblemSelected = { problem, selected ->
                 viewModel.onProblemSelected(problem, selected)
             }
@@ -112,7 +111,7 @@ fun ProblemSelection(
     modifier: Modifier = Modifier,
     problems: List<LeetCodeProblem>,
     onConfirm: (List<LeetCodeProblem>) -> Unit,
-    onNavigateToWebView: (String) -> Unit = {},
+    onNavigateToProblemDetails: (String) -> Unit = {},
     onProblemSelected: (LeetCodeProblem, Boolean) -> Unit
 ) {
     var currentPage by remember { mutableIntStateOf(0) }
@@ -162,7 +161,7 @@ fun ProblemSelection(
                     onProblemSelected = { selected ->
                         onProblemSelected.invoke(problem, selected)
                     },
-                    onNavigateToWebView
+                    onNavigateToProblemDetails
                 )
             }
         }
@@ -208,7 +207,7 @@ fun ProblemItem(
     problem: LeetCodeProblem,
     isSelected: Boolean,
     onProblemSelected: (Boolean) -> Unit,
-    onNavigateToWebView: (String) -> Unit = {}
+    onNavigateToProblemDetails: (String) -> Unit = {}
 ) {
     val backgroundColor: Color = when (problem.difficulty) {
         "Easy" -> Color(0xFFE0F7FA)
@@ -223,9 +222,7 @@ fun ProblemItem(
         Row(
             modifier = Modifier
                 .clickable {
-                    val encodedUrl =
-                        Uri.encode("https://leetcode.com/problems/${problem.titleSlug}/description")
-                    onNavigateToWebView.invoke(encodedUrl)
+                    onNavigateToProblemDetails.invoke(problem.titleSlug)
                 }
                 .fillMaxWidth()
                 .background(backgroundColor)
@@ -263,7 +260,7 @@ fun ProblemSelectionPreview() {
             Modifier.padding(innerPadding),
             problems = problems,
             {},
-            onNavigateToWebView = {},
+            onNavigateToProblemDetails = {},
             onProblemSelected = { _, _ -> },
         )
     }
