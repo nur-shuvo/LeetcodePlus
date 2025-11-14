@@ -8,8 +8,11 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
 import com.byteutility.dev.leetcode.plus.R
+import com.byteutility.dev.leetcode.plus.ui.MainActivity
+import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitUIEvent
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitViewModel
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.SubmissionState
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,7 +41,8 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             val savedCode = viewModel.getSavedCode(questionId!!, language!!)
             codeEditor.setText(savedCode ?: initialCode)
         }
-        languageButton.text = "Lang: $language"
+        languageButton.text =
+            HtmlCompat.fromHtml("<b>Lang:</b> $language", HtmlCompat.FROM_HTML_MODE_LEGACY)
 
         submitButton.setOnClickListener {
             viewModel.submit(
@@ -61,9 +65,14 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     }
 
                     is SubmissionState.Success -> {
+                        var message = state.response.statusMessage
+                        if (state.response.compileError?.isNotEmpty() == true) {
+                            message += "\nCompile error: ${state.response.compileError}"
+                        }
+
                         AlertDialog.Builder(this@CodeEditorSubmitActivity)
                             .setTitle("Submission Result")
-                            .setMessage(state.response.statusMessage + "\n" + "compile error: ${state.response.compileError ?: ""}")
+                            .setMessage(message)
                             .setPositiveButton("OK") { _, _ ->
                                 finish()
                             }
@@ -81,6 +90,33 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     is SubmissionState.Idle -> {
                         // Do nothing
                     }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is CodeEditorSubmitUIEvent.NavigateToLeetcodeLogin -> {
+                        AlertDialog.Builder(this@CodeEditorSubmitActivity)
+                            .setTitle("Login Required")
+                            .setMessage("Please login to LeetCode to submit your solution.")
+                            .setPositiveButton("Login") { dialog, _ ->
+                                dialog.dismiss()
+                                startActivity(
+                                    Intent(
+                                        this@CodeEditorSubmitActivity,
+                                        MainActivity::class.java
+                                    ).apply {
+                                        putExtra("startDestination", "leetcode_login_webview")
+                                    }
+                                )
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    }
+
+                    else -> {}
                 }
             }
         }

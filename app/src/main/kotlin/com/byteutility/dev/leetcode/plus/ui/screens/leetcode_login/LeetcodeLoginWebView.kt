@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.byteutility.dev.leetcode.plus.ui.MainActivity
 import kotlinx.coroutines.runBlocking
 
 private const val LEETCODE_LOGIN_URL = "https://leetcode.com/accounts/login"
@@ -70,6 +71,14 @@ fun LeetCodeLoginWebView(
                             val session = cookieMap["LEETCODE_SESSION"]
                             runBlocking {
                                 viewModel.saveCookies(csrf!!, session!!)
+                                if (context is MainActivity) {
+                                    val extra =
+                                        (context as MainActivity).intent.getStringExtra("startDestination")
+                                    if (extra == "leetcode_login_webview") {
+                                        (context as MainActivity).finish()
+                                        return@runBlocking
+                                    }
+                                }
                                 onPopCurrent.invoke()
                             }
                         }
