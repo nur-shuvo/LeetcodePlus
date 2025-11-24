@@ -315,7 +315,7 @@ fun HomeLayout(
             )
 
             Column(
-                modifier = Modifier.align(Alignment.CenterEnd),
+                modifier = Modifier.align(Alignment.BottomStart),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 FloatingActionButton(
@@ -323,7 +323,7 @@ fun HomeLayout(
                         onNavigateToAllProblems.invoke()
                     },
                     modifier = Modifier
-                        .size(81.dp)
+                        .size(74.dp)
                         .scale(scale)
                         .padding(16.dp)
                 ) {
@@ -344,7 +344,11 @@ fun HomeLayout(
                 ) {
                     Text(
                         text = "All Problems",
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.clickable {
+                            onNavigateToAllProblems.invoke()
+                        },
                     )
                 }
             }
