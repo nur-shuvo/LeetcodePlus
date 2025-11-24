@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.AllProblemsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.home.HomeScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.leetcode_login.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
@@ -36,6 +37,20 @@ fun LeetCodePlusNavGraph(
 
         composable<Goal> {
             SetWeeklyTargetScreen(
+                {
+                    navigationActions.popCurrentDestination()
+                },
+                { titleSLug ->
+                    navigationActions.navigateToProblemDetails(
+                        ProblemDetails(titleSLug)
+                    )
+                }
+            )
+        }
+
+
+        composable<AllProblems> {
+            AllProblemsScreen(
                 {
                     navigationActions.popCurrentDestination()
                 },
@@ -79,6 +94,9 @@ fun LeetCodePlusNavGraph(
                 },
                 onNavigateToVideoSolutions = {
                     navigationActions.navigateToVideoSolutions()
+                },
+                onNavigateToAllProblems = {
+                    navigationActions.navigateToAllProblems()
                 },
                 onLogout = {
                     navigationActions.navigateToLogin()

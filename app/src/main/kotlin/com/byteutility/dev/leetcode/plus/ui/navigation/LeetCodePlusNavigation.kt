@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 object Home
 
 @Serializable
+object AllProblems
+
+@Serializable
 object Goal
 
 @Serializable
@@ -50,6 +53,13 @@ class LeetCodePlusNavigation(navController: NavController) {
             launchSingleTop = true
         }
     }
+
+    val navigateToAllProblems: () -> Unit = {
+        navController.navigate(AllProblems) {
+            launchSingleTop = true
+        }
+    }
+
 
     val navigateToGoalStatus: () -> Unit = {
         navController.navigate(GoalStatus) {
