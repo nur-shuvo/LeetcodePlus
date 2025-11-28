@@ -8,8 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
-import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.AllProblemsScreen
-import com.byteutility.dev.leetcode.plus.ui.screens.home.HomeScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.MainScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.leetcode_login.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.ProblemDetailsScreen
@@ -31,26 +30,16 @@ fun LeetCodePlusNavGraph(
 
         composable<Login> {
             UserLoginScreen {
-                navigationActions.navigateToUserProfile()
+                navigationActions.navigateToMainScreen()
             }
+        }
+
+        composable<Main> {
+            MainScreen(navController)
         }
 
         composable<Goal> {
             SetWeeklyTargetScreen(
-                {
-                    navigationActions.popCurrentDestination()
-                },
-                { titleSLug ->
-                    navigationActions.navigateToProblemDetails(
-                        ProblemDetails(titleSLug)
-                    )
-                }
-            )
-        }
-
-
-        composable<AllProblems> {
-            AllProblemsScreen(
                 {
                     navigationActions.popCurrentDestination()
                 },
@@ -77,32 +66,6 @@ fun LeetCodePlusNavGraph(
             )
         }
 
-        composable<Home> {
-            HomeScreen(
-                onSetGoal = {
-                    navigationActions.navigateToSetGoal()
-                }, onGoalStatus = {
-                    navigationActions.navigateToGoalStatus()
-                },
-                onTroubleShoot = {
-                    navigationActions.navigateToTroubleShoot()
-                },
-                onNavigateToProblemDetails = { titleSlug ->
-                    navigationActions.navigateToProblemDetails(
-                        ProblemDetails(titleSlug)
-                    )
-                },
-                onNavigateToVideoSolutions = {
-                    navigationActions.navigateToVideoSolutions()
-                },
-                onNavigateToAllProblems = {
-                    navigationActions.navigateToAllProblems()
-                },
-                onLogout = {
-                    navigationActions.navigateToLogin()
-                }
-            )
-        }
         composable<TroubleShoot> {
             TroubleShootScreen()
         }

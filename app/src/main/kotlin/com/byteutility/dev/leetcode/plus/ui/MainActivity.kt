@@ -16,10 +16,10 @@ import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.worker.ReminderNotificationWorker
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
-import com.byteutility.dev.leetcode.plus.ui.navigation.Home
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavGraph
 import com.byteutility.dev.leetcode.plus.ui.navigation.Login
+import com.byteutility.dev.leetcode.plus.ui.navigation.Main
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         init()
-        //enableEdgeToEdge()
+//        enableEdgeToEdge()
         installSplashScreen()
         lifecycleScope.launch {
             val userLoggedIn =
@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                     val startDestination =
                         if (userLoggedIn) {
                             if (extraStartDestination == null) {
-                                Home
+                                Main
                             } else {
                                 when (extraStartDestination) {
                                     "leetcode_login_webview" -> LeetCodeLoginWebView

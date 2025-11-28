@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 object Home
 
 @Serializable
+object Main
+
+@Serializable
 object AllProblems
 
 @Serializable
@@ -39,8 +42,8 @@ data class ProblemDetails(
 
 class LeetCodePlusNavigation(navController: NavController) {
 
-    val navigateToUserProfile: () -> Unit = {
-        navController.navigate(Home) {
+    val navigateToMainScreen: () -> Unit = {
+        navController.navigate(Main) {
             launchSingleTop = true
             popUpTo(Login) {
                 inclusive = true
@@ -100,7 +103,7 @@ class LeetCodePlusNavigation(navController: NavController) {
     val navigateToLogin: () -> Unit = {
         navController.navigate(Login) {
             launchSingleTop = true
-            popUpTo(Home) {
+            popUpTo(Main) {
                 inclusive = true
             }
         }
