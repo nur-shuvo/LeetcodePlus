@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,14 +38,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Event
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,10 +54,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -78,9 +75,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -194,46 +189,8 @@ fun HomeLayout(
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
     val scope = rememberCoroutineScope()
-    val scaffoldState = rememberBottomSheetScaffoldState()
-    var sheetPeekHeight by remember { mutableStateOf(72.dp) }
-    val density = LocalDensity.current
 
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        sheetContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-        sheetContent = {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .onGloballyPositioned {
-                            val newHeight = with(density) { it.size.height.toDp() + 60.dp }
-                            sheetPeekHeight = newHeight
-                        }
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Upcoming contests",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Expand",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                AutoScrollingContestList(
-                    contests = uiState.leetcodeUpcomingContestsState.contests,
-                    modifier = Modifier.navigationBarsPadding(),
-                    onSetInAppReminder = onSetInAppReminder,
-                    checkInAppContestReminderStatus = checkInAppContestReminderStatus
-                )
-            }
-        },
-        sheetPeekHeight = sheetPeekHeight,
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = {
@@ -302,7 +259,9 @@ fun HomeLayout(
                 onNavigateToProblemDetails = onNavigateToProblemDetails,
                 onLoadMoreSubmission = onLoadMoreSubmission,
                 onLoadMoreVideos = onLoadMoreVideos,
-                onSearchClick = onSearchClick
+                onSearchClick = onSearchClick,
+                onSetInAppReminder = onSetInAppReminder,
+                checkInAppContestReminderStatus = checkInAppContestReminderStatus
             )
             val infiniteTransition = rememberInfiniteTransition(label = "fab_animation")
             val scale by infiniteTransition.animateFloat(
@@ -315,7 +274,7 @@ fun HomeLayout(
             )
 
             Column(
-                modifier = Modifier.align(Alignment.BottomStart),
+                modifier = Modifier.align(Alignment.CenterEnd),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 FloatingActionButton(
@@ -365,6 +324,8 @@ fun UserProfileContent(
     onLoadMoreSubmission: () -> Unit,
     onLoadMoreVideos: () -> Unit,
     onSearchClick: () -> Unit,
+    onSetInAppReminder: (Contest) -> Unit,
+    checkInAppContestReminderStatus: suspend (Contest) -> Boolean,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -392,6 +353,16 @@ fun UserProfileContent(
                     uiState.videosByPlayListState,
                     onLoadMoreVideos,
                     onSearchClick
+                )
+                Text(
+                    text = "Upcoming contests",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+                AutoScrollingContestList(
+                    contests = uiState.leetcodeUpcomingContestsState.contests,
+                    onSetInAppReminder = onSetInAppReminder,
+                    checkInAppContestReminderStatus = checkInAppContestReminderStatus
                 )
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
 
@@ -1016,7 +987,7 @@ fun SearchVideosButton(onClick: () -> Unit) {
 fun AutoScrollingContestList(
     contests: List<Contest>,
     modifier: Modifier = Modifier,
-    scrollIntervalMillis: Long = 6000L,
+    scrollIntervalMillis: Long = 3000L,
     onSetInAppReminder: (Contest) -> Unit,
     checkInAppContestReminderStatus: suspend (Contest) -> Boolean
 ) {
