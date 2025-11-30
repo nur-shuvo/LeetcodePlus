@@ -4,8 +4,6 @@ import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSu
 import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepositoryImpl
-import com.byteutility.dev.leetcode.plus.data.repository.submissions.SubmissionsRepository
-import com.byteutility.dev.leetcode.plus.data.repository.submissions.SubmissionsRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
@@ -35,12 +33,6 @@ abstract class RepositoryModule {
     abstract fun bindsUserDetailsRepository(
         userDetailsRepository: UserDetailsRepositoryImpl
     ): UserDetailsRepository
-
-    @Binds
-    @Singleton
-    abstract fun provideSubmissionsRepository(
-        submissionsRepository: SubmissionsRepositoryImpl
-    ): SubmissionsRepository
 
     @Binds
     @Singleton
