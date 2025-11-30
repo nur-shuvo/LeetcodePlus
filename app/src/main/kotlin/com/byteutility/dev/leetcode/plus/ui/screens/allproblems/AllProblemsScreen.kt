@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.allproblems
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +30,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,13 +39,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
+import kotlinx.coroutines.delay
 
 /**
  * Created by Shuvo on 11/24/2025.
@@ -92,8 +98,23 @@ fun ProblemSelection(
 ) {
     var currentPage by remember { mutableIntStateOf(0) }
     var searchText by remember { mutableStateOf("") }
+    val placeholders = listOf("Search Problems", "Search by tag", "Search by difficulty")
+    var placeholderIndex by remember { mutableIntStateOf(0) }
 
-    val itemsPerPage = 20
+    LaunchedEffect(key1 = Unit) {
+        while (true) {
+            delay(1000)
+            placeholderIndex = (placeholderIndex + 1) % placeholders.size
+        }
+    }
+
+    val animatedPlaceholder: @Composable () -> Unit = {
+        Crossfade(targetState = placeholderIndex, label = "placeholder") {
+            Text(placeholders[it], fontSize = 18.sp)
+        }
+    }
+
+    val itemsPerPage = 50
     val filteredProblems = problems.filter {
         it.title.contains(searchText, ignoreCase = true) ||
                 it.tag.contains(searchText, ignoreCase = true) ||
@@ -111,7 +132,7 @@ fun ProblemSelection(
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
-            placeholder = { Text("Search problems...", fontSize = 18.sp) },
+            placeholder = animatedPlaceholder,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(55.dp),
@@ -186,15 +207,31 @@ fun ProblemItem(
                 }
                 .fillMaxWidth()
                 .background(backgroundColor)
-                .padding(16.dp),
+                .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.fillMaxWidth(0.85f)) {
-                Text(text = problem.title, style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Tag: ${problem.tag}", style = MaterialTheme.typography.bodySmall)
                 Text(
-                    text = "Difficulty: ${problem.difficulty}",
-                    style = MaterialTheme.typography.bodySmall
+                    text = problem.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                            append("Tag: ")
+                        }
+                        append(problem.tag)
+                    }, style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                            append("Difficulty: ")
+                        }
+                        append(problem.difficulty)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
         }
@@ -208,7 +245,7 @@ fun ProblemSelectionPreview() {
     val problems = remember { getDummyProblems() }
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "All Problems") })
+            TopAppBar(title = { Text(text = "All Problems", fontWeight = FontWeight.Bold) })
         },
     ) { innerPadding ->
         ProblemSelection(
