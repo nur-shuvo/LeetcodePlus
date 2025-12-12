@@ -3,7 +3,7 @@
 
     <style name="Theme.LeetcodePlus" parent="android:Theme.Material.Light.NoActionBar">
         <item name="postSplashScreenTheme">@style/Theme.LeetcodePlus</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/leetcode_plus_logo</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/app_icon_playstore</item>
     </style>
 
     <style name="LeetcodePlus.Transparent" parent="Theme.AppCompat.NoActionBar">
