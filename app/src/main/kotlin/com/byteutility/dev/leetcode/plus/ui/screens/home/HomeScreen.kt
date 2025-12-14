@@ -414,7 +414,10 @@ fun UserProfileContent(
             if (index >= uiState.userSubmissionState.submissions.size - 1 && !uiState.userSubmissionState.endReached && !uiState.userSubmissionState.isLoading) {
                 onLoadMoreSubmission()
             }
-            SubmissionItem(submission = item)
+            SubmissionItem(
+                submission = item,
+                onClick = { onNavigateToProblemDetails(item.titleSlug) }
+            )
         }
 
         item {
@@ -720,11 +723,15 @@ fun ProblemCategoryBox(category: String, solved: Int, total: Int, backgroundColo
 }
 
 @Composable
-fun SubmissionItem(submission: UserSubmission) {
+fun SubmissionItem(
+    submission: UserSubmission,
+    onClick: () -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .padding(horizontal = 8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
