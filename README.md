@@ -16,11 +16,13 @@ Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
 
 ## Screenshots
 <p align="center">
-    <img src="./ss/image1.jpeg" alt="Screenshot 1" width="200"/>
+    <img src="./ss/01_home_screen.png" alt="Screenshot 1" width="200"/>
+    <img src="./ss/03_problem_details.png" alt="Screenshot 1" width="200"/>
     <img src="./ss/image2.jpeg" alt="Screenshot 1" width="200"/>
     <img src="./ss/image3.jpeg" alt="Screenshot 1" width="200"/>
     <img src="./ss/image4.jpeg" alt="Screenshot 1" width="200"/>
     <img src="ss/image5.jpeg" alt="Screenshot 1" width="200"/>
+    <img src="ss/05_home_scrolled.png" alt="Screenshot 1" width="200"/>
 </p>
 
 Template from [here](https://previewed.app/template/16DCE402)
