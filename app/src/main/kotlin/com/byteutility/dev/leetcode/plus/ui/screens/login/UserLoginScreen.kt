@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.screens.login.model.LoginState
+import com.byteutility.dev.leetcode.plus.utils.ProgressDialogUtil
 
 @Composable
 fun UserLoginScreen(
@@ -48,6 +49,17 @@ fun UserLoginScreen(
             LeetCodeUsernameScreen { username ->
                 viewModel.saveUserName(username, context)
             }
+        }
+
+        is LoginState.Loading -> {
+            LeetCodeUsernameScreen { username ->
+                viewModel.saveUserName(username, context)
+            }
+            
+            ProgressDialogUtil.ShowGradientProgressDialog(
+                message = "Fetching user profile...",
+                showDialog = true
+            )
         }
 
         is LoginState.Success -> {
@@ -68,8 +80,6 @@ fun UserLoginScreen(
                 viewModel.saveUserName(username, context)
             }
         }
-
-        else -> {}
     }
 }
 
