@@ -1,23 +1,24 @@
 package com.byteutility.dev.leetcode.plus.network.responseVo
 
+import com.google.gson.annotations.SerializedName
 
 data class UserSolvedVo(
-    val acSubmissionNumVo: List<AcSubmissionNumVo>,
-    val easySolved: Int,
-    val hardSolved: Int,
-    val mediumSolved: Int,
-    val solvedProblem: Int,
-    val totalSubmissionNum: List<TotalSubmissionNumVo>
+    @SerializedName("acSubmissionNum") val acSubmissionNumVo: List<AcSubmissionNumVo>,
+    @SerializedName("easySolved") val easySolved: Int,
+    @SerializedName("hardSolved") val hardSolved: Int,
+    @SerializedName("mediumSolved") val mediumSolved: Int,
+    @SerializedName("solvedProblem") val solvedProblem: Int,
+    @SerializedName("totalSubmissionNum") val totalSubmissionNum: List<TotalSubmissionNumVo>
 )
 
 data class AcSubmissionNumVo(
-    val count: Int,
-    val difficulty: String,
-    val submissions: Int
+    @SerializedName("count") val count: Int,
+    @SerializedName("difficulty") val difficulty: String,
+    @SerializedName("submissions") val submissions: Int
 )
 
 data class TotalSubmissionNumVo(
-    val count: Int,
-    val difficulty: String,
-    val submissions: Int
+    @SerializedName("count") val count: Int,
+    @SerializedName("difficulty") val difficulty: String,
+    @SerializedName("submissions") val submissions: Int
 )

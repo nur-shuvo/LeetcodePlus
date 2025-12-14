@@ -341,6 +341,30 @@ fun UserProfileContent(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 UserProfileCard(uiState.userBasicInfo)
+
+                // Data sync info message
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 2.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Event,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Data updated every hour",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        fontSize = 12.sp
+                    )
+                }
+
                 DailyProblemCard(
                     title = dailyProblem.title,
                     verdict = if (dailyProblemSolved) "Completed" else "Pending",

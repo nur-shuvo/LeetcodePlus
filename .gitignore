@@ -18,3 +18,10 @@ local.properties
 /.idea/
 /.kotlin/
 /generate_icon.py
+
+# Keystore files - NEVER commit these!
+*.jks
+*.keystore
+keystore.properties
+create_keystore.sh
+/PLAY_STORE_RELEASE_GUIDE.md
