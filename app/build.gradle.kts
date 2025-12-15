@@ -13,7 +13,7 @@ plugins {
 
 android {
     namespace = "com.byteutility.dev.leetcode.plus"
-    compileSdk = 34
+    compileSdk = 35
 
     // Load local properties
     val localPropertiesFile = rootProject.file("local.properties")
@@ -32,9 +32,9 @@ android {
     defaultConfig {
         applicationId = "com.byteutility.dev.leetcode.plus"
         minSdk = 29
-        targetSdk = 34
-        versionCode = 4
-        versionName = "1.0.4"
+        targetSdk = 35
+        versionCode = 5
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
