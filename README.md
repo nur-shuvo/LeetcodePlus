@@ -2,6 +2,10 @@
 This is an unofficial native Android leetcode client that may help you to focus on your leetcode problem solving journey! This app has notification features that reminds you of leetcode daily problem if you did not solve a day.
 Additionally, you can set your own weekly goal through this application and this app will remind you about your progress! And many more features are coming! 🚀
 
+<p align="center">
+    <img src="ss/feature_graphic_1024x500.png" alt="LeetCode Plus Feature Graphic" width="100%"/>
+</p>
+
 Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
 
 ## Key Features 🌟
@@ -16,8 +20,8 @@ Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
 
 ## Screenshots
 <p align="center">
-    <img src="./ss/01_home_screen.png" alt="Screenshot 1" width="200"/>
-    <img src="./ss/03_problem_details.png" alt="Screenshot 1" width="200"/>
+    <img src="./ss/Home.png" alt="Screenshot 1" width="200"/>
+    <img src="./ss/problem.png" alt="Screenshot 1" width="200"/>
     <img src="./ss/image2.jpeg" alt="Screenshot 1" width="200"/>
     <img src="./ss/image3.jpeg" alt="Screenshot 1" width="200"/>
     <img src="./ss/image4.jpeg" alt="Screenshot 1" width="200"/>
