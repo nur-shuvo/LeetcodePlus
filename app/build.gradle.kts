@@ -15,6 +15,20 @@ android {
     namespace = "com.byteutility.dev.leetcode.plus"
     compileSdk = 34
 
+    // Load local properties
+    val localPropertiesFile = rootProject.file("local.properties")
+    val localProperties = Properties()
+    if (localPropertiesFile.exists()) {
+        localProperties.load(FileInputStream(localPropertiesFile))
+    }
+
+    // Load keystore properties
+    val keystorePropertiesFile = rootProject.file("keystore.properties")
+    val keystoreProperties = Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    }
+
     defaultConfig {
         applicationId = "com.byteutility.dev.leetcode.plus"
         minSdk = 29
@@ -23,13 +37,10 @@ android {
         versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
-    // Load keystore properties
-    val keystorePropertiesFile = rootProject.file("keystore.properties")
-    val keystoreProperties = Properties()
-    if (keystorePropertiesFile.exists()) {
-        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+        // Read BASE_URL from local.properties with a fallback
+        val baseUrl = localProperties.getProperty("BASE_URL") ?: "https://dummy.com/"
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 
     signingConfigs {

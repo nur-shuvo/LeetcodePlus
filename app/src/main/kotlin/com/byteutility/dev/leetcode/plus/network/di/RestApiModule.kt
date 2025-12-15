@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.network.di
 
+import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import com.byteutility.dev.leetcode.plus.network.converter.JsonOrXmlConverter
 import com.byteutility.dev.leetcode.plus.network.interceptor.HttpHeaderInterceptor
@@ -16,7 +17,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object RestApiModule {
-    private const val BASE_URL = "https://alfa-leetcode-pz35zz5mh-asaduzzaman-nur-shuvos-projects.vercel.app/"
     private const val READ_TIME = 10L
     private const val WRITE_TIME = 10L
     private const val CONNECTION_TIME = 5L
@@ -47,7 +47,7 @@ object RestApiModule {
     @Provides
     fun providesRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(JsonOrXmlConverter())
             .client(okHttpClient)
             .build()
