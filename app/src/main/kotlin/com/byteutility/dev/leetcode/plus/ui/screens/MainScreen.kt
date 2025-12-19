@@ -124,7 +124,13 @@ fun MainScreen(mainNavController: NavHostController) {
                         navigationActions.navigateToVideoSolutions()
                     },
                     onNavigateToAllProblems = {
-                        navController.navigate(AllProblems)
+                        navController.navigate(AllProblems){
+                            popUpTo(navController.graph.findStartDestination().id){
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     },
                     onLogout = {
                         navigationActions.navigateToLogin()
