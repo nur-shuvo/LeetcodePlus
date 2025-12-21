@@ -71,6 +71,9 @@ class UserDetailsViewModel @Inject constructor(
     private val userBasicInfo =
         MutableStateFlow(UserBasicInfo())
 
+    private val syncInterval =
+        MutableStateFlow<Long>(30)
+
     private val userContestInfo =
         MutableStateFlow(UserContestInfo())
 
@@ -99,7 +102,8 @@ class UserDetailsViewModel @Inject constructor(
                 userSubmissionState,
                 isWeeklyGoalSet,
                 videosByPlayListState,
-                _leetcodeUpcomingContestsState
+                _leetcodeUpcomingContestsState,
+                syncInterval
             )
         ) { values ->
             UserDetailsUiState(
@@ -109,7 +113,8 @@ class UserDetailsViewModel @Inject constructor(
                 userSubmissionState = values[3] as UserSubmissionState,
                 isWeeklyGoalSet = values[4] as Boolean,
                 videosByPlayListState = values[5] as VideosByPlayListState,
-                leetcodeUpcomingContestsState = values[6] as LeetcodeUpcomingContestsState
+                leetcodeUpcomingContestsState = values[6] as LeetcodeUpcomingContestsState,
+                syncInterval = values[7] as Long
             )
         }.stateIn(
             scope = viewModelScope,
@@ -128,6 +133,10 @@ class UserDetailsViewModel @Inject constructor(
                         userBasicInfo.value = it
                     }
                 }
+        }
+
+        viewModelScope.launch {
+            syncInterval.value = userDatastore.getSyncInterval()
         }
 
         viewModelScope.launch {
@@ -276,6 +285,12 @@ class UserDetailsViewModel @Inject constructor(
     fun startsSync(context: Context) {
         viewModelScope.launch {
             UserDetailsSyncWorker.enqueuePeriodicWork(context, userDatastore)
+        }
+    }
+
+    fun refreshUserSettings() {
+        viewModelScope.launch {
+            syncInterval.value = userDatastore.getSyncInterval()
         }
     }
 

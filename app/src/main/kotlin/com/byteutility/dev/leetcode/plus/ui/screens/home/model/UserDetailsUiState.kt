@@ -16,6 +16,7 @@ data class UserDetailsUiState(
     val userProblemSolvedInfo: UserProblemSolvedInfo = UserProblemSolvedInfo(),
     val userSubmissionState: UserSubmissionState = UserSubmissionState(),
     val isWeeklyGoalSet: Boolean = false,
+    val syncInterval: Long = 30,
     val videosByPlayListState: VideosByPlayListState = VideosByPlayListState(),
     val leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState = LeetcodeUpcomingContestsState()
 )
