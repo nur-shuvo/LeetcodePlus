@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -31,8 +32,10 @@ import com.byteutility.dev.leetcode.plus.ui.navigation.AllProblems
 import com.byteutility.dev.leetcode.plus.ui.navigation.Home
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavigation
 import com.byteutility.dev.leetcode.plus.ui.navigation.ProblemDetails
+import com.byteutility.dev.leetcode.plus.ui.navigation.Settings
 import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.AllProblemsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.home.HomeScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.settings.SettingsScreen
 
 sealed class BottomNavScreen(val route: Any, val label: String, val icon: ImageVector) {
     object HomeWithLabel : BottomNavScreen(
@@ -46,11 +49,18 @@ sealed class BottomNavScreen(val route: Any, val label: String, val icon: ImageV
         label = "Problems",
         icon = Icons.AutoMirrored.Filled.List
     )
+
+    object SettingsWithLabel : BottomNavScreen(
+        route = Settings,
+        label = "Settings",
+        icon = Icons.Default.Settings
+    )
 }
 
 val bottomNavItems = listOf(
     BottomNavScreen.HomeWithLabel,
-    BottomNavScreen.AllProblemsWithLabel
+    BottomNavScreen.AllProblemsWithLabel,
+    BottomNavScreen.SettingsWithLabel
 )
 
 @Composable
@@ -146,6 +156,13 @@ fun MainScreen(mainNavController: NavHostController) {
                         navigationActions.navigateToProblemDetails(
                             ProblemDetails(titleSLug)
                         )
+                    }
+                )
+            }
+            composable<Settings> {
+                SettingsScreen(
+                    onLogout = {
+                        navigationActions.navigateToLogin()
                     }
                 )
             }
