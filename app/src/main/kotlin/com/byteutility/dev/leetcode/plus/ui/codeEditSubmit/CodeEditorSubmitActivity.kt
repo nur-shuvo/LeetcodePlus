@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.ui.codeEditSubmit
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -12,6 +13,7 @@ import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.MainActivity
+import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.config.EditorLanguageHelper
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitUIEvent
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitViewModel
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.SubmissionState
@@ -36,6 +38,9 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_code_editor_submit)
+
+        // Configure editor language before setting text
+        configureEditorLanguage()
 
         lifecycleScope.launch {
             val savedCode = viewModel.getSavedCode(questionId!!, language!!)
@@ -119,6 +124,17 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     else -> {}
                 }
             }
+        }
+    }
+
+    private fun configureEditorLanguage() {
+        language?.let { lang ->
+            val success = EditorLanguageHelper.configureEditor(codeEditor, lang)
+            if (!success) {
+                Log.i("CodeEditorSubmit", "Failed to configure editor for language: $lang")
+            }
+        } ?: run {
+            Log.i("CodeEditorSubmit", "No language specified, using default editor configuration")
         }
     }
 
