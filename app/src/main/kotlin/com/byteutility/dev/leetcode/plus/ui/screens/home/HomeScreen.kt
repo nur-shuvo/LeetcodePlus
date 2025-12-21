@@ -84,6 +84,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.byteutility.dev.leetcode.plus.R
@@ -127,6 +128,10 @@ fun HomeScreen(
     val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
     val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
     viewModel.startsSync(LocalContext.current)
+    LifecycleResumeEffect(Unit) {
+        viewModel.refreshUserSettings()
+        onPauseOrDispose {  }
+    }
     HomeLayout(
         uiState = uiState,
         dailyProblem = dailyProblem,
@@ -358,7 +363,7 @@ fun UserProfileContent(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Data updated every 30 min",
+                        text = "Data updated every ${uiState.syncInterval} min",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         fontSize = 12.sp
