@@ -46,7 +46,7 @@ class UserLoginViewModel @Inject constructor(
                     userBasicInfo = UserBasicInfo(userName = userName)
                 )
                 _loginState.value = LoginState.Success(userName)
-                UserDetailsSyncWorker.enqueuePeriodicWork(context)
+                UserDetailsSyncWorker.enqueuePeriodicWork(context, userDatastore)
             } catch (e: Exception) {
                 _loginState.value = LoginState.Error("Failed to retrieve user profile.")
                 Toast.makeText(

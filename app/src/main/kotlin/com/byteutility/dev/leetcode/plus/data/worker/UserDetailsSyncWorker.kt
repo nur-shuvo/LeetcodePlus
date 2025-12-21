@@ -67,6 +67,9 @@ class UserDetailsSyncWorker @AssistedInject constructor(
                     userDatastore.saveUserProblemSolvedInfo(userSolved.toInternalModel())
                     userDatastore.saveDailyProblem(dailyProblem.toInternalModel())
 
+                    // Save the sync timestamp
+                    userDatastore.saveLastSyncTime(System.currentTimeMillis())
+
                     goalStatusMonitor.start()
                     dailyProblemStatusMonitor.start()
                     LeetcodePlusGlanceAppWidget().updateAll(applicationContext)
@@ -82,21 +85,24 @@ class UserDetailsSyncWorker @AssistedInject constructor(
     }
 
     companion object {
-        private const val DURATION_IN_MINUTES = 30L
-        fun enqueuePeriodicWork(context: Context) {
+        private const val DEFAULT_DURATION_IN_MINUTES = 30L
+        private const val WORK_NAME = "UserDetailsSyncWorker"
+
+        suspend fun enqueuePeriodicWork(context: Context, userDatastore: UserDatastore) {
+            val syncInterval = userDatastore.getSyncInterval()
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 
             val workRequest = PeriodicWorkRequestBuilder<UserDetailsSyncWorker>(
-                repeatInterval = Duration.ofMinutes(DURATION_IN_MINUTES)
+                repeatInterval = Duration.ofMinutes(syncInterval)
             ).setConstraints(constraints)
                 .build()
 
             WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(
-                    "UserDetailsSyncWorker",
-                    ExistingPeriodicWorkPolicy.KEEP,
+                    WORK_NAME,
+                    ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                     workRequest
                 )
         }

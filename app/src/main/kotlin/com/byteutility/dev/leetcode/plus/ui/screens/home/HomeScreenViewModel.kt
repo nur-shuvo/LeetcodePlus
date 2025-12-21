@@ -10,6 +10,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.byteutility.dev.leetcode.plus.data.datastore.NotificationDataStore
+import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
@@ -49,6 +50,7 @@ class UserDetailsViewModel @Inject constructor(
     private val userDetailsRepository: UserDetailsRepository,
     private val goalRepository: WeeklyGoalRepository,
     private val notificationDataStore: NotificationDataStore,
+    private val userDatastore: UserDatastore,
     dailyProblemStatusMonitor: DailyProblemStatusMonitor
 ) : ViewModel() {
 
@@ -271,7 +273,11 @@ class UserDetailsViewModel @Inject constructor(
         }
     }
 
-    fun startsSync(context: Context) = UserDetailsSyncWorker.enqueuePeriodicWork(context)
+    fun startsSync(context: Context) {
+        viewModelScope.launch {
+            UserDetailsSyncWorker.enqueuePeriodicWork(context, userDatastore)
+        }
+    }
 
     fun logout() {
         viewModelScope.launch {

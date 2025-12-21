@@ -13,6 +13,9 @@ object Main
 object AllProblems
 
 @Serializable
+object Settings
+
+@Serializable
 object Goal
 
 @Serializable

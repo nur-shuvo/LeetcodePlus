@@ -190,6 +190,35 @@ class UserDatastore @Inject constructor(
         return context.userPreferencesDataStore.data.first()[stringPreferencesKey("session_token")]
     }
 
+    suspend fun saveLastSyncTime(timestamp: Long) {
+        context.userPreferencesDataStore.edit { preferences ->
+            preferences[stringPreferencesKey("last_sync_time")] = timestamp.toString()
+        }
+    }
+
+    fun getLastSyncTime(): Flow<Long?> {
+        return context.userPreferencesDataStore.data
+            .catch {
+                emit(emptyPreferences())
+            }
+            .map { preferences ->
+                val timeString = preferences[stringPreferencesKey("last_sync_time")]
+                timeString?.toLongOrNull()
+            }
+    }
+
+    suspend fun saveSyncInterval(minutes: Long) {
+        context.userPreferencesDataStore.edit { preferences ->
+            preferences[stringPreferencesKey("sync_interval_minutes")] = minutes.toString()
+        }
+    }
+
+    suspend fun getSyncInterval(): Long {
+        val preferences = context.userPreferencesDataStore.data.first()
+        val intervalString = preferences[stringPreferencesKey("sync_interval_minutes")]
+        return intervalString?.toLongOrNull() ?: 30L // Default 30 minutes
+    }
+
     suspend fun clearAllData() {
         context.userPreferencesDataStore.edit {
             it.clear()
