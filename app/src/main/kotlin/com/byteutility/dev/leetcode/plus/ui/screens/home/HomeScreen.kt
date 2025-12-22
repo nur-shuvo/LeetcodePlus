@@ -127,7 +127,6 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
     val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
-    viewModel.scheduleBackgroundTasks(LocalContext.current)
     LifecycleResumeEffect(Unit) {
         viewModel.refreshUserSettings()
         onPauseOrDispose {  }

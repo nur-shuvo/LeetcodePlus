@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurations
 import com.byteutility.dev.leetcode.plus.data.datastore.NotificationDataStore
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
@@ -73,7 +74,7 @@ class UserDetailsViewModel @Inject constructor(
         MutableStateFlow(UserBasicInfo())
 
     private val syncInterval =
-        MutableStateFlow<Long>(30)
+        MutableStateFlow<Long>(IntervalConfigurations.DATA_SYNC_DEFAULT_INTERVAL.minutes)
 
     private val userContestInfo =
         MutableStateFlow(UserContestInfo())
@@ -203,6 +204,8 @@ class UserDetailsViewModel @Inject constructor(
         }
 
         loadNextVideos()
+
+        scheduleBackgroundTasks()
     }
 
     private fun getUserSubmissionPaginator() = DefaultPaginator(
@@ -283,7 +286,7 @@ class UserDetailsViewModel @Inject constructor(
         }
     }
 
-    fun scheduleBackgroundTasks(context: Context) {
+    private fun scheduleBackgroundTasks() {
         viewModelScope.launch {
             UserDetailsSyncWorker.enqueuePeriodicWork(context, userDatastore)
             ReminderNotificationWorker.enqueuePeriodicWork(context, userDatastore)

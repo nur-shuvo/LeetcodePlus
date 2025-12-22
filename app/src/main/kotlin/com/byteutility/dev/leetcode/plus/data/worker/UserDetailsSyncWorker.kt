@@ -85,7 +85,6 @@ class UserDetailsSyncWorker @AssistedInject constructor(
     }
 
     companion object {
-        private const val DEFAULT_DURATION_IN_MINUTES = 30L
         private const val WORK_NAME = "UserDetailsSyncWorker"
 
         suspend fun enqueuePeriodicWork(context: Context, userDatastore: UserDatastore) {
@@ -102,7 +101,7 @@ class UserDetailsSyncWorker @AssistedInject constructor(
             WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(
                     WORK_NAME,
-                    ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+                    ExistingPeriodicWorkPolicy.UPDATE,
                     workRequest
                 )
         }
