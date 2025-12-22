@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.NotificationImportant
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
@@ -33,6 +34,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,12 +44,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.BuildConfig
+import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurations
+import com.byteutility.dev.leetcode.plus.core.settings.model.IntervalOption
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,9 +63,11 @@ fun SettingsScreen(
     val userInfo by viewModel.userBasicInfo.collectAsStateWithLifecycle()
     val lastSyncTime by viewModel.lastSyncTime.collectAsStateWithLifecycle()
     val syncInterval by viewModel.syncInterval.collectAsStateWithLifecycle()
+    val notificationInterval by viewModel.notificationInterval.collectAsStateWithLifecycle()
 
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showSyncIntervalDialog by remember { mutableStateOf(false) }
+    var showNotificationIntervalDialog by remember { mutableStateOf(false) }
 
     if (showLogoutDialog) {
         LogoutConfirmationDialog(
@@ -74,13 +81,30 @@ fun SettingsScreen(
     }
 
     if (showSyncIntervalDialog) {
-        SyncIntervalDialog(
+        IntervalSelectionDialog(
+            intervalOptions = IntervalConfigurations.syncIntervalOptions,
             currentInterval = syncInterval,
             onConfirm = { newInterval ->
                 showSyncIntervalDialog = false
                 viewModel.updateSyncInterval(newInterval)
             },
-            onDismiss = { showSyncIntervalDialog = false }
+            onDismiss = { showSyncIntervalDialog = false },
+            dialogTitle = "Set Sync Interval",
+            dialogSubtitle = "Choose how often to sync data:"
+        )
+    }
+
+    if (showNotificationIntervalDialog) {
+        IntervalSelectionDialog(
+            intervalOptions = IntervalConfigurations.notificationIntervalOptions,
+            currentInterval = notificationInterval,
+            onConfirm = { newInterval ->
+                showNotificationIntervalDialog = false
+                viewModel.updateNotificationInterval(newInterval)
+            },
+            onDismiss = { showNotificationIntervalDialog = false },
+            dialogTitle = "Set Notification Interval",
+            dialogSubtitle = "Choose how often to receive push notifications:"
         )
     }
 
@@ -153,6 +177,18 @@ fun SettingsScreen(
                 SettingsInfoRow(
                     label = "Last Synced",
                     value = lastSyncTime
+                )
+            }
+
+            // notification
+            SettingsSectionCard(
+                title = "Notifications",
+                icon = Icons.Default.NotificationImportant
+            ) {
+                SettingsClickableRow(
+                    label = "Notifications Interval",
+                    value = "$notificationInterval minutes",
+                    onClick = { showNotificationIntervalDialog = true }
                 )
             }
 
@@ -370,21 +406,23 @@ fun SettingsClickableRow(
 }
 
 @Composable
-fun SyncIntervalDialog(
+fun IntervalSelectionDialog(
+    intervalOptions: List<IntervalOption>,
     currentInterval: Long,
     onConfirm: (Long) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    dialogTitle: String,
+    dialogSubtitle: String
 ) {
-    val intervalOptions = listOf(15L, 30L, 60L, 120L, 180L)
-    var selectedInterval by remember { mutableStateOf(currentInterval) }
+    var selectedInterval by remember { mutableLongStateOf(currentInterval) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = "Set Sync Interval") },
+        title = { Text(text = dialogTitle) },
         text = {
             Column {
                 Text(
-                    text = "Choose how often to sync data:",
+                    text = dialogSubtitle,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -392,33 +430,34 @@ fun SyncIntervalDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { selectedInterval = interval }
+                            .clickable { selectedInterval = interval.time }
                             .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+
+                        val intervalText = buildAnnotatedString {
+                            append(interval.displayLabel)
+                            if (interval.isDefault) {
+                                append(" (Default)")
+                            }
+                        }
+
                         Text(
-                            text = when (interval) {
-                                15L -> "15 minutes"
-                                30L -> "30 minutes (Default)"
-                                60L -> "1 hour"
-                                120L -> "2 hours"
-                                180L -> "3 hours"
-                                else -> "$interval minutes"
-                            },
+                            text = intervalText,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = if (selectedInterval == interval) {
+                            color = if (selectedInterval == interval.time) {
                                 MaterialTheme.colorScheme.primary
                             } else {
                                 MaterialTheme.colorScheme.onSurface
                             },
-                            fontWeight = if (selectedInterval == interval) {
+                            fontWeight = if (selectedInterval == interval.time) {
                                 FontWeight.Bold
                             } else {
                                 FontWeight.Normal
                             }
                         )
-                        if (selectedInterval == interval) {
+                        if (selectedInterval == interval.time) {
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = "Selected",

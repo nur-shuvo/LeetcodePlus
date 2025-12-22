@@ -12,6 +12,7 @@ import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurations
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -216,7 +217,19 @@ class UserDatastore @Inject constructor(
     suspend fun getSyncInterval(): Long {
         val preferences = context.userPreferencesDataStore.data.first()
         val intervalString = preferences[stringPreferencesKey("sync_interval_minutes")]
-        return intervalString?.toLongOrNull() ?: 30L // Default 30 minutes
+        return intervalString?.toLongOrNull() ?: IntervalConfigurations.DATA_SYNC_DEFAULT_INTERVAL.minutes // Default 30 minutes
+    }
+
+    suspend fun saveNotificationInterval(minutes: Long) {
+        context.userPreferencesDataStore.edit { preferences ->
+            preferences[stringPreferencesKey("notification_interval_minutes")] = minutes.toString()
+        }
+    }
+
+    suspend fun getNotificationInterval(): Long {
+        val preferences = context.userPreferencesDataStore.data.first()
+        val intervalString = preferences[stringPreferencesKey("notification_interval_minutes")]
+        return intervalString?.toLongOrNull() ?: IntervalConfigurations.NOTIFICATION_DEFAULT_INTERVAL.minutes
     }
 
     suspend fun clearAllData() {

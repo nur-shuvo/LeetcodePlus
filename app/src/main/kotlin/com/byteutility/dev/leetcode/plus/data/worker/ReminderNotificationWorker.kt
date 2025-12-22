@@ -8,12 +8,13 @@ import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.byteutility.dev.leetcode.plus.data.datastore.NotificationDataStore
+import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.utils.NotificationHandler
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 @HiltWorker
 class ReminderNotificationWorker @AssistedInject constructor(
@@ -37,18 +38,20 @@ class ReminderNotificationWorker @AssistedInject constructor(
     }
 
     companion object {
-        private const val NOTIFICATION_PERIOD_IN_HOURS = 3L
-        fun enqueuePeriodicWork(context: Context) {
+
+        private const val REMINDER_NOTIFICATION_WORK = "reminder_notification_work"
+
+        suspend fun enqueuePeriodicWork(context: Context, userDatastore: UserDatastore) {
+            val notificationInterval = userDatastore.getNotificationInterval()
             val notificationRequest =
                 PeriodicWorkRequestBuilder<ReminderNotificationWorker>(
-                    NOTIFICATION_PERIOD_IN_HOURS,
-                    TimeUnit.HOURS
+                    Duration.ofMinutes(notificationInterval),
                 ).addTag("TAG_REMINDER_WORKER")
                     .build()
             WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(
-                    "reminder_notification_work",
-                    ExistingPeriodicWorkPolicy.KEEP,
+                    REMINDER_NOTIFICATION_WORK,
+                    ExistingPeriodicWorkPolicy.UPDATE,
                     notificationRequest
                 )
         }
