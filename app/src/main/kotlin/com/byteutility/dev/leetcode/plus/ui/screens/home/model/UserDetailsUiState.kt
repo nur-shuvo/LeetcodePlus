@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.home.model
 
+import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurations
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
@@ -16,7 +17,7 @@ data class UserDetailsUiState(
     val userProblemSolvedInfo: UserProblemSolvedInfo = UserProblemSolvedInfo(),
     val userSubmissionState: UserSubmissionState = UserSubmissionState(),
     val isWeeklyGoalSet: Boolean = false,
-    val syncInterval: Long = 30,
+    val syncInterval: Long = IntervalConfigurations.DATA_SYNC_DEFAULT_INTERVAL.minutes,
     val videosByPlayListState: VideosByPlayListState = VideosByPlayListState(),
     val leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState = LeetcodeUpcomingContestsState()
 )
