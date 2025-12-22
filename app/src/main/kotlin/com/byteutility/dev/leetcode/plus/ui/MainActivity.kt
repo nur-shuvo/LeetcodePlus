@@ -74,7 +74,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        ReminderNotificationWorker.enqueuePeriodicWork(this)
         goalStatusMonitor.start()
         dailyProblemStatusMonitor.start()
     }

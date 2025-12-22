@@ -19,6 +19,7 @@ import com.byteutility.dev.leetcode.plus.data.pagination.DefaultPaginator
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.data.worker.ContestReminderWorker
+import com.byteutility.dev.leetcode.plus.data.worker.ReminderNotificationWorker
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
@@ -282,9 +283,10 @@ class UserDetailsViewModel @Inject constructor(
         }
     }
 
-    fun startsSync(context: Context) {
+    fun scheduleBackgroundTasks(context: Context) {
         viewModelScope.launch {
             UserDetailsSyncWorker.enqueuePeriodicWork(context, userDatastore)
+            ReminderNotificationWorker.enqueuePeriodicWork(context, userDatastore)
         }
     }
 

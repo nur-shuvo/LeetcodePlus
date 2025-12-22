@@ -8,6 +8,7 @@ import com.byteutility.dev.leetcode.plus.data.datastore.NotificationDataStore
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
+import com.byteutility.dev.leetcode.plus.data.worker.ReminderNotificationWorker
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -36,12 +37,16 @@ class SettingsViewModel @Inject constructor(
     val lastSyncTime: StateFlow<String> = _lastSyncTime.asStateFlow()
 
     private val _syncInterval = MutableStateFlow(30L)
+    private val _notificationInterval = MutableStateFlow(180L)
+
     val syncInterval: StateFlow<Long> = _syncInterval.asStateFlow()
+    val notificationInterval: StateFlow<Long> = _notificationInterval.asStateFlow()
 
     init {
         loadUserInfo()
         loadLastSyncTime()
         loadSyncInterval()
+        loadNotificationInterval()
     }
 
     private fun loadUserInfo() {
@@ -69,6 +74,14 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+
+    private fun loadNotificationInterval() {
+        viewModelScope.launch {
+            val interval = userDatastore.getNotificationInterval()
+            _notificationInterval.value = interval
+        }
+    }
+
     private fun loadSyncInterval() {
         viewModelScope.launch {
             val interval = userDatastore.getSyncInterval()
@@ -82,6 +95,14 @@ class SettingsViewModel @Inject constructor(
             _syncInterval.value = minutes
             // Re-enqueue the worker with the new interval
             UserDetailsSyncWorker.enqueuePeriodicWork(context, userDatastore)
+        }
+    }
+
+    fun updateNotificationInterval(minutes: Long) {
+        viewModelScope.launch {
+            userDatastore.saveNotificationInterval(minutes)
+            _notificationInterval.value = minutes
+            ReminderNotificationWorker.enqueuePeriodicWork(context, userDatastore)
         }
     }
 
