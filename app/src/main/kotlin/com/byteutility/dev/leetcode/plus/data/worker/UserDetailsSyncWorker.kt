@@ -87,7 +87,11 @@ class UserDetailsSyncWorker @AssistedInject constructor(
     companion object {
         private const val WORK_NAME = "UserDetailsSyncWorker"
 
-        suspend fun enqueuePeriodicWork(context: Context, userDatastore: UserDatastore) {
+        suspend fun enqueuePeriodicWork(
+            context: Context,
+            userDatastore: UserDatastore,
+            policy: ExistingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP
+        ) {
             val syncInterval = userDatastore.getSyncInterval()
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -101,7 +105,7 @@ class UserDetailsSyncWorker @AssistedInject constructor(
             WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(
                     WORK_NAME,
-                    ExistingPeriodicWorkPolicy.UPDATE,
+                    policy,
                     workRequest
                 )
         }
