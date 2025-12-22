@@ -203,6 +203,8 @@ class UserDetailsViewModel @Inject constructor(
         }
 
         loadNextVideos()
+
+        scheduleBackgroundTasks()
     }
 
     private fun getUserSubmissionPaginator() = DefaultPaginator(
@@ -283,7 +285,7 @@ class UserDetailsViewModel @Inject constructor(
         }
     }
 
-    fun scheduleBackgroundTasks(context: Context) {
+    private fun scheduleBackgroundTasks() {
         viewModelScope.launch {
             UserDetailsSyncWorker.enqueuePeriodicWork(context, userDatastore)
             ReminderNotificationWorker.enqueuePeriodicWork(context, userDatastore)
