@@ -41,7 +41,11 @@ class ReminderNotificationWorker @AssistedInject constructor(
 
         private const val REMINDER_NOTIFICATION_WORK = "reminder_notification_work"
 
-        suspend fun enqueuePeriodicWork(context: Context, userDatastore: UserDatastore) {
+        suspend fun enqueuePeriodicWork(
+            context: Context,
+            userDatastore: UserDatastore,
+            policy: ExistingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP
+        ) {
             val notificationInterval = userDatastore.getNotificationInterval()
             val notificationRequest =
                 PeriodicWorkRequestBuilder<ReminderNotificationWorker>(
@@ -51,7 +55,7 @@ class ReminderNotificationWorker @AssistedInject constructor(
             WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(
                     REMINDER_NOTIFICATION_WORK,
-                    ExistingPeriodicWorkPolicy.UPDATE,
+                    policy,
                     notificationRequest
                 )
         }

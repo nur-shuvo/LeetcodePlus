@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.settings
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager
 import com.byteutility.dev.leetcode.plus.data.datastore.NotificationDataStore
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
@@ -93,8 +94,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userDatastore.saveSyncInterval(minutes)
             _syncInterval.value = minutes
-            // Re-enqueue the worker with the new interval
-            UserDetailsSyncWorker.enqueuePeriodicWork(context, userDatastore)
+            UserDetailsSyncWorker.enqueuePeriodicWork(
+                context,
+                userDatastore,
+                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE
+            )
         }
     }
 
@@ -102,7 +106,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userDatastore.saveNotificationInterval(minutes)
             _notificationInterval.value = minutes
-            ReminderNotificationWorker.enqueuePeriodicWork(context, userDatastore)
+            ReminderNotificationWorker.enqueuePeriodicWork(
+                context,
+                userDatastore,
+                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE
+            )
         }
     }
 
