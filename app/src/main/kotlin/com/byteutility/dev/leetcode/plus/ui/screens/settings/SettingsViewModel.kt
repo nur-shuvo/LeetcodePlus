@@ -1,6 +1,11 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.settings
 
+import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -11,6 +16,7 @@ import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.worker.ReminderNotificationWorker
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
+import com.byteutility.dev.leetcode.plus.glance.LeetCodePlusGlanceAppWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -111,6 +117,34 @@ class SettingsViewModel @Inject constructor(
                 userDatastore,
                 ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE
             )
+        }
+    }
+
+    fun isDailyProblemWidgetPinned(): Boolean {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val ids = appWidgetManager.getAppWidgetIds(
+            ComponentName(
+                context,
+                LeetCodePlusGlanceAppWidgetReceiver::class.java
+            )
+        )
+        val isWidgetInstalled = ids.isNotEmpty()
+        return isWidgetInstalled
+    }
+
+    fun requestPinWidget() {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val myProvider = ComponentName(context, LeetCodePlusGlanceAppWidgetReceiver::class.java)
+
+        if (appWidgetManager.isRequestPinAppWidgetSupported) {
+            val successCallback = PendingIntent.getBroadcast(
+                context, 0, Intent(context, LeetCodePlusGlanceAppWidgetReceiver::class.java),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+
+            appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
+        } else {
+            Log.e("SettingsViewModel", "Pinning widget is not supported on this device")
         }
     }
 
