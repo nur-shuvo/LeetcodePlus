@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NotificationImportant
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -29,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -49,10 +51,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurations
 import com.byteutility.dev.leetcode.plus.core.settings.model.IntervalOption
+import com.byteutility.dev.leetcode.plus.ui.screens.settings.composables.DailyProblemWidgetPlaceholder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +72,12 @@ fun SettingsScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showSyncIntervalDialog by remember { mutableStateOf(false) }
     var showNotificationIntervalDialog by remember { mutableStateOf(false) }
+    var isWidgetPinned by remember { mutableStateOf(viewModel.isDailyProblemWidgetPinned()) }
+
+    LifecycleResumeEffect(Unit) {
+        isWidgetPinned = viewModel.isDailyProblemWidgetPinned()
+        onPauseOrDispose {}
+    }
 
     if (showLogoutDialog) {
         LogoutConfirmationDialog(
@@ -190,6 +200,43 @@ fun SettingsScreen(
                     value = "$notificationInterval minutes",
                     onClick = { showNotificationIntervalDialog = true }
                 )
+            }
+
+            // widget
+            SettingsSectionCard(
+                title = "Daily Problem Widget",
+                icon = Icons.Default.Widgets
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (isWidgetPinned) "Widget Pinned" else "Pin Widget",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Switch(
+                        enabled = !isWidgetPinned,
+                        checked = isWidgetPinned,
+                        onCheckedChange = {
+                            if (it) {
+                                viewModel.requestPinWidget()
+                            }
+                            isWidgetPinned = it
+                        }
+                    )
+                }
+
+                if (!isWidgetPinned) {
+                    Text(
+                        text = "Add daily problem widget in your home",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    DailyProblemWidgetPlaceholder()
+                }
             }
 
             // App Information Section
