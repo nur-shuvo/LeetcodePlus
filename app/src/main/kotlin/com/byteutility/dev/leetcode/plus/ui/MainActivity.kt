@@ -8,18 +8,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
-import com.byteutility.dev.leetcode.plus.data.worker.ReminderNotificationWorker
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavGraph
 import com.byteutility.dev.leetcode.plus.ui.navigation.Login
 import com.byteutility.dev.leetcode.plus.ui.navigation.Main
+import com.byteutility.dev.leetcode.plus.ui.navigation.ProblemDetails
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
     lateinit var dailyProblemStatusMonitor: DailyProblemStatusMonitor
 
     private var extraStartDestination: String? = null
+    private var dailyProblemTitleSlug: String? = null
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -71,6 +73,15 @@ class MainActivity : ComponentActivity() {
                         }
 
                     LeetCodePlusNavGraph(navController, startDestination)
+
+                    // Navigate to problem details if opened from daily problem notification
+                    dailyProblemTitleSlug?.let { titleSlug ->
+                        if (titleSlug.isNotEmpty() && userLoggedIn) {
+                            LaunchedEffect(titleSlug) {
+                                navController.navigate(ProblemDetails(titleSlug))
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -80,6 +91,7 @@ class MainActivity : ComponentActivity() {
 
     private fun init() {
         extraStartDestination = intent.getStringExtra("startDestination")
+        dailyProblemTitleSlug = intent.getStringExtra("dailyProblemTitleSlug")
     }
 
     override fun onStart() {

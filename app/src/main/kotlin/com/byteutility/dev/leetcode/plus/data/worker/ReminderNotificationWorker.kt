@@ -31,8 +31,10 @@ class ReminderNotificationWorker @AssistedInject constructor(
         }
         runBlocking {
             notificationDataStore.getCurrentDailyProblemNotification().firstOrNull()
-        }?.let {
-            NotificationHandler.createDailyProblemNotification(appContext, it)
+        }?.let { (message, titleSlug) ->
+            if (message.isNotEmpty()) {
+                NotificationHandler.createDailyProblemNotification(appContext, message, titleSlug)
+            }
         }
         return Result.success()
     }

@@ -62,18 +62,16 @@ object NotificationHandler {
     }
 
     @SuppressLint("MissingPermission")
-    fun createDailyProblemNotification(context: Context, message: String) {
-        // Go to the exact problem page instead
-        val url = "https://leetcode.com/problems/"
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+    fun createDailyProblemNotification(context: Context, message: String, titleSlug: String) {
+        val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("dailyProblemTitleSlug", titleSlug)
         }
-
         val pendingIntent = PendingIntent.getActivity(
             context,
             1,
-            browserIntent,
-            PendingIntent.FLAG_IMMUTABLE
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         createNotificationChannel(
