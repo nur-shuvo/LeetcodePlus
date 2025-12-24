@@ -29,8 +29,8 @@ class DailyProblemStatusMonitor @Inject constructor(
     private val showNotification = MutableSharedFlow<String>()
 
     val dailyProblemSolved: Flow<Boolean> =
-        notificationDataStore.getCurrentDailyProblemNotification().map {
-            it == "Great! You've solved today's Leetcode daily!"
+        notificationDataStore.getCurrentDailyProblemNotification().map { (message, _) ->
+            message == "Great! You've solved today's Leetcode daily!"
         }
 
     fun start() {
@@ -54,7 +54,8 @@ class DailyProblemStatusMonitor @Inject constructor(
 
                     showNotification.emit(currentNotificationMessage)
                     notificationDataStore.saveCurrentDailyProblemNotification(
-                        currentNotificationMessage
+                        currentNotificationMessage,
+                        todayProblemSlug ?: ""
                     )
                 }
             }
