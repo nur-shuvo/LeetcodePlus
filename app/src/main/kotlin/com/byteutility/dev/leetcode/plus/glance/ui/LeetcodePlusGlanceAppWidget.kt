@@ -2,7 +2,6 @@ package com.byteutility.dev.leetcode.plus.glance.ui
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +33,7 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
+import com.byteutility.dev.leetcode.plus.ui.MainActivity
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -73,10 +73,11 @@ class LeetcodePlusGlanceAppWidget : GlanceAppWidget() {
     private fun DailyProblemWidget(
         problem: LeetCodeProblem
     ) {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("https://leetcode.com/problems/${problem.titleSlug}/description")
-        )
+        val context = LocalContext.current
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("dailyProblemTitleSlug", problem.titleSlug)
+        }
 
         Box(
             modifier = GlanceModifier
