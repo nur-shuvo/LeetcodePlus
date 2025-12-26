@@ -41,10 +41,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
@@ -68,7 +70,9 @@ fun GoalProgressScreen(
         onPopCurrent = onPopCurrent,
         onNavigateToProblemDetails = onNavigateToProblemDetails,
         onResetGoal = {
-            showGoalResetDialog = true
+            if (uiState.problemsWithStatus.isNotEmpty()) {
+                showGoalResetDialog = true
+            }
         }
     )
 
@@ -122,20 +126,36 @@ fun ProgressScreenContent(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                item {
-                    DateRow(startDate = uiState.period.startDate, endDate = uiState.period.endDate)
+
+            if (uiState.problemsWithStatus.isNotEmpty()) {
+                val shuffled = uiState.problemsWithStatus.shuffled()
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    item {
+                        DateRow(
+                            startDate = uiState.period.startDate,
+                            endDate = uiState.period.endDate
+                        )
+                    }
+                    items(shuffled) {
+                        ProblemCard(it, onNavigateToProblemDetails)
+                    }
                 }
-                items(uiState.problemsWithStatus) {
-                    ProblemCard(it, onNavigateToProblemDetails)
-                }
+            } else {
+                Text(
+                    "Set a goal to see your progress",
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    ),
+                    modifier = Modifier.align(Alignment.Center),
+                )
             }
         }
     }

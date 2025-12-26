@@ -56,7 +56,6 @@ class SetWeeklyTargetViewModel @Inject constructor(
         period: WeeklyGoalPeriod
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            weeklyGoalRepository.deleteWeeklyGoal()
             weeklyGoalRepository.saveWeeklyGoal(problems, period)
             _popCurrentDestination.emit(Unit)
 

@@ -1,6 +1,5 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.targetstatus
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
@@ -98,13 +97,12 @@ class GoalProgressViewModel @Inject constructor(
         val goalStartDate =
             goalEntity?.toWeeklyGoalPeriod()?.startDate
         if (goalStartDate != null) {
+            val goalProblemsTitleList = goalEntity.toProblems().map { it.titleSlug }
             val parsedGoalStartDateTime = LocalDate.parse(goalStartDate, formatter1).atStartOfDay()
             return userSubmissions.filter { submission ->
                 val submissionDateTime =
                     LocalDateTime.parse(submission.timestamp, formatter2)
-                val isIncludedInGoal = goalEntity?.toProblems()
-                    ?.map { it.titleSlug }
-                    ?.contains(submission.titleSlug) == true
+                val isIncludedInGoal = goalProblemsTitleList.contains(submission.titleSlug)
                 isIncludedInGoal && submissionDateTime.isAfter(parsedGoalStartDateTime)
             }
         } else {
@@ -130,10 +128,14 @@ class GoalProgressViewModel @Inject constructor(
                         completedProblemsWithStatus.any { goal.title == it.title }
                     }
 
-
-                Log.e(this.javaClass.name, "resetGoal: completedProblems $completedProblems")
-                goalRepository.deleteWeeklyGoal()
-                goalRepository.saveWeeklyGoal(completedProblems, goalProblems.toWeeklyGoalPeriod())
+                if (completedProblems.isNotEmpty()) {
+                    goalRepository.saveWeeklyGoal(
+                        problems = completedProblems,
+                        period = goalProblems.toWeeklyGoalPeriod()
+                    )
+                } else {
+                    goalRepository.deleteWeeklyGoal()
+                }
             }
         }
     }
