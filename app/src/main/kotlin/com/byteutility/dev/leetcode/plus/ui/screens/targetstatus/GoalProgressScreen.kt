@@ -130,7 +130,6 @@ fun ProgressScreenContent(
         ) {
 
             if (uiState.problemsWithStatus.isNotEmpty()) {
-                val shuffled = uiState.problemsWithStatus.shuffled()
                 LazyColumn(
                     modifier = Modifier
                         .padding(start = 16.dp, end = 16.dp),
@@ -143,7 +142,7 @@ fun ProgressScreenContent(
                             endDate = uiState.period.endDate
                         )
                     }
-                    items(shuffled) {
+                    items(uiState.problemsWithStatus) {
                         ProblemCard(it, onNavigateToProblemDetails)
                     }
                 }
