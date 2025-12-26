@@ -115,7 +115,7 @@ class GoalProgressViewModel @Inject constructor(
             val goalProblems = goalRepository.weeklyGoal.first()
             goalProblems?.let {
                 val currentGoalProblemsWithStatus: List<ProblemStatus> =
-                    uiState.first().problemsWithStatus
+                    uiState.value.problemsWithStatus
 
                 val completedProblemsWithStatus: List<ProblemStatus> =
                     currentGoalProblemsWithStatus.filter {
@@ -133,7 +133,9 @@ class GoalProgressViewModel @Inject constructor(
                         problems = completedProblems,
                         period = goalProblems.toWeeklyGoalPeriod()
                     )
-                } else {
+                }
+
+                if (completedProblems.isEmpty() || completedProblems.size == goals.size) {
                     goalRepository.deleteWeeklyGoal()
                 }
             }
