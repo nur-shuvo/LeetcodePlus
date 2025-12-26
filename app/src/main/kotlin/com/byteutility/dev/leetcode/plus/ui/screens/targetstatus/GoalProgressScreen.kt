@@ -26,11 +26,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,17 +51,38 @@ import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
 import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
 import com.byteutility.dev.leetcode.plus.ui.common.done
+import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalResetDialog
 import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 
 @Composable
 fun GoalProgressScreen(
     onPopCurrent: () -> Unit,
-    onNavigateToProblemDetails: (String) -> Unit
+    onNavigateToProblemDetails: (String) -> Unit,
 ) {
     val viewmodel: GoalProgressViewModel = hiltViewModel()
     viewmodel.init()
     val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
-    ProgressScreenContent(uiState, onPopCurrent, onNavigateToProblemDetails)
+    var showGoalResetDialog by rememberSaveable { mutableStateOf(false) }
+    ProgressScreenContent(
+        uiState = uiState,
+        onPopCurrent = onPopCurrent,
+        onNavigateToProblemDetails = onNavigateToProblemDetails,
+        onResetGoal = {
+            showGoalResetDialog = true
+        }
+    )
+
+    if (showGoalResetDialog) {
+        WeeklyGoalResetDialog(
+            onConfirm = {
+                viewmodel.resetGoal()
+                showGoalResetDialog = false
+            },
+            onDismiss = {
+                showGoalResetDialog = false
+            }
+        )
+    }
 }
 
 @Composable
@@ -65,6 +90,7 @@ fun GoalProgressScreen(
 fun ProgressScreenContent(
     uiState: ProgressUiState,
     onPopCurrent: () -> Unit,
+    onResetGoal: () -> Unit,
     onNavigateToProblemDetails: (String) -> Unit
 ) {
     Scaffold(
@@ -72,6 +98,12 @@ fun ProgressScreenContent(
         topBar = {
             TopAppBar(
                 title = { Text(text = "My Progress") },
+                actions = {
+                    TextButton(
+                        onClick = onResetGoal, modifier = Modifier.padding(16.dp),
+                        content = { Text("Reset") }
+                    )
+                },
                 navigationIcon = {
                     IconButton(
                         onClick = { onPopCurrent() }
@@ -269,6 +301,7 @@ fun LeetCodeProgressScreenPreview() {
             WeeklyGoalPeriod("14 June 2024", "21 June 2024")
         ),
         onPopCurrent = {},
-        onNavigateToProblemDetails = {}
+        onNavigateToProblemDetails = {},
+        onResetGoal = {}
     )
 }
