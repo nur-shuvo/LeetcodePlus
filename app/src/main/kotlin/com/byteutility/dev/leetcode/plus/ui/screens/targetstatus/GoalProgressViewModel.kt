@@ -128,15 +128,17 @@ class GoalProgressViewModel @Inject constructor(
                         completedProblemsWithStatus.any { goal.title == it.title }
                     }
 
-                if (completedProblems.isNotEmpty()) {
-                    goalRepository.saveWeeklyGoal(
-                        problems = completedProblems,
-                        period = goalProblems.toWeeklyGoalPeriod()
-                    )
-                }
+                when {
+                    completedProblems.isEmpty() || completedProblems.size == goals.size -> {
+                        goalRepository.deleteWeeklyGoal()
+                    }
 
-                if (completedProblems.isEmpty() || completedProblems.size == goals.size) {
-                    goalRepository.deleteWeeklyGoal()
+                    else -> {
+                        goalRepository.saveWeeklyGoal(
+                            problems = completedProblems,
+                            period = goalProblems.toWeeklyGoalPeriod()
+                        )
+                    }
                 }
             }
         }
