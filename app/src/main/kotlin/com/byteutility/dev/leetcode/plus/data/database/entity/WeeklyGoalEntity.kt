@@ -10,7 +10,7 @@ import com.google.gson.reflect.TypeToken
 
 @Entity(tableName = "weekly_goal")
 data class WeeklyGoalEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo(name = "id")
     val id: Int = 0,
     @ColumnInfo(name = "problems")

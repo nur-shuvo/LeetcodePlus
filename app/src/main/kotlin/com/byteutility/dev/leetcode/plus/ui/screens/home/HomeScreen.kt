@@ -128,7 +128,7 @@ fun HomeScreen(
     val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
     val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
     LifecycleResumeEffect(Unit) {
-        viewModel.refreshUserSettings()
+        viewModel.refreshUiState()
         onPauseOrDispose {  }
     }
     HomeLayout(

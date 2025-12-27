@@ -2,6 +2,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.targetstatus
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
@@ -95,14 +96,51 @@ class GoalProgressViewModel @Inject constructor(
         val goalEntity = goalRepository.weeklyGoal.first()
         val goalStartDate =
             goalEntity?.toWeeklyGoalPeriod()?.startDate
-        val parsedGoalStartDateTime = LocalDate.parse(goalStartDate, formatter1).atStartOfDay()
-        return userSubmissions.filter { submission ->
-            val submissionDateTime =
-                LocalDateTime.parse(submission.timestamp, formatter2)
-            val isIncludedInGoal = goalEntity?.toProblems()
-                ?.map { it.titleSlug }
-                ?.contains(submission.titleSlug) == true
-            isIncludedInGoal && submissionDateTime.isAfter(parsedGoalStartDateTime)
+        if (goalStartDate != null) {
+            val goalProblemsTitleList = goalEntity.toProblems().map { it.titleSlug }
+            val parsedGoalStartDateTime = LocalDate.parse(goalStartDate, formatter1).atStartOfDay()
+            return userSubmissions.filter { submission ->
+                val submissionDateTime =
+                    LocalDateTime.parse(submission.timestamp, formatter2)
+                val isIncludedInGoal = goalProblemsTitleList.contains(submission.titleSlug)
+                isIncludedInGoal && submissionDateTime.isAfter(parsedGoalStartDateTime)
+            }
+        } else {
+            return emptyList()
+        }
+    }
+
+    fun resetGoal() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val goalProblems = goalRepository.weeklyGoal.first()
+            goalProblems?.let {
+                val currentGoalProblemsWithStatus: List<ProblemStatus> =
+                    uiState.value.problemsWithStatus
+
+                val completedProblemsWithStatus: List<ProblemStatus> =
+                    currentGoalProblemsWithStatus.filter {
+                        it.status == "Completed"
+                    }
+
+                val goals: List<LeetCodeProblem> = goalProblems.toProblems()
+                val completedProblems =
+                    goals.filter { goal ->
+                        completedProblemsWithStatus.any { goal.title == it.title }
+                    }
+
+                when {
+                    completedProblems.isEmpty() || completedProblems.size == goals.size -> {
+                        goalRepository.deleteWeeklyGoal()
+                    }
+
+                    else -> {
+                        goalRepository.saveWeeklyGoal(
+                            problems = completedProblems,
+                            period = goalProblems.toWeeklyGoalPeriod()
+                        )
+                    }
+                }
+            }
         }
     }
 
