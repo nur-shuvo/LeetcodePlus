@@ -1,11 +1,8 @@
 package com.byteutility.dev.leetcode.plus.data.repository.userDetails
 
+import com.byteutility.dev.leetcode.plus.data.datastore.UserDataStoreProvider
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
-import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.VideosByPlaylist
-import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
-import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
-import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetcodeUpcomingContestsResponse
@@ -13,7 +10,6 @@ import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.youtube.YouTube
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,36 +18,12 @@ import javax.inject.Singleton
 class UserDetailsRepositoryImpl @Inject constructor(
     private val userDatastore: UserDatastore,
     private val restApiService: RestApiService,
-) : UserDetailsRepository {
+) : UserDetailsRepository, UserDataStoreProvider by userDatastore {
 
     private val youtubeDataApi =
         YouTube.Builder(AndroidHttp.newCompatibleTransport(), GsonFactory(), null)
             .setApplicationName("LeetCodePlusApplication")
             .build()
-
-    override suspend fun getUserBasicInfo(): Flow<UserBasicInfo?> {
-        return userDatastore.getUserBasicInfo()
-    }
-
-    override suspend fun getUserContestInfo(): Flow<UserContestInfo?> {
-        return userDatastore.getUserContestInfo()
-    }
-
-    override suspend fun getUserProblemSolvedInfo(): Flow<UserProblemSolvedInfo?> {
-        return userDatastore.getUserProblemSolvedInfo()
-    }
-
-    override suspend fun getUserRecentAcSubmissions(): Flow<List<UserSubmission>?> {
-        return userDatastore.getUserAcSubmissions()
-    }
-
-    override suspend fun getUserLastSubmissions(): Flow<List<UserSubmission>?> {
-        return userDatastore.getUserLastSubmissions()
-    }
-
-    override suspend fun getDailyProblem(): Flow<LeetCodeProblem?> {
-        return userDatastore.getDailyProblem()
-    }
 
     override suspend fun getUserRecentAcSubmissionsPaginated(
         page: Int,
@@ -59,10 +31,10 @@ class UserDetailsRepositoryImpl @Inject constructor(
     ): Result<List<UserSubmission>> {
         delay(1000)
         val startingIndex = page * pageSize
-        val submissions = userDatastore.getUserAcSubmissions().first() ?: emptyList()
+        val submissions = userDatastore.getUserRecentAcSubmissions().first() ?: emptyList()
         return if ((startingIndex + pageSize) <= submissions.size) {
             Result.success(
-                userDatastore.getUserAcSubmissions().first()!!
+                userDatastore.getUserRecentAcSubmissions().first()!!
                     .slice(startingIndex until startingIndex + pageSize)
             )
         } else Result.success(
@@ -109,10 +81,6 @@ class UserDetailsRepositoryImpl @Inject constructor(
             "Baker_vai",
             "90dfbb9b3cd0f74ea4fb530077348d3367eccf70"
         )
-    }
-
-    override suspend fun clearAllData() {
-        userDatastore.clearAllData()
     }
 
     companion object {
