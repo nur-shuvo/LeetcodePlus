@@ -162,12 +162,6 @@ class UserDetailsViewModel @Inject constructor(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            goalRepository.weeklyGoal.collect {
-                isWeeklyGoalSet.value = (it != null)
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
             val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
             goalRepository.weeklyGoal.collect { goal ->
                 if (goal != null) {
@@ -206,6 +200,21 @@ class UserDetailsViewModel @Inject constructor(
         loadNextVideos()
 
         scheduleBackgroundTasks()
+
+        getWeeklyGoalStatus()
+    }
+
+    fun refreshUiState() {
+        refreshUserSettings()
+        getWeeklyGoalStatus()
+    }
+
+    private fun getWeeklyGoalStatus() {
+        viewModelScope.launch(Dispatchers.IO) {
+            goalRepository.weeklyGoal.collect {
+                isWeeklyGoalSet.value = (it != null)
+            }
+        }
     }
 
     private fun getUserSubmissionPaginator() = DefaultPaginator(
@@ -293,7 +302,7 @@ class UserDetailsViewModel @Inject constructor(
         }
     }
 
-    fun refreshUserSettings() {
+    private fun refreshUserSettings() {
         viewModelScope.launch {
             syncInterval.value = userDatastore.getSyncInterval()
         }

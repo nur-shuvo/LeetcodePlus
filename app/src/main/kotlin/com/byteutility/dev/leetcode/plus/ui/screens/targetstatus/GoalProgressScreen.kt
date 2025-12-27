@@ -26,38 +26,67 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
 import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
 import com.byteutility.dev.leetcode.plus.ui.common.done
+import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalResetDialog
 import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
 
 @Composable
 fun GoalProgressScreen(
     onPopCurrent: () -> Unit,
-    onNavigateToProblemDetails: (String) -> Unit
+    onNavigateToProblemDetails: (String) -> Unit,
 ) {
     val viewmodel: GoalProgressViewModel = hiltViewModel()
     viewmodel.init()
     val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
-    ProgressScreenContent(uiState, onPopCurrent, onNavigateToProblemDetails)
+    var showGoalResetDialog by rememberSaveable { mutableStateOf(false) }
+    ProgressScreenContent(
+        uiState = uiState,
+        onPopCurrent = onPopCurrent,
+        onNavigateToProblemDetails = onNavigateToProblemDetails,
+        onResetGoal = {
+            if (uiState.problemsWithStatus.isNotEmpty()) {
+                showGoalResetDialog = true
+            }
+        }
+    )
+
+    if (showGoalResetDialog) {
+        WeeklyGoalResetDialog(
+            onConfirm = {
+                viewmodel.resetGoal()
+                showGoalResetDialog = false
+            },
+            onDismiss = {
+                showGoalResetDialog = false
+            }
+        )
+    }
 }
 
 @Composable
@@ -65,6 +94,7 @@ fun GoalProgressScreen(
 fun ProgressScreenContent(
     uiState: ProgressUiState,
     onPopCurrent: () -> Unit,
+    onResetGoal: () -> Unit,
     onNavigateToProblemDetails: (String) -> Unit
 ) {
     Scaffold(
@@ -72,6 +102,12 @@ fun ProgressScreenContent(
         topBar = {
             TopAppBar(
                 title = { Text(text = "My Progress") },
+                actions = {
+                    TextButton(
+                        onClick = onResetGoal, modifier = Modifier.padding(16.dp),
+                        content = { Text("Reset") }
+                    )
+                },
                 navigationIcon = {
                     IconButton(
                         onClick = { onPopCurrent() }
@@ -90,20 +126,35 @@ fun ProgressScreenContent(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                item {
-                    DateRow(startDate = uiState.period.startDate, endDate = uiState.period.endDate)
+
+            if (uiState.problemsWithStatus.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    item {
+                        DateRow(
+                            startDate = uiState.period.startDate,
+                            endDate = uiState.period.endDate
+                        )
+                    }
+                    items(uiState.problemsWithStatus) {
+                        ProblemCard(it, onNavigateToProblemDetails)
+                    }
                 }
-                items(uiState.problemsWithStatus) {
-                    ProblemCard(it, onNavigateToProblemDetails)
-                }
+            } else {
+                Text(
+                    "Set a goal to see your progress",
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    ),
+                    modifier = Modifier.align(Alignment.Center),
+                )
             }
         }
     }
@@ -269,6 +320,7 @@ fun LeetCodeProgressScreenPreview() {
             WeeklyGoalPeriod("14 June 2024", "21 June 2024")
         ),
         onPopCurrent = {},
-        onNavigateToProblemDetails = {}
+        onNavigateToProblemDetails = {},
+        onResetGoal = {}
     )
 }
