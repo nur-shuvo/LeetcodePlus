@@ -212,7 +212,7 @@ class UserDetailsViewModel @Inject constructor(
     private fun getWeeklyGoalStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             goalRepository.weeklyGoal.collect {
-                isWeeklyGoalSet.value = (it != null && it.problems != "[]") // TODO: improve this 
+                isWeeklyGoalSet.value = (it != null)
             }
         }
     }
