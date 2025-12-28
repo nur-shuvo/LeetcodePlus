@@ -26,7 +26,7 @@ import javax.inject.Singleton
 @Singleton
 class UserDatastore @Inject constructor(
     @ApplicationContext private val context: Context,
-) {
+) : UserDataStoreProvider {
 
     private val gson: Gson = Gson()
 
@@ -42,7 +42,7 @@ class UserDatastore @Inject constructor(
         }
     }
 
-    fun getUserBasicInfo(): Flow<UserBasicInfo?> {
+    override suspend fun getUserBasicInfo(): Flow<UserBasicInfo?> {
         return context.userPreferencesDataStore.data
             .catch { exception ->
                 emit(emptyPreferences())
@@ -62,7 +62,7 @@ class UserDatastore @Inject constructor(
         }
     }
 
-    fun getUserContestInfo(): Flow<UserContestInfo?> {
+    override suspend fun getUserContestInfo(): Flow<UserContestInfo?> {
         return context.userPreferencesDataStore.data
             .catch { exception ->
                 emit(emptyPreferences())
@@ -82,7 +82,7 @@ class UserDatastore @Inject constructor(
         }
     }
 
-    fun getUserProblemSolvedInfo(): Flow<UserProblemSolvedInfo?> {
+    override suspend fun getUserProblemSolvedInfo(): Flow<UserProblemSolvedInfo?> {
         return context.userPreferencesDataStore.data
             .catch { exception ->
                 emit(emptyPreferences())
@@ -96,7 +96,7 @@ class UserDatastore @Inject constructor(
     suspend fun saveUserAcSubmissions(
         userSubmissions: List<UserSubmission>
     ) {
-        val existing = getUserAcSubmissions().first() ?: emptyList()
+        val existing = getUserRecentAcSubmissions().first() ?: emptyList()
         val updated = userSubmissions.filter {
             !existing.contains(it)
         }
@@ -106,7 +106,7 @@ class UserDatastore @Inject constructor(
         }
     }
 
-    fun getUserAcSubmissions(): Flow<List<UserSubmission>?> {
+    override suspend fun getUserRecentAcSubmissions(): Flow<List<UserSubmission>?> {
         return context.userPreferencesDataStore.data
             .catch {
                 emit(emptyPreferences())
@@ -125,7 +125,7 @@ class UserDatastore @Inject constructor(
     suspend fun saveUserLastSubmissions(
         userLastSubmissions: List<UserSubmission>
     ) {
-        val existing = getUserAcSubmissions().first() ?: emptyList()
+        val existing = getUserRecentAcSubmissions().first() ?: emptyList()
         val updated = userLastSubmissions.filter {
             !existing.contains(it)
         }
@@ -144,7 +144,7 @@ class UserDatastore @Inject constructor(
         }
     }
 
-    fun getDailyProblem(): Flow<LeetCodeProblem?> {
+    override suspend fun getDailyProblem(): Flow<LeetCodeProblem?> {
         return context.userPreferencesDataStore.data
             .catch {
                 emit(emptyPreferences())
@@ -155,7 +155,7 @@ class UserDatastore @Inject constructor(
             }
     }
 
-    fun getUserLastSubmissions(): Flow<List<UserSubmission>?> {
+    override suspend fun getUserLastSubmissions(): Flow<List<UserSubmission>?> {
         return context.userPreferencesDataStore.data
             .catch {
                 emit(emptyPreferences())
@@ -232,7 +232,7 @@ class UserDatastore @Inject constructor(
         return intervalString?.toLongOrNull() ?: IntervalConfigurations.NOTIFICATION_DEFAULT_INTERVAL.minutes
     }
 
-    suspend fun clearAllData() {
+    override suspend fun clearAllData() {
         context.userPreferencesDataStore.edit {
             it.clear()
         }
