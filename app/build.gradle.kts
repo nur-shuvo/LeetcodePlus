@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.detekt)
     id("org.jetbrains.kotlin.kapt")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
@@ -52,6 +53,13 @@ android {
                 storePassword = keystoreProperties["storePassword"] as String
             }
         }
+    }
+
+    detekt {
+        toolVersion = libs.versions.detekt.get()
+        config.setFrom(file("config/detekt/detekt.yml"))
+        buildUponDefaultConfig = true
+        allRules = false
     }
 
     buildTypes {
@@ -153,4 +161,14 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    exclude("**/*screen*")
+    exclude("**/*Screen*")
+    exclude("**/*color*")
+    exclude("**/*icon*")
+    exclude("**/*Icon*")
+    exclude("**/*theme*")
+    exclude("**/*activity*")
 }
