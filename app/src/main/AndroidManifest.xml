@@ -57,6 +57,12 @@
         <service
             android:name=".service.ContestSoundPlayerService"
             android:exported="false" />
+
+        <!-- Google AdMob App ID -->
+        <!-- Replace with your actual AdMob App ID before publishing -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
     </application>
 
 </manifest>

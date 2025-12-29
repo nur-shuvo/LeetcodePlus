@@ -134,6 +134,9 @@ dependencies {
     kapt(libs.room.compiler)
     implementation(libs.msz.progress.indicator)
 
+    // Google AdMob
+    implementation(libs.play.services.ads)
+
     // To work with youtube v3 client
     implementation(libs.google.api.client.android)
     implementation(libs.google.api.client.gson)

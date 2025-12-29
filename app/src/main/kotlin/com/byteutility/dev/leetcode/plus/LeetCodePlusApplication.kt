@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.HiltAndroidApp
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
@@ -25,6 +26,13 @@ class LeetCodePlusApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         initializeTextMate()
+        initializeMobileAds()
+    }
+
+    private fun initializeMobileAds() {
+        MobileAds.initialize(this) { initializationStatus ->
+            Log.i("AdMob", "Mobile Ads initialized: $initializationStatus")
+        }
     }
 
     override fun getWorkManagerConfiguration(): Configuration {
