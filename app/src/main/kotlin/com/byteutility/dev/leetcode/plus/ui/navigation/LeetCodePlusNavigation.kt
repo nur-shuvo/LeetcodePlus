@@ -66,7 +66,6 @@ class LeetCodePlusNavigation(navController: NavController) {
         }
     }
 
-
     val navigateToGoalStatus: () -> Unit = {
         navController.navigate(GoalStatus) {
             launchSingleTop = true

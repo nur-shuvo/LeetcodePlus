@@ -4,6 +4,7 @@ import com.byteutility.dev.leetcode.plus.data.datastore.NotificationDataStore
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
+import com.byteutility.dev.leetcode.plus.utils.GoalConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -62,7 +63,7 @@ class WeeklyGoalStatusMonitor @Inject constructor(
                         } else if (isAtLeastOneProblemTriedToday) {
                             currentNotificationMessage =
                                 "You're close to solving the problem, try once more!"
-                        } else if (countOfAc.size == 7) {
+                        } else if (countOfAc.size == GoalConfig.DEFAULT_WEEKLY_GOAL_PROBLEM_COUNT) {
                             currentNotificationMessage = "Whoa! You're done with weekly goal!"
                         } else {
                             currentNotificationMessage =

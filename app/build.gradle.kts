@@ -141,6 +141,7 @@ dependencies {
     implementation(libs.androidx.glance.material3)
     kapt(libs.room.compiler)
     implementation(libs.msz.progress.indicator)
+    detektPlugins(libs.detekt.formatting)
 
     // To work with youtube v3 client
     implementation(libs.google.api.client.android)
@@ -171,4 +172,10 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
     exclude("**/*Icon*")
     exclude("**/*theme*")
     exclude("**/*activity*")
+    exclude("**/*widget*")
+    exclude("**/*Widget*")
+    exclude("**/*NavGraph*")
+    exclude("**/*Dialog*")
+    exclude("**/*ProgressIndicator*")
+    exclude("**/*Model*")
 }

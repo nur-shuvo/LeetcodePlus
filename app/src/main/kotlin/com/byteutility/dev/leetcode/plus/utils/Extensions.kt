@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@Suppress("MagicNumber")
 fun String.getDateFromTimestamp(): String {
     val date = Date(this.toLong() * 1000)
     val dateFormat = SimpleDateFormat("MMMM dd, yyyy HH:mm:ss a", Locale.getDefault())
@@ -26,7 +27,6 @@ fun UserSubmissionVo.toInternalModel() =
         it.toInternalModel()
     }
 
-
 fun SubmissionVo.toInternalModel() =
     UserSubmission(
         title = this.title,
@@ -35,7 +35,6 @@ fun SubmissionVo.toInternalModel() =
         timestamp = this.timestamp.getDateFromTimestamp(),
         titleSlug = this.titleSlug
     )
-
 
 fun UserProfileVo.toInternalModel() =
     UserBasicInfo(

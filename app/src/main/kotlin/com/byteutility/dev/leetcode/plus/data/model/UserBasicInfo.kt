@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.data.model
 
+@Suppress("MagicNumber")
 data class UserBasicInfo(
     val name: String = "",
     val userName: String = "",
@@ -14,6 +15,7 @@ data class UserContestInfo(
     val attend: Int = -1,
 )
 
+@Suppress("MagicNumber")
 data class UserProblemSolvedInfo(
     val easy: Int = -1,
     val medium: Int = -1,
@@ -24,7 +26,6 @@ data class UserProblemSolvedInfo(
     fun getMediumPercentage() = (medium.toFloat() / totalSolved.toFloat()) * 100
     fun getHardPercentage() = (hard.toFloat() / totalSolved.toFloat()) * 100
 }
-
 
 data class UserSubmission(
     val lang: String = "",

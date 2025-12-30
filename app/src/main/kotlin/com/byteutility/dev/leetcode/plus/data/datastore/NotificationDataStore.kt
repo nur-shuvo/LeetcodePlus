@@ -18,9 +18,9 @@ class NotificationDataStore @Inject constructor(
 ) {
 
     private val Context.dataStore:
-            DataStore<Preferences> by preferencesDataStore(
-        name = "notification_datastore"
-    )
+        DataStore<Preferences> by preferencesDataStore(
+            name = "notification_datastore"
+        )
 
     suspend fun saveCurrentGoalNotification(message: String) {
         context.dataStore.edit { preferences ->
@@ -62,5 +62,4 @@ class NotificationDataStore @Inject constructor(
             it.clear()
         }
     }
-
 }

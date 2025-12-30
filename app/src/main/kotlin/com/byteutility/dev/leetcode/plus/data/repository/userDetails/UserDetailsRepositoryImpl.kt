@@ -2,8 +2,8 @@ package com.byteutility.dev.leetcode.plus.data.repository.userDetails
 
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDataStoreProvider
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
-import com.byteutility.dev.leetcode.plus.data.model.VideosByPlaylist
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import com.byteutility.dev.leetcode.plus.data.model.VideosByPlaylist
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetcodeUpcomingContestsResponse
 import com.google.api.client.extensions.android.http.AndroidHttp
@@ -13,6 +13,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val DEFAULT_DELAY_MS = 1000L
 
 @Singleton
 class UserDetailsRepositoryImpl @Inject constructor(
@@ -29,7 +31,7 @@ class UserDetailsRepositoryImpl @Inject constructor(
         page: Int,
         pageSize: Int
     ): Result<List<UserSubmission>> {
-        delay(1000)
+        delay(DEFAULT_DELAY_MS)
         val startingIndex = page * pageSize
         val submissions = userDatastore.getUserRecentAcSubmissions().first() ?: emptyList()
         return if ((startingIndex + pageSize) <= submissions.size) {
@@ -37,9 +39,11 @@ class UserDetailsRepositoryImpl @Inject constructor(
                 userDatastore.getUserRecentAcSubmissions().first()!!
                     .slice(startingIndex until startingIndex + pageSize)
             )
-        } else Result.success(
-            emptyList()
-        )
+        } else {
+            Result.success(
+                emptyList()
+            )
+        }
     }
 
     override suspend fun getVideosByPlayList(
@@ -92,6 +96,5 @@ class UserDetailsRepositoryImpl @Inject constructor(
             "snippet,contentDetails,statistics"
         const val YOUTUBE_VIDEOS_FIELDS: String =
             "items(id,snippet(title,description,thumbnails/high),contentDetails/duration,statistics)"
-
     }
 }

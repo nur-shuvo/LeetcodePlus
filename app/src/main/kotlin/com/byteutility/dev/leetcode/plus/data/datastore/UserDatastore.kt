@@ -7,12 +7,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurations
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
-import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurations
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -31,9 +31,9 @@ class UserDatastore @Inject constructor(
     private val gson: Gson = Gson()
 
     private val Context.userPreferencesDataStore:
-            DataStore<Preferences> by preferencesDataStore(
-        name = "user_preferences"
-    )
+        DataStore<Preferences> by preferencesDataStore(
+            name = "user_preferences"
+        )
 
     suspend fun saveUserBasicInfo(userBasicInfo: UserBasicInfo) {
         context.userPreferencesDataStore.edit { preferences ->
@@ -217,7 +217,8 @@ class UserDatastore @Inject constructor(
     suspend fun getSyncInterval(): Long {
         val preferences = context.userPreferencesDataStore.data.first()
         val intervalString = preferences[stringPreferencesKey("sync_interval_minutes")]
-        return intervalString?.toLongOrNull() ?: IntervalConfigurations.DATA_SYNC_DEFAULT_INTERVAL.minutes // Default 30 minutes
+        return intervalString?.toLongOrNull()
+            ?: IntervalConfigurations.DATA_SYNC_DEFAULT_INTERVAL.minutes // Default 30 minutes
     }
 
     suspend fun saveNotificationInterval(minutes: Long) {
@@ -229,7 +230,8 @@ class UserDatastore @Inject constructor(
     suspend fun getNotificationInterval(): Long {
         val preferences = context.userPreferencesDataStore.data.first()
         val intervalString = preferences[stringPreferencesKey("notification_interval_minutes")]
-        return intervalString?.toLongOrNull() ?: IntervalConfigurations.NOTIFICATION_DEFAULT_INTERVAL.minutes
+        return intervalString?.toLongOrNull()
+            ?: IntervalConfigurations.NOTIFICATION_DEFAULT_INTERVAL.minutes
     }
 
     override suspend fun clearAllData() {

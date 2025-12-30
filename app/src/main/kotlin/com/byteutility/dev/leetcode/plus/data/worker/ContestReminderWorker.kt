@@ -10,6 +10,7 @@ import com.byteutility.dev.leetcode.plus.utils.NotificationHandler
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
+@Suppress("ReturnCount")
 @HiltWorker
 class ContestReminderWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,

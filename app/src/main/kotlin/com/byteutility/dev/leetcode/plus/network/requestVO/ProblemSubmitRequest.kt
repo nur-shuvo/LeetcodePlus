@@ -2,7 +2,6 @@ package com.byteutility.dev.leetcode.plus.network.requestVO
 
 import com.google.gson.annotations.SerializedName
 
-
 /**
  * Created by Shuvo on 11/09/2025.
  */

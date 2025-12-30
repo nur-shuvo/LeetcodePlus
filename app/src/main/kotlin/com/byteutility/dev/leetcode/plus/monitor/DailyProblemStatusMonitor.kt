@@ -44,7 +44,7 @@ class DailyProblemStatusMonitor @Inject constructor(
                             sub.timestamp,
                             formatter2
                         ) == LocalDate.now() &&
-                                todayProblemSlug == sub.titleSlug
+                            todayProblemSlug == sub.titleSlug
                     }
                     val currentNotificationMessage: String = if (isSolvedDaily) {
                         "Great! You've solved today's Leetcode daily!"

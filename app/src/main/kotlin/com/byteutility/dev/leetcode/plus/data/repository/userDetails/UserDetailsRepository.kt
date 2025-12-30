@@ -1,14 +1,13 @@
 package com.byteutility.dev.leetcode.plus.data.repository.userDetails
 
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
-import com.byteutility.dev.leetcode.plus.data.model.VideosByPlaylist
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
+import com.byteutility.dev.leetcode.plus.data.model.VideosByPlaylist
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetcodeUpcomingContestsResponse
 import kotlinx.coroutines.flow.Flow
-
 
 interface UserDetailsRepository {
     suspend fun getUserBasicInfo(): Flow<UserBasicInfo?>

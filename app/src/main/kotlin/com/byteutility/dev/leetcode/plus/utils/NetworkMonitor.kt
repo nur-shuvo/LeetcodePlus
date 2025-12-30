@@ -7,8 +7,6 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.NetworkRequest.Builder
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -20,10 +18,10 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
 /**
  * Created by Shuvo on 09/06/2025.
  */
+@Singleton
 class NetworkMonitor @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {

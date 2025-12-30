@@ -64,17 +64,19 @@ class CodeEditorSubmitViewModel @Inject constructor(
 
     private fun pollForSubmissionResult(submissionId: Long) {
         viewModelScope.launch {
-            while (isActive) {
+            var shouldContinuePolling = true
+
+            while (isActive && shouldContinuePolling) {
                 delay(1.seconds)
                 try {
                     val result = codeEditorSubmitRepository.getSubmissionResult(submissionId)
                     if (result.state == "SUCCESS") {
                         _submissionState.value = SubmissionState.Success(result)
-                        break
+                        shouldContinuePolling = false
                     }
                 } catch (e: Exception) {
                     _submissionState.value = SubmissionState.Error(e)
-                    break
+                    shouldContinuePolling = false
                 }
             }
         }

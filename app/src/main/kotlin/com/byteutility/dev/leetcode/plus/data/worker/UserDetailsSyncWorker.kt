@@ -1,6 +1,7 @@
 package com.byteutility.dev.leetcode.plus.data.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
@@ -25,6 +26,9 @@ import kotlinx.coroutines.supervisorScope
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+private const val DEFAULT_SUBMISSION_COUNT = 20
+
+@Suppress("TooGenericExceptionCaught")
 @HiltWorker
 class UserDetailsSyncWorker @AssistedInject constructor(
     @Assisted context: Context,
@@ -45,9 +49,14 @@ class UserDetailsSyncWorker @AssistedInject constructor(
                     val userContestDeferred =
                         async { restApiService.getUserContest(userName) }
                     val userAcSubmissionDeferred =
-                        async { restApiService.getAcSubmission(userName, 20) }
+                        async { restApiService.getAcSubmission(userName, DEFAULT_SUBMISSION_COUNT) }
                     val userLastSubmissionsDeferred =
-                        async { restApiService.getLastSubmissions(userName, 20) }
+                        async {
+                            restApiService.getLastSubmissions(
+                                userName,
+                                DEFAULT_SUBMISSION_COUNT
+                            )
+                        }
                     val userSolvedDeferred =
                         async { restApiService.getSolved(userName) }
                     val dailyProblemDeferred =
@@ -79,7 +88,7 @@ class UserDetailsSyncWorker @AssistedInject constructor(
                 } ?: Result.failure()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(this.javaClass.name, "doWork: exception ${e.message}",)
             Result.failure()
         }
     }

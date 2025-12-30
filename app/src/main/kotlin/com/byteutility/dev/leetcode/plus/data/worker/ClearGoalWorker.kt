@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit
  * Responsible for clearing weekly goal database when it is right time
  * When a goal is set, the worker will be enqueued
  */
+@Suppress("MagicNumber")
 @HiltWorker
 class ClearGoalWorker @AssistedInject constructor(
     @Assisted context: Context,
