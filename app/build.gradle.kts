@@ -57,9 +57,10 @@ android {
 
     detekt {
         toolVersion = libs.versions.detekt.get()
-        config.setFrom(file("config/detekt/detekt.yml"))
+        config.setFrom(file("$rootDir/detekt.yml"))
         buildUponDefaultConfig = true
         allRules = false
+        autoCorrect = true
     }
 
     buildTypes {
