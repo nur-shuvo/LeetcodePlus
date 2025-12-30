@@ -50,6 +50,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.byteutility.dev.leetcode.plus.ui.common.AdBannerAdaptive
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.google.api.services.youtube.model.Video
 
@@ -98,11 +99,14 @@ fun VideoSolutionsScreen(
             }
         },
     ) { innerPadding ->
-        YouTubeVideoGrid(
-            videos = uiState.videoState,
-            searchQuery = searchQuery.text,
-            modifier = Modifier.padding(innerPadding)
-        )
+        Column(modifier = Modifier.padding(innerPadding)) {
+            YouTubeVideoGrid(
+                videos = uiState.videoState,
+                searchQuery = searchQuery.text,
+                modifier = Modifier.weight(1f)
+            )
+            AdBannerAdaptive(modifier = Modifier.fillMaxWidth())
+        }
     }
 }
 

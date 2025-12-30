@@ -94,7 +94,6 @@ import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
-import com.byteutility.dev.leetcode.plus.ui.common.AdBannerAdaptive
 import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
@@ -322,9 +321,6 @@ fun HomeLayout(
                     }
                 }
             }
-            AdBannerAdaptive(
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     }
 }
