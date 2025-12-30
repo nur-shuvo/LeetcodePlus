@@ -60,7 +60,6 @@ class LeetcodePlusGlanceAppWidget : GlanceAppWidget() {
                 }
             }
             if (isLoading.value) {
-
             } else {
                 dailyProblem.value?.let {
                     DailyProblemWidget(it)
@@ -116,7 +115,6 @@ class LeetcodePlusGlanceAppWidget : GlanceAppWidget() {
         }
     }
 }
-
 
 @EntryPoint
 @InstallIn(SingletonComponent::class)

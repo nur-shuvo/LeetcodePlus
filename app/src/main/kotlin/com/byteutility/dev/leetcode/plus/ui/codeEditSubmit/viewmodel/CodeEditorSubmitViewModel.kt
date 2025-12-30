@@ -31,7 +31,6 @@ class CodeEditorSubmitViewModel @Inject constructor(
     private val _uiEvent: MutableSharedFlow<CodeEditorSubmitUIEvent?> = MutableSharedFlow()
     val uiEvent = _uiEvent.asSharedFlow()
 
-
     suspend fun getSavedCode(questionId: String, language: String): String? {
         return codeHistoryDataStore.getCode(questionId, language)
     }

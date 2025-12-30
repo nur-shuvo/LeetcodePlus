@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.screens.leetcode_login
+package com.byteutility.dev.leetcode.plus.ui.screens.leetcodelogin
 
 import androidx.lifecycle.ViewModel
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore

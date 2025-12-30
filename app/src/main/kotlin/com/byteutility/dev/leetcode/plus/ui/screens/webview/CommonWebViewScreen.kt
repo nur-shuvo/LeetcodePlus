@@ -135,4 +135,3 @@ fun WebView.setDesktopMode(enabled: Boolean) {
     webSettings.setSupportZoom(enabled)
     webSettings.builtInZoomControls = enabled
 }
-

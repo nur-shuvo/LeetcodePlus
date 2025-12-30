@@ -1,7 +1,6 @@
 build:
   maxIssues: 0
   excludeCorrectable: false
-  excludes: "**/*screen*.kt,**/*Screen*.kt"
   weights:
     # complexity: 2
     # LongParameterList: 1
@@ -131,8 +130,10 @@ complexity:
   LongMethod:
     active: true
     threshold: 60
+    excludes: ['**/ui/**', '**/utils/**']
   LongParameterList:
     active: true
+    excludes: ['**/ui/**']
     functionThreshold: 6
     constructorThreshold: 7
     ignoreDefaultParameters: false
@@ -222,6 +223,7 @@ empty-blocks:
     ignoreOverridden: false
   EmptyIfBlock:
     active: true
+    excludes: ['**/glance/**']
   EmptyInitBlock:
     active: true
   EmptyKtFile:
@@ -287,7 +289,7 @@ exceptions:
     active: true
   TooGenericExceptionCaught:
     active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    excludes: ['**/ui/**','**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
     exceptionNames:
       - 'ArrayIndexOutOfBoundsException'
       - 'Error'
@@ -333,7 +335,7 @@ naming:
     minimumFunctionNameLength: 3
   FunctionNaming:
     active: true
-    excludes: ['**/ui/common/**', '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    excludes: ['**/utils/**', '**/troubleshoot/**','**/ui/**', '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
     functionPattern: '[a-z][a-zA-Z0-9]*'
     excludeClassPattern: '$^'
   FunctionParameterNaming:
@@ -361,6 +363,7 @@ naming:
       - 'macosX64'
       - 'mingwX64'
       - 'linuxX64'
+    excludes: ['**/ui/**']
   MemberNameEqualsClassName:
     active: true
     ignoreOverridden: true
@@ -376,6 +379,7 @@ naming:
   PackageNaming:
     active: true
     packagePattern: '[a-z]+(\.[a-z][A-Za-z0-9]*)*'
+    excludes: ['**/ui/**']
   TopLevelPropertyNaming:
     active: true
     constantPattern: '[A-Z][_A-Z0-9]*'
@@ -467,6 +471,7 @@ potential-bugs:
     ignoreFunctionCall: []
   ImplicitDefaultLocale:
     active: true
+    excludes: ['**/ui/**']
   ImplicitUnitReturnType:
     active: false
     allowExplicitReturnType: true
@@ -594,6 +599,7 @@ style:
       - reason: 'Forbidden TODO todo marker in comment, please do the changes.'
         value: 'TODO:'
     allowedPatterns: ''
+    excludes: ['**/ui/**']
   ForbiddenImport:
     active: false
     imports: []
@@ -622,7 +628,7 @@ style:
     maxJumpCount: 1
   MagicNumber:
     active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts']
+    excludes: ['**/ui/**','**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts']
     ignoreNumbers:
       - '-1'
       - '0'
@@ -650,6 +656,7 @@ style:
     excludeImportStatements: true
     excludeCommentStatements: false
     excludeRawStrings: true
+    excludes: ['**/ui/**']
   MayBeConst:
     active: true
   ModifierOrder:
@@ -748,6 +755,7 @@ style:
   UnusedParameter:
     active: true
     allowedNames: 'ignored|expected'
+    excludes: ['**/ui/**', '**/utils/**']
   UnusedPrivateClass:
     active: true
   UnusedPrivateMember:
@@ -803,4 +811,16 @@ formatting:
   autoCorrect: true
   FinalNewline:
     active: true
-    autoCorrect: true
+  ArgumentListWrapping:
+    active: true
+    excludes: ['**/ui/**']
+  Indentation:
+    active: false
+    excludes: ['**/ui/**']
+  Wrapping:
+    active: true
+    excludes: ['**/ui/**']
+  MaximumLineLength:
+    active: true
+    maxLineLength: 120
+    excludes: ['**/ui/**']

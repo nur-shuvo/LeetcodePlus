@@ -163,19 +163,3 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
-
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    exclude("**/*screen*")
-    exclude("**/*Screen*")
-    exclude("**/*color*")
-    exclude("**/*icon*")
-    exclude("**/*Icon*")
-    exclude("**/*theme*")
-    exclude("**/*activity*")
-    exclude("**/*widget*")
-    exclude("**/*Widget*")
-    exclude("**/*NavGraph*")
-    exclude("**/*Dialog*")
-    exclude("**/*ProgressIndicator*")
-    exclude("**/*Model*")
-}

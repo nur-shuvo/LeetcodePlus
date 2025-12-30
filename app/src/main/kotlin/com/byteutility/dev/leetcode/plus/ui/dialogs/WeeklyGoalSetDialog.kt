@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
-import com.byteutility.dev.leetcode.plus.utils.GoalConfig
 import com.byteutility.dev.leetcode.plus.utils.GoalConfig.DEFAULT_WEEKLY_GOAL_DAYS_COUNT
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
