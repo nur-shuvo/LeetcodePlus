@@ -52,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.data.model.ProblemStatus
 import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
+import com.byteutility.dev.leetcode.plus.ui.common.AdBannerAdaptive
 import com.byteutility.dev.leetcode.plus.ui.common.done
 import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalResetDialog
 import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
@@ -123,39 +124,43 @@ fun ProgressScreenContent(
             )
         },
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-
-            if (uiState.problemsWithStatus.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(start = 16.dp, end = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(bottom = 16.dp)
-                ) {
-                    item {
-                        DateRow(
-                            startDate = uiState.period.startDate,
-                            endDate = uiState.period.endDate
-                        )
+            Box(
+                modifier = Modifier.weight(1f)
+            ) {
+                if (uiState.problemsWithStatus.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        item {
+                            DateRow(
+                                startDate = uiState.period.startDate,
+                                endDate = uiState.period.endDate
+                            )
+                        }
+                        items(uiState.problemsWithStatus) {
+                            ProblemCard(it, onNavigateToProblemDetails)
+                        }
                     }
-                    items(uiState.problemsWithStatus) {
-                        ProblemCard(it, onNavigateToProblemDetails)
-                    }
+                } else {
+                    Text(
+                        "Set a goal to see your progress",
+                        style = TextStyle(
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        ),
+                        modifier = Modifier.align(Alignment.Center),
+                    )
                 }
-            } else {
-                Text(
-                    "Set a goal to see your progress",
-                    style = TextStyle(
-                        color = Color.Gray,
-                        fontSize = 12.sp
-                    ),
-                    modifier = Modifier.align(Alignment.Center),
-                )
             }
+            AdBannerAdaptive(modifier = Modifier.fillMaxWidth())
         }
     }
 }

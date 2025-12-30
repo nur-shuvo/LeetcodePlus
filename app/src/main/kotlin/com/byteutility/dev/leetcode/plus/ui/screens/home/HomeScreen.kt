@@ -251,68 +251,74 @@ fun HomeLayout(
             )
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            UserProfileContent(
-                uiState = uiState,
-                dailyProblem = dailyProblem,
-                dailyProblemSolved = dailyProblemSolved,
-                onNavigateToProblemDetails = onNavigateToProblemDetails,
-                onLoadMoreSubmission = onLoadMoreSubmission,
-                onLoadMoreVideos = onLoadMoreVideos,
-                onSearchClick = onSearchClick,
-                onSetInAppReminder = onSetInAppReminder,
-                checkInAppContestReminderStatus = checkInAppContestReminderStatus
-            )
-            val infiniteTransition = rememberInfiniteTransition(label = "fab_animation")
-            val scale by infiniteTransition.animateFloat(
-                initialValue = 1f,
-                targetValue = 1.3f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(1000),
-                    repeatMode = RepeatMode.Reverse
-                ), label = "fab_scale"
-            )
-
-            Column(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
-                FloatingActionButton(
-                    onClick = {
-                        onNavigateToAllProblems.invoke()
-                    },
-                    modifier = Modifier
-                        .size(74.dp)
-                        .scale(scale)
-                        .padding(16.dp)
+                UserProfileContent(
+                    uiState = uiState,
+                    dailyProblem = dailyProblem,
+                    dailyProblemSolved = dailyProblemSolved,
+                    onNavigateToProblemDetails = onNavigateToProblemDetails,
+                    onLoadMoreSubmission = onLoadMoreSubmission,
+                    onLoadMoreVideos = onLoadMoreVideos,
+                    onSearchClick = onSearchClick,
+                    onSetInAppReminder = onSetInAppReminder,
+                    checkInAppContestReminderStatus = checkInAppContestReminderStatus
+                )
+                val infiniteTransition = rememberInfiniteTransition(label = "fab_animation")
+                val scale by infiniteTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.3f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(1000),
+                        repeatMode = RepeatMode.Reverse
+                    ), label = "fab_scale"
+                )
+
+                Column(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_problems),
-                        contentDescription = "All Problems",
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(Color(0xFF6dd5ed), Color(0xFF2193b0))
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "All Problems",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier.clickable {
+                    FloatingActionButton(
+                        onClick = {
                             onNavigateToAllProblems.invoke()
                         },
-                    )
+                        modifier = Modifier
+                            .size(74.dp)
+                            .scale(scale)
+                            .padding(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_problems),
+                            contentDescription = "All Problems",
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    colors = listOf(Color(0xFF6dd5ed), Color(0xFF2193b0))
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "All Problems",
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            modifier = Modifier.clickable {
+                                onNavigateToAllProblems.invoke()
+                            },
+                        )
+                    }
                 }
             }
         }

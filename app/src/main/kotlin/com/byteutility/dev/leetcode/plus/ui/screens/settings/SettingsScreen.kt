@@ -56,6 +56,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurations
 import com.byteutility.dev.leetcode.plus.core.settings.model.IntervalOption
+import com.byteutility.dev.leetcode.plus.ui.common.AdBannerAdaptive
 import com.byteutility.dev.leetcode.plus.ui.screens.settings.composables.DailyProblemWidgetPlaceholder
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,151 +138,158 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Account Section
-            SettingsSectionCard(
-                title = "Account",
-                icon = Icons.Default.Person
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (userInfo.userName.isNotEmpty()) {
-                    SettingsInfoRow(
-                        label = "Username",
-                        value = userInfo.userName
+                Spacer(modifier = Modifier.height(8.dp))
+
+                SettingsSectionCard(
+                    title = "Account",
+                    icon = Icons.Default.Person
+                ) {
+                    if (userInfo.userName.isNotEmpty()) {
+                        SettingsInfoRow(
+                            label = "Username",
+                            value = userInfo.userName
+                        )
+                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+                        SettingsInfoRow(
+                            label = "Name",
+                            value = userInfo.name
+                        )
+                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+                        SettingsInfoRow(
+                            label = "Ranking",
+                            value = "#${userInfo.ranking}"
+                        )
+                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+                        SettingsActionRow(
+                            icon = Icons.Default.ExitToApp,
+                            label = "Logout",
+                            iconTint = Color.Red,
+                            onClick = { showLogoutDialog = true }
+                        )
+                    }
+                }
+
+                // Data Sync Section
+                SettingsSectionCard(
+                    title = "Data Sync",
+                    icon = Icons.Default.Refresh
+                ) {
+                    SettingsClickableRow(
+                        label = "Sync Interval",
+                        value = "$syncInterval minutes",
+                        onClick = { showSyncIntervalDialog = true }
                     )
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
                     SettingsInfoRow(
-                        label = "Name",
-                        value = userInfo.name
-                    )
-                    Divider(modifier = Modifier.padding(vertical = 8.dp))
-                    SettingsInfoRow(
-                        label = "Ranking",
-                        value = "#${userInfo.ranking}"
-                    )
-                    Divider(modifier = Modifier.padding(vertical = 8.dp))
-                    SettingsActionRow(
-                        icon = Icons.Default.ExitToApp,
-                        label = "Logout",
-                        iconTint = Color.Red,
-                        onClick = { showLogoutDialog = true }
+                        label = "Last Synced",
+                        value = lastSyncTime
                     )
                 }
-            }
 
-            // Data Sync Section
-            SettingsSectionCard(
-                title = "Data Sync",
-                icon = Icons.Default.Refresh
-            ) {
-                SettingsClickableRow(
-                    label = "Sync Interval",
-                    value = "$syncInterval minutes",
-                    onClick = { showSyncIntervalDialog = true }
-                )
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
-                SettingsInfoRow(
-                    label = "Last Synced",
-                    value = lastSyncTime
-                )
-            }
+                // notification
+                SettingsSectionCard(
+                    title = "Notifications",
+                    icon = Icons.Default.NotificationImportant
+                ) {
+                    SettingsClickableRow(
+                        label = "Notifications Interval",
+                        value = "$notificationInterval minutes",
+                        onClick = { showNotificationIntervalDialog = true }
+                    )
+                }
 
-            // notification
-            SettingsSectionCard(
-                title = "Notifications",
-                icon = Icons.Default.NotificationImportant
-            ) {
-                SettingsClickableRow(
-                    label = "Notifications Interval",
-                    value = "$notificationInterval minutes",
-                    onClick = { showNotificationIntervalDialog = true }
-                )
-            }
+                // widget
+                SettingsSectionCard(
+                    title = "Daily Problem Widget",
+                    icon = Icons.Default.Widgets
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (isWidgetPinned) "Widget Pinned" else "Pin Widget",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Switch(
+                            enabled = !isWidgetPinned,
+                            checked = isWidgetPinned,
+                            onCheckedChange = {
+                                if (it) {
+                                    viewModel.requestPinWidget()
+                                }
+                                isWidgetPinned = it
+                            }
+                        )
+                    }
 
-            // widget
-            SettingsSectionCard(
-                title = "Daily Problem Widget",
-                icon = Icons.Default.Widgets
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    if (!isWidgetPinned) {
+                        Text(
+                            text = "Add daily problem widget in your home",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        DailyProblemWidgetPlaceholder()
+                    }
+                }
+
+                // App Information Section
+                SettingsSectionCard(
+                    title = "App Information",
+                    icon = Icons.Default.Info
+                ) {
+                    SettingsInfoRow(
+                        label = "Version",
+                        value = BuildConfig.VERSION_NAME
+                    )
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    SettingsInfoRow(
+                        label = "Version Code",
+                        value = BuildConfig.VERSION_CODE.toString()
+                    )
+                }
+
+                // About Section
+                SettingsSectionCard(
+                    title = "About",
+                    icon = Icons.Default.Info
                 ) {
                     Text(
-                        text = if (isWidgetPinned) "Widget Pinned" else "Pin Widget",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "LeetCode Plus is your companion app for tracking your LeetCode progress, managing weekly goals, and staying updated with upcoming contests.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 20.sp
                     )
-                    Switch(
-                        enabled = !isWidgetPinned,
-                        checked = isWidgetPinned,
-                        onCheckedChange = {
-                            if (it) {
-                                viewModel.requestPinWidget()
-                            }
-                            isWidgetPinned = it
-                        }
-                    )
-                }
-
-                if (!isWidgetPinned) {
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Add daily problem widget in your home",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "Features:",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
                     )
-                    DailyProblemWidgetPlaceholder()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    BulletPoint("Track your LeetCode statistics and progress")
+                    BulletPoint("Set and monitor weekly goals")
+                    BulletPoint("View daily challenges")
+                    BulletPoint("Browse all LeetCode problems")
+                    BulletPoint("Get contest reminders")
+                    BulletPoint("Access video solutions")
                 }
-            }
 
-            // App Information Section
-            SettingsSectionCard(
-                title = "App Information",
-                icon = Icons.Default.Info
-            ) {
-                SettingsInfoRow(
-                    label = "Version",
-                    value = BuildConfig.VERSION_NAME
-                )
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
-                SettingsInfoRow(
-                    label = "Version Code",
-                    value = BuildConfig.VERSION_CODE.toString()
-                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
-
-            // About Section
-            SettingsSectionCard(
-                title = "About",
-                icon = Icons.Default.Info
-            ) {
-                Text(
-                    text = "LeetCode Plus is your companion app for tracking your LeetCode progress, managing weekly goals, and staying updated with upcoming contests.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 20.sp
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "Features:",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                BulletPoint("Track your LeetCode statistics and progress")
-                BulletPoint("Set and monitor weekly goals")
-                BulletPoint("View daily challenges")
-                BulletPoint("Browse all LeetCode problems")
-                BulletPoint("Get contest reminders")
-                BulletPoint("Access video solutions")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            AdBannerAdaptive(
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

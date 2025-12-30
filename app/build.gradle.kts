@@ -37,10 +37,6 @@ android {
         versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // Read BASE_URL from local.properties with a fallback
-        val baseUrl = localProperties.getProperty("BASE_URL") ?: "https://dummy.com/"
-        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 
     signingConfigs {
@@ -133,6 +129,9 @@ dependencies {
     implementation(libs.androidx.glance.material3)
     kapt(libs.room.compiler)
     implementation(libs.msz.progress.indicator)
+
+    // Google AdMob
+    implementation(libs.play.services.ads)
 
     // To work with youtube v3 client
     implementation(libs.google.api.client.android)
