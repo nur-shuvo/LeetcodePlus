@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.detekt)
     id("org.jetbrains.kotlin.kapt")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
@@ -48,6 +49,14 @@ android {
                 storePassword = keystoreProperties["storePassword"] as String
             }
         }
+    }
+
+    detekt {
+        toolVersion = libs.versions.detekt.get()
+        config.setFrom(file("$rootDir/detekt.yml"))
+        buildUponDefaultConfig = true
+        allRules = false
+        autoCorrect = true
     }
 
     buildTypes {
@@ -129,6 +138,7 @@ dependencies {
     implementation(libs.androidx.glance.material3)
     kapt(libs.room.compiler)
     implementation(libs.msz.progress.indicator)
+    detektPlugins(libs.detekt.formatting)
 
     // Google AdMob
     implementation(libs.play.services.ads)

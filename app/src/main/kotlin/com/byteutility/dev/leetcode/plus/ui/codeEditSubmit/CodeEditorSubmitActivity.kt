@@ -58,6 +58,41 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             )
         }
 
+        collectSubmissionResult()
+
+        collectUiEvent()
+    }
+
+    private fun collectUiEvent() {
+        lifecycleScope.launch {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is CodeEditorSubmitUIEvent.NavigateToLeetcodeLogin -> {
+                        AlertDialog.Builder(this@CodeEditorSubmitActivity)
+                            .setTitle("Login Required")
+                            .setMessage("Please login to LeetCode to submit your solution.")
+                            .setPositiveButton("Login") { dialog, _ ->
+                                dialog.dismiss()
+                                startActivity(
+                                    Intent(
+                                        this@CodeEditorSubmitActivity,
+                                        MainActivity::class.java
+                                    ).apply {
+                                        putExtra("startDestination", "leetcode_login_webview")
+                                    }
+                                )
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun collectSubmissionResult() {
         lifecycleScope.launch {
             viewModel.submissionState.collect { state ->
                 when (state) {
@@ -95,33 +130,6 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     is SubmissionState.Idle -> {
                         // Do nothing
                     }
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.uiEvent.collect { event ->
-                when (event) {
-                    is CodeEditorSubmitUIEvent.NavigateToLeetcodeLogin -> {
-                        AlertDialog.Builder(this@CodeEditorSubmitActivity)
-                            .setTitle("Login Required")
-                            .setMessage("Please login to LeetCode to submit your solution.")
-                            .setPositiveButton("Login") { dialog, _ ->
-                                dialog.dismiss()
-                                startActivity(
-                                    Intent(
-                                        this@CodeEditorSubmitActivity,
-                                        MainActivity::class.java
-                                    ).apply {
-                                        putExtra("startDestination", "leetcode_login_webview")
-                                    }
-                                )
-                            }
-                            .setNegativeButton("Cancel", null)
-                            .show()
-                    }
-
-                    else -> {}
                 }
             }
         }

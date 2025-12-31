@@ -7,6 +7,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
+import com.byteutility.dev.leetcode.plus.utils.GoalConfig
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.concurrent.TimeUnit
@@ -30,7 +31,7 @@ class ClearGoalWorker @AssistedInject constructor(
     companion object {
         fun enqueueWork(context: Context) {
             val workRequest = OneTimeWorkRequestBuilder<ClearGoalWorker>()
-                .setInitialDelay(7, TimeUnit.DAYS) // Schedule after exactly 7 days
+                .setInitialDelay(GoalConfig.DEFAULT_WEEKLY_GOAL_DAYS_COUNT.toLong(), TimeUnit.DAYS)
                 .build()
 
             WorkManager.getInstance(context).enqueue(workRequest)

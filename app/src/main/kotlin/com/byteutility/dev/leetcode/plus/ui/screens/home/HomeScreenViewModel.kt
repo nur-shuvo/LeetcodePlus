@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
-class UserDetailsViewModel @Inject constructor(
+class HomeScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val userDetailsRepository: UserDetailsRepository,
     private val goalRepository: WeeklyGoalRepository,
@@ -66,9 +66,7 @@ class UserDetailsViewModel @Inject constructor(
     private var pageTokenForPlayList: String? = null
     private val videosByPlayListPagination = getVideosPaginator()
 
-
     private val _leetcodeUpcomingContestsState = MutableStateFlow(LeetcodeUpcomingContestsState())
-
 
     private val userBasicInfo =
         MutableStateFlow(UserBasicInfo())
@@ -93,7 +91,6 @@ class UserDetailsViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = false
     )
-
 
     val uiState: StateFlow<UserDetailsUiState> =
         combine(

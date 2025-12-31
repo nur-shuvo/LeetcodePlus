@@ -1,6 +1,5 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.login.model
 
-
 /**
  * Created by Shuvo on 11/06/2025.
  */

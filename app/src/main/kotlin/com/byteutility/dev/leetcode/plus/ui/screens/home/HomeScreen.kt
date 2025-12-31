@@ -123,13 +123,13 @@ fun HomeScreen(
     onNavigateToAllProblems: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
-    val viewModel: UserDetailsViewModel = hiltViewModel()
+    val viewModel: HomeScreenViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
     val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
     LifecycleResumeEffect(Unit) {
         viewModel.refreshUiState()
-        onPauseOrDispose {  }
+        onPauseOrDispose { }
     }
     HomeLayout(
         uiState = uiState,
@@ -873,7 +873,6 @@ fun ProblemDetailsCard(
     remainingTime: String,
     onNavigateToProblemDetails: (String) -> Unit
 ) {
-
     val backgroundColor = when (verdict) {
         "Completed" -> MaterialTheme.colorScheme.secondaryContainer
         "Pending" -> MaterialTheme.colorScheme.errorContainer
@@ -943,7 +942,6 @@ fun ProblemDetailsCard(
         }
     }
 }
-
 
 @Composable
 fun YouTubeVideoRowContent(

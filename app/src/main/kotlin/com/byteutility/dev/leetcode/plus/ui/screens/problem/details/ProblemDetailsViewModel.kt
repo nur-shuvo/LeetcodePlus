@@ -25,8 +25,8 @@ class ProblemDetailsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 val result = repository.getSelectedRawQuestion(titleSlug)
-                _uiState.update { it ->
-                    it.copy(
+                _uiState.update { state ->
+                    state.copy(
                         questionId = result.question.questionId,
                         title = result.question.title,
                         difficulty = result.question.difficulty,

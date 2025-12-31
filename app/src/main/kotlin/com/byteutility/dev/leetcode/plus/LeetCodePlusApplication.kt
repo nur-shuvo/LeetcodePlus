@@ -17,6 +17,7 @@ import kotlinx.coroutines.SupervisorJob
 import org.eclipse.tm4e.core.registry.IThemeSource
 import javax.inject.Inject
 
+@Suppress("TooGenericExceptionCaught")
 @HiltAndroidApp
 class LeetCodePlusApplication : Application(), Configuration.Provider {
 

@@ -55,7 +55,7 @@ fun UserLoginScreen(
             LeetCodeUsernameScreen { username ->
                 viewModel.saveUserName(username, context)
             }
-            
+
             ProgressDialogUtil.ShowGradientProgressDialog(
                 message = "Fetching user profile...",
                 showDialog = true
@@ -82,7 +82,6 @@ fun UserLoginScreen(
         }
     }
 }
-
 
 @Composable
 fun LeetCodeUsernameScreen(
@@ -150,7 +149,6 @@ fun LeetCodeUsernameScreen(
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

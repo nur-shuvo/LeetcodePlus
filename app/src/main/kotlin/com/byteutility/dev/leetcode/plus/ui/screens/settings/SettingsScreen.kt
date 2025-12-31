@@ -490,7 +490,6 @@ fun IntervalSelectionDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-
                         val intervalText = buildAnnotatedString {
                             append(interval.displayLabel)
                             if (interval.isDefault) {

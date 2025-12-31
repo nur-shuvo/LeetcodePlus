@@ -22,10 +22,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 
-
 @Composable
 fun DailyProblemWidgetPlaceholder() {
-
     Box(
         modifier = Modifier
             .padding(top = 16.dp)

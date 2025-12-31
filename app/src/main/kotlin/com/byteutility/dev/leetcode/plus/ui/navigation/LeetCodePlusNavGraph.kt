@@ -9,7 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.MainScreen
-import com.byteutility.dev.leetcode.plus.ui.screens.leetcode_login.LeetCodeLoginWebView
+import com.byteutility.dev.leetcode.plus.ui.screens.leetcodelogin.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.ProblemDetailsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.solutions.VideoSolutionsScreen

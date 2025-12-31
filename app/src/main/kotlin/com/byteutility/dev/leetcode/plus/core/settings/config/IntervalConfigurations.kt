@@ -2,7 +2,7 @@ package com.byteutility.dev.leetcode.plus.core.settings.config
 
 import com.byteutility.dev.leetcode.plus.core.settings.model.IntervalOption
 
-
+@Suppress("MagicNumber")
 enum class IntervalEnum(val minutes: Long) {
     FIFTEEN(15L),
     THIRTY(30L),

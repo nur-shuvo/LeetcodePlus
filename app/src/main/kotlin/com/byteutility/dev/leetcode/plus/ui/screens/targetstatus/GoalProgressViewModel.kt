@@ -46,8 +46,7 @@ class GoalProgressViewModel @Inject constructor(
                             v.titleSlug == goalProblem.titleSlug
                         }
                         val isCompleted = validList.any { v ->
-                            v.statusDisplay == "Accepted"
-                                    && v.titleSlug == goalProblem.titleSlug
+                            v.statusDisplay == "Accepted" && v.titleSlug == goalProblem.titleSlug
                         }
                         if (isCompleted) {
                             res.add(
@@ -149,5 +148,4 @@ class GoalProgressViewModel @Inject constructor(
         private val formatter2: DateTimeFormatter =
             DateTimeFormatter.ofPattern("MMMM dd, yyyy HH:mm:ss a")
     }
-
 }

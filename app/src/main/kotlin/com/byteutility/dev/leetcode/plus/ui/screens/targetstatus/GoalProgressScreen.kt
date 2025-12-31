@@ -227,7 +227,6 @@ fun ProblemCard(
                         color = Color.DarkGray
                     )
                 }
-
             }
 
             if (problemStatus.status == "In Progress" || problemStatus.status == "Not Started") {

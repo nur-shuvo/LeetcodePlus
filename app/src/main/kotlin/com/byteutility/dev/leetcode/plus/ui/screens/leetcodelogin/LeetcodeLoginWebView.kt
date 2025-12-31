@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.screens.leetcode_login
+package com.byteutility.dev.leetcode.plus.ui.screens.leetcodelogin
 
 import android.annotation.SuppressLint
 import android.util.Log

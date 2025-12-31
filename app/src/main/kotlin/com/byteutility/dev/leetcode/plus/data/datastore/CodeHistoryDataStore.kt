@@ -17,12 +17,12 @@ private val Context.codeHistoryDataStore: DataStore<Preferences> by preferencesD
 class CodeHistoryDataStore @Inject constructor(@ApplicationContext private val context: Context) {
 
     suspend fun getCode(questionId: String, language: String): String? {
-        val key = stringPreferencesKey("${questionId}_${language}")
+        val key = stringPreferencesKey("${questionId}_$language")
         return context.codeHistoryDataStore.data.first()[key]
     }
 
     suspend fun saveCode(questionId: String, language: String, code: String) {
-        val key = stringPreferencesKey("${questionId}_${language}")
+        val key = stringPreferencesKey("${questionId}_$language")
         context.codeHistoryDataStore.edit { settings ->
             settings[key] = code
         }

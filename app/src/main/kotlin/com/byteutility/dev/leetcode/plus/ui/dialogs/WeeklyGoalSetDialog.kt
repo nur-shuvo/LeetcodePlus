@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
+import com.byteutility.dev.leetcode.plus.utils.GoalConfig.DEFAULT_WEEKLY_GOAL_DAYS_COUNT
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -20,7 +21,7 @@ fun WeeklyGoalSetDialog(
     val today = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
     val startDate = today.format(formatter)
-    val endDate = today.plusDays(7).format(formatter)
+    val endDate = today.plusDays(DEFAULT_WEEKLY_GOAL_DAYS_COUNT.toLong()).format(formatter)
 
     if (showDialog) {
         AlertDialog(

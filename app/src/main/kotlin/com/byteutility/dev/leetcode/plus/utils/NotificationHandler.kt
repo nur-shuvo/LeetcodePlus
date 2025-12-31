@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.MainActivity
 
+@Suppress("MagicNumber")
 object NotificationHandler {
 
     private const val GOAL_CHANNEL_ID = "goal_reminder_channel"
@@ -29,7 +30,9 @@ object NotificationHandler {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent = PendingIntent.getActivity(
-            context, 0, intent,
+            context,
+            0,
+            intent,
             PendingIntent.FLAG_IMMUTABLE
         )
 

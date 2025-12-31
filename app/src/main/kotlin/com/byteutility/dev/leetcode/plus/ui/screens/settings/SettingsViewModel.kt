@@ -81,7 +81,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-
     private fun loadNotificationInterval() {
         viewModelScope.launch {
             val interval = userDatastore.getNotificationInterval()

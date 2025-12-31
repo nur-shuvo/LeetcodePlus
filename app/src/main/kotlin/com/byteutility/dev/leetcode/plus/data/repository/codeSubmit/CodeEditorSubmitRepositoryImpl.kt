@@ -21,7 +21,8 @@ class CodeEditorSubmitRepositoryImpl @Inject constructor(
         return restApiService.submitLeetcodeProblem(
             titleSlug,
             userDatastore.getLeetcodeCsrfToken()!!,
-            "LEETCODE_SESSION=${userDatastore.getLeetcodeSessionToken()!!}; csrftoken=${userDatastore.getLeetcodeCsrfToken()!!}",
+            "LEETCODE_SESSION=${userDatastore.getLeetcodeSessionToken()!!}; " +
+                "csrftoken=${userDatastore.getLeetcodeCsrfToken()!!}",
             ProblemSubmitRequest(
                 language,
                 code,
@@ -34,7 +35,8 @@ class CodeEditorSubmitRepositoryImpl @Inject constructor(
         return restApiService.getSubmissionResult(
             submissionId,
             userDatastore.getLeetcodeCsrfToken()!!,
-            "LEETCODE_SESSION=${userDatastore.getLeetcodeSessionToken()!!}; csrftoken=${userDatastore.getLeetcodeCsrfToken()!!}",
+            "LEETCODE_SESSION=${userDatastore.getLeetcodeSessionToken()!!}; " +
+                "csrftoken=${userDatastore.getLeetcodeCsrfToken()!!}",
         )
     }
 }

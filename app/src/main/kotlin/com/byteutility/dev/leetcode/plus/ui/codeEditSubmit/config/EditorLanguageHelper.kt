@@ -9,6 +9,7 @@ import io.github.rosemoe.sora.widget.CodeEditor
 /**
  * Helper class to configure CodeEditor with language-specific settings.
  */
+@Suppress("MagicNumber", "TooGenericExceptionCaught")
 object EditorLanguageHelper {
 
     private const val TAG = "EditorLanguageHelper"
