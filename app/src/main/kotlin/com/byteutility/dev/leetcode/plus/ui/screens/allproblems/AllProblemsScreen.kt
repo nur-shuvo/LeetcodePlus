@@ -336,6 +336,31 @@ fun FilterBottomSheet(
         ) {
             Text(text = "Filters", style = MaterialTheme.typography.headlineSmall)
 
+            Text(text = "Difficulty", style = MaterialTheme.typography.titleMedium)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                difficulties.forEach { difficulty ->
+                    FilterChip(
+                        selected = selectedDifficulties.contains(difficulty),
+                        onClick = {
+                            onDifficultySelected(difficulty)
+                        },
+                        label = { Text(difficulty) },
+                        leadingIcon = if (selectedDifficulties.contains(difficulty)) {
+                            {
+                                Icon(Icons.Default.Check, contentDescription = "")
+                            }
+                        } else {
+                            null
+                        }
+                    )
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
             Text(text = "Tags", style = MaterialTheme.typography.titleMedium)
 
             FlowRow(
@@ -351,31 +376,6 @@ fun FilterBottomSheet(
                         },
                         label = { Text(tag) },
                         leadingIcon = if (selectedTags.contains(tag)) {
-                            {
-                                Icon(Icons.Default.Check, contentDescription = "")
-                            }
-                        } else {
-                            null
-                        }
-                    )
-                }
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            Text(text = "Difficulty", style = MaterialTheme.typography.titleMedium)
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                difficulties.forEach { difficulty ->
-                    FilterChip(
-                        selected = selectedDifficulties.contains(difficulty),
-                        onClick = {
-                            onDifficultySelected(difficulty)
-                        },
-                        label = { Text(difficulty) },
-                        leadingIcon = if (selectedDifficulties.contains(difficulty)) {
                             {
                                 Icon(Icons.Default.Check, contentDescription = "")
                             }
