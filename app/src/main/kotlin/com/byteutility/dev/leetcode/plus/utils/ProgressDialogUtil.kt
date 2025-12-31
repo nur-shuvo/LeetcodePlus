@@ -155,15 +155,6 @@ object ProgressDialogUtil {
                     dismissOnClickOutside = false
                 )
             ) {
-//                val gradientColors = if (secondaryColor != null) {
-//                    listOf(primaryColor, secondaryColor)
-//                } else {
-//                    listOf(
-//                        primaryColor,
-//                        primaryColor.copy(alpha = 0.7f)
-//                    )
-//                }
-
                 Surface(
                     modifier = Modifier.size(220.dp),
                     shape = RoundedCornerShape(28.dp),
