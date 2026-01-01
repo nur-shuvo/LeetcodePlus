@@ -17,6 +17,7 @@ class WeeklyGoalRepositoryImpl @Inject constructor(
         period: WeeklyGoalPeriod
     ) {
         val entity = WeeklyGoalEntity.createWeeklyGoalEntity(problems, period)
+        weeklyGoalDao.deleteWeeklyGoal()
         weeklyGoalDao.insertWeeklyGoal(entity)
     }
 
