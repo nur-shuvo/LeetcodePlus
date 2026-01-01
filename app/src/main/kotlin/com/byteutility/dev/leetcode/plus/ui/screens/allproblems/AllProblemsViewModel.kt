@@ -67,7 +67,7 @@ class AllProblemsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            _allProblemsList.value = problemsRepository.getProblems(limit = 3000)
+            _allProblemsList.value = problemsRepository.getProblems()
             _allTags.value = _allProblemsList.value.map { it.tag }.distinct()
             _allDifficulties.value = _allProblemsList.value.map { it.difficulty }.distinct()
         }
