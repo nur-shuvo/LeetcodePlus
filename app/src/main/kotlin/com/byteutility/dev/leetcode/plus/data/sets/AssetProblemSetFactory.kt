@@ -3,7 +3,7 @@ package com.byteutility.dev.leetcode.plus.data.sets
 import android.content.res.AssetManager
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.domain.model.ProblemSetType
-import com.byteutility.dev.leetcode.plus.domain.model.ProblemSetType.ExclusiveProblemSet
+import com.byteutility.dev.leetcode.plus.domain.model.ProblemSetType.PredefinedProblemSet
 import com.byteutility.dev.leetcode.plus.domain.model.ProblemSetType.UserDefinedProblemSet
 import com.byteutility.dev.leetcode.plus.network.responseVo.ProblemSetResponseVo
 import com.google.gson.Gson
@@ -16,9 +16,9 @@ class AssetProblemSetFactory @Inject constructor(
 ) : ProblemSetFactory {
     override fun createSet(type: ProblemSetType): ProblemSet {
         return when (type) {
-            is ExclusiveProblemSet -> {
-                val titles = loadTitlesFromAssets(type.type.fileName)
-                ExclusiveProblemSet(displayName = type.displayName, titles = titles)
+            is PredefinedProblemSet -> {
+                val titles = loadTitlesFromAssets(type.metadata.file)
+                PredefinedProblemSet(displayName = type.displayName, titles = titles)
             }
 
             is UserDefinedProblemSet -> {

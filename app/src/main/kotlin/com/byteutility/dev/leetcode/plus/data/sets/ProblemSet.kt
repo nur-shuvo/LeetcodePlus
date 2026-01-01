@@ -11,7 +11,7 @@ interface ProblemSet {
     fun isIncluded(problem: LeetCodeProblem): Boolean
 }
 
-class ExclusiveProblemSet(
+class PredefinedProblemSet(
     override val displayName: String,
     private val titles: List<String>
 ) : ProblemSet {
