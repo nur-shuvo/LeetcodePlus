@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.byteutility.dev.leetcode.plus.ui.navigation.AllProblems
+import com.byteutility.dev.leetcode.plus.ui.navigation.ContestDetail
 import com.byteutility.dev.leetcode.plus.ui.navigation.Home
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavigation
 import com.byteutility.dev.leetcode.plus.ui.navigation.ProblemDetails
@@ -141,6 +142,18 @@ fun MainScreen(mainNavController: NavHostController) {
                             launchSingleTop = true
                             restoreState = true
                         }
+                    },
+                    onNavigateToContestDetail = { contest ->
+                        navigationActions.navigateToContestDetail(
+                            ContestDetail(
+                                contestId = contest.id,
+                                event = contest.event,
+                                start = contest.start,
+                                end = contest.end,
+                                duration = contest.duration,
+                                href = contest.href
+                            )
+                        )
                     },
                     onLogout = {
                         navigationActions.navigateToLogin()

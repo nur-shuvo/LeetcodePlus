@@ -121,6 +121,7 @@ fun HomeScreen(
     onNavigateToProblemDetails: (String) -> Unit = {},
     onNavigateToVideoSolutions: () -> Unit = {},
     onNavigateToAllProblems: () -> Unit = {},
+    onNavigateToContestDetail: (Contest) -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
     val viewModel: HomeScreenViewModel = hiltViewModel()
@@ -156,7 +157,8 @@ fun HomeScreen(
         checkInAppContestReminderStatus = {
             viewModel.checkInAppContestReminderStatus(it)
         },
-        onNavigateToAllProblems = onNavigateToAllProblems
+        onNavigateToAllProblems = onNavigateToAllProblems,
+        onNavigateToContestDetail = onNavigateToContestDetail
     )
 }
 
@@ -177,6 +179,7 @@ fun HomeLayout(
     onSetInAppReminder: (Contest) -> Unit,
     checkInAppContestReminderStatus: suspend (Contest) -> Boolean,
     onNavigateToAllProblems: () -> Unit = {},
+    onNavigateToContestDetail: (Contest) -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -270,7 +273,8 @@ fun HomeLayout(
                     onLoadMoreVideos = onLoadMoreVideos,
                     onSearchClick = onSearchClick,
                     onSetInAppReminder = onSetInAppReminder,
-                    checkInAppContestReminderStatus = checkInAppContestReminderStatus
+                    checkInAppContestReminderStatus = checkInAppContestReminderStatus,
+                    onNavigateToContestDetail = onNavigateToContestDetail
                 )
                 val infiniteTransition = rememberInfiniteTransition(label = "fab_animation")
                 val scale by infiniteTransition.animateFloat(
@@ -336,6 +340,7 @@ fun UserProfileContent(
     onSearchClick: () -> Unit,
     onSetInAppReminder: (Contest) -> Unit,
     checkInAppContestReminderStatus: suspend (Contest) -> Boolean,
+    onNavigateToContestDetail: (Contest) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -396,7 +401,8 @@ fun UserProfileContent(
                 AutoScrollingContestList(
                     contests = uiState.leetcodeUpcomingContestsState.contests,
                     onSetInAppReminder = onSetInAppReminder,
-                    checkInAppContestReminderStatus = checkInAppContestReminderStatus
+                    checkInAppContestReminderStatus = checkInAppContestReminderStatus,
+                    onNavigateToContestDetail = onNavigateToContestDetail
                 )
                 UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
 
@@ -1028,7 +1034,8 @@ fun AutoScrollingContestList(
     modifier: Modifier = Modifier,
     scrollIntervalMillis: Long = 3000L,
     onSetInAppReminder: (Contest) -> Unit,
-    checkInAppContestReminderStatus: suspend (Contest) -> Boolean
+    checkInAppContestReminderStatus: suspend (Contest) -> Boolean,
+    onNavigateToContestDetail: (Contest) -> Unit = {}
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -1061,7 +1068,9 @@ fun AutoScrollingContestList(
             Card(
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                modifier = Modifier.width(IntrinsicSize.Max)
+                modifier = Modifier
+                    .width(IntrinsicSize.Max)
+                    .clickable { onNavigateToContestDetail(contest) }
             ) {
                 Column(
                     modifier = Modifier
@@ -1315,7 +1324,8 @@ fun PreviewUserDetails() {
         onSearchClick = {},
         onLogout = {},
         onSetInAppReminder = {},
-        checkInAppContestReminderStatus = { false }
+        checkInAppContestReminderStatus = { false },
+        onNavigateToContestDetail = {}
     )
 }
 
@@ -1370,5 +1380,7 @@ fun PreviewContestScreen() {
     AutoScrollingContestList(
         contests = sampleContests,
         onSetInAppReminder = {},
-        checkInAppContestReminderStatus = { false })
+        checkInAppContestReminderStatus = { false },
+        onNavigateToContestDetail = {}
+    )
 }
