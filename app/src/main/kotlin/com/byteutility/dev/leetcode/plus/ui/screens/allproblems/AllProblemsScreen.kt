@@ -5,30 +5,45 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,6 +64,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
+import com.byteutility.dev.leetcode.plus.ui.theme.easyCategory
+import com.byteutility.dev.leetcode.plus.ui.theme.hardCategory
+import com.byteutility.dev.leetcode.plus.ui.theme.mediumCategory
 import kotlinx.coroutines.delay
 
 /**
@@ -62,6 +80,12 @@ fun AllProblemsScreen(
 ) {
     val viewModel: AllProblemsViewModel = hiltViewModel()
     val problems by viewModel.problemsList.collectAsStateWithLifecycle()
+    val tags by viewModel.tags.collectAsStateWithLifecycle()
+    val difficulties by viewModel.difficulties.collectAsStateWithLifecycle()
+    val selectedDifficulties by viewModel.selectedDifficulties.collectAsStateWithLifecycle()
+    val selectedTags by viewModel.selectedTags.collectAsStateWithLifecycle()
+    var showFilterBottomSheet by remember { mutableStateOf(false) }
+    val activeFilterCount by viewModel.activeFilterCount.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -78,10 +102,48 @@ fun AllProblemsScreen(
                     containerColor = Color(0xFFABDEF5).copy(
                         alpha = 0.1f
                     )
-                )
+                ),
+                actions = {
+                    IconButton(onClick = {
+                        showFilterBottomSheet = true
+                    }) {
+                        BadgedBox(
+                            badge = {
+                                if (activeFilterCount > 0) {
+                                    Badge {
+                                        Text(activeFilterCount.toString())
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FilterList,
+                                contentDescription = "Filter Problems"
+                            )
+                        }
+                    }
+                }
             )
         },
     ) { innerPadding ->
+
+        if (showFilterBottomSheet) {
+            FilterBottomSheet(
+                selectedTags = selectedTags,
+                selectedDifficulties = selectedDifficulties,
+                tags = tags,
+                difficulties = difficulties,
+                onTagSelected = { viewModel.onTagSelected(it) },
+                onDifficultySelected = { viewModel.onDifficultySelected(it) },
+                onApply = { showFilterBottomSheet = false },
+                onClear = {
+                    viewModel.clearFilters()
+                    showFilterBottomSheet = false
+                },
+                onDismiss = { showFilterBottomSheet = false }
+            )
+        }
+
         ProblemSelection(
             modifier = Modifier.padding(innerPadding),
             problems = problems,
@@ -190,12 +252,7 @@ fun ProblemItem(
     problem: LeetCodeProblem,
     onNavigateToProblemDetails: (String) -> Unit = {}
 ) {
-    val backgroundColor: Color = when (problem.difficulty) {
-        "Easy" -> Color(0xFFE0F7FA)
-        "Medium" -> Color(0xFFFFF9C4)
-        "Hard" -> Color(0xFFFFCDD2)
-        else -> Color(0xFFE0F7FA)
-    }
+    val backgroundColor: Color = getDifficultyColor(problem.difficulty)
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -236,6 +293,136 @@ fun ProblemItem(
             }
         }
     }
+}
+
+@Composable
+fun getDifficultyColor(difficulty: String): Color {
+    return when (difficulty.lowercase()) {
+        "easy" -> MaterialTheme.colorScheme.easyCategory
+        "medium" -> MaterialTheme.colorScheme.mediumCategory
+        "hard" -> MaterialTheme.colorScheme.hardCategory
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun FilterBottomSheet(
+    tags: List<String>,
+    difficulties: List<String>,
+    onTagSelected: (String) -> Unit,
+    onDifficultySelected: (String) -> Unit,
+    onApply: () -> Unit,
+    onClear: () -> Unit,
+    onDismiss: () -> Unit,
+    selectedTags: List<String>,
+    selectedDifficulties: List<String>
+) {
+    val scrollState = rememberScrollState()
+    val modalBottomSheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = modalBottomSheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(text = "Filters", style = MaterialTheme.typography.headlineSmall)
+
+            Text(text = "Difficulty", style = MaterialTheme.typography.titleMedium)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                difficulties.forEach { difficulty ->
+                    FilterChip(
+                        selected = selectedDifficulties.contains(difficulty),
+                        onClick = {
+                            onDifficultySelected(difficulty)
+                        },
+                        label = { Text(difficulty) },
+                        leadingIcon = if (selectedDifficulties.contains(difficulty)) {
+                            {
+                                Icon(Icons.Default.Check, contentDescription = "")
+                            }
+                        } else {
+                            null
+                        }
+                    )
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            Text(text = "Tags", style = MaterialTheme.typography.titleMedium)
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                tags.forEach { tag ->
+                    FilterChip(
+                        selected = selectedTags.contains(tag),
+                        onClick = {
+                            onTagSelected(tag)
+                        },
+                        label = { Text(tag) },
+                        leadingIcon = if (selectedTags.contains(tag)) {
+                            {
+                                Icon(Icons.Default.Check, contentDescription = "")
+                            }
+                        } else {
+                            null
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onClear,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Clear All")
+                }
+                Button(
+                    onClick = onApply,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Apply Filters")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun PreviewFilterBottomSheet() {
+    FilterBottomSheet(
+        tags = listOf("Array", "String", "Hash Table"),
+        difficulties = listOf("Easy", "Medium", "Hard"),
+        onTagSelected = {},
+        onDifficultySelected = {},
+        onApply = {},
+        onClear = {},
+        onDismiss = {},
+        selectedTags = listOf("Array", "String"),
+        selectedDifficulties = listOf("Easy", "Medium")
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
