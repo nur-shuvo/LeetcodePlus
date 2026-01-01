@@ -43,6 +43,16 @@ data class ProblemDetails(
     val titleSlug: String
 )
 
+@Serializable
+data class ContestDetail(
+    val contestId: Int,
+    val event: String,
+    val start: String,
+    val end: String,
+    val duration: Int,
+    val href: String
+)
+
 class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToMainScreen: () -> Unit = {
@@ -115,6 +125,12 @@ class LeetCodePlusNavigation(navController: NavController) {
         navController.navigate(
             problemDetails
         ) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToContestDetail: (ContestDetail) -> Unit = { contestDetail ->
+        navController.navigate(contestDetail) {
             launchSingleTop = true
         }
     }

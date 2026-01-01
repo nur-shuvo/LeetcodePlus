@@ -15,6 +15,7 @@ import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.ProblemDetai
 import com.byteutility.dev.leetcode.plus.ui.screens.solutions.VideoSolutionsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetset.SetWeeklyTargetScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetstatus.GoalProgressScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.contest.details.ContestDetailScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.webview.CommonWebViewScreen
 
 @Composable
@@ -97,6 +98,21 @@ fun LeetCodePlusNavGraph(
             ProblemDetailsScreen(titleSlug) {
                 navigationActions.navigateLeetcodeLoginWebView()
             }
+        }
+
+        composable<ContestDetail> { backstackEntry ->
+            val contestDetail = backstackEntry.toRoute<ContestDetail>()
+            ContestDetailScreen(
+                contestId = contestDetail.contestId,
+                event = contestDetail.event,
+                start = contestDetail.start,
+                end = contestDetail.end,
+                duration = contestDetail.duration,
+                href = contestDetail.href,
+                onBack = {
+                    navigationActions.popCurrentDestination()
+                }
+            )
         }
     }
 }
