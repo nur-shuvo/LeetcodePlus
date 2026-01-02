@@ -127,3 +127,28 @@
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+
+# Sora Editor (Rosemoe)
+-keep class io.github.rosemoe.sora.** { *; }
+-keep class io.github.rosemoe.sora.widget.** { *; }
+-keep class io.github.rosemoe.sora.lang.** { *; }
+-keep class io.github.rosemoe.sora.text.** { *; }
+-keep class io.github.rosemoe.sora.graphics.** { *; }
+-keep class io.github.rosemoe.sorern.** { *; }
+-dontwarn io.github.rosemoe.sora.**
+
+# TextMate (used by Sora Editor for syntax highlighting)
+-keep class org.eclipse.tm4e.** { *; }
+-keep class org.eclipse.jdt.** { *; }
+-dontwarn org.eclipse.tm4e.**
+-dontwarn org.eclipse.jdt.**
+
+# JONI regex library (used by TextMate)
+-keep class org.jcodings.** { *; }
+-keep class org.joni.** { *; }
+-dontwarn org.jcodings.**
+-dontwarn org.joni.**
+
+# Snakeyaml (may be used for TextMate grammar parsing)
+-keep class org.yaml.snakeyaml.** { *; }
+-dontwarn org.yaml.snakeyaml.**
