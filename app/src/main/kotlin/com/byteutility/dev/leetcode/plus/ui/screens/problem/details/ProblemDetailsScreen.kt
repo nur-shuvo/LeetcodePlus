@@ -6,6 +6,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,27 +14,36 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.VpnKey
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -66,6 +76,8 @@ fun ProblemDetailsScreen(
 ) {
     val viewModel: ProblemDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getQuestionDetails(titleSlug)
@@ -94,8 +106,62 @@ fun ProblemDetailsScreen(
                     }
                 },
             )
-        }
+        },
+        bottomBar = {
+            Surface(
+                tonalElevation = 3.dp,
+                shadowElevation = 8.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .navigationBarsPadding() // Ensures it doesn't overlap with Android nav pill
+                        .padding(16.dp)
+                ) {
+                    Button(
+                        {
+                            if (uiState.codeSnippets.isNotEmpty()) {
+                                showDialog = true
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = uiState.codeSnippets.isNotEmpty(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF498A5C) // Your Emerald Green
+                        )
+                    ) {
+                        Text(
+                            text = "Code and Submit",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        },
+        floatingActionButtonPosition = FabPosition.Center
     ) { paddingValues ->
+
+        if (showDialog) {
+            LanguageSelectionSheet(
+                codeSnippets = uiState.codeSnippets,
+                onLanguageSelected = { snippet ->
+                    showDialog = false
+                    context.startActivity(
+                        CodeEditorSubmitActivity.getIntent(
+                            context,
+                            titleSlug,
+                            uiState.questionId,
+                            snippet.langSlug,
+                            snippet.code
+                        )
+                    )
+                },
+                onDismiss = { showDialog = false }
+            )
+        }
+
         if (uiState.isLoading) {
             Column(
                 modifier = Modifier
@@ -123,7 +189,6 @@ fun ProblemDetailsScreen(
             ProblemDetailsContent(
                 modifier = Modifier.padding(paddingValues),
                 uiState = uiState,
-                titleSlug = titleSlug,
                 onLeetcodeLoginVerify
             )
         }
@@ -132,66 +197,19 @@ fun ProblemDetailsScreen(
 
 @Composable
 fun ProblemDetailsContent(
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     uiState: ProblemDetailsUiState,
-    titleSlug: String,
     onLeetcodeLoginVerify: () -> Unit
 ) {
-    val context = LocalContext.current
     val textColor = MaterialTheme.colorScheme.onSurface
-    var showDialog by remember { mutableStateOf(false) }
-
-    if (showDialog) {
-        LanguageSelectionDialog(
-            codeSnippets = uiState.codeSnippets,
-            onLanguageSelected = { snippet ->
-                showDialog = false
-                context.startActivity(
-                    CodeEditorSubmitActivity.getIntent(
-                        context,
-                        titleSlug,
-                        uiState.questionId,
-                        snippet.langSlug,
-                        snippet.code
-                    )
-                )
-            },
-            onDismiss = { showDialog = false }
-        )
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            .padding(start = 16.dp, end = 16.dp, bottom = 0.dp)
     ) {
         ProblemHeader(uiState)
-        ConnectionVerifyBanner {
-            onLeetcodeLoginVerify()
-        }
-
+        ConnectionVerifyBanner { onLeetcodeLoginVerify() }
         ProblemDescriptionWebView(uiState, textColor)
-
-        Button(
-            onClick = {
-                if (uiState.codeSnippets.isNotEmpty()) {
-                    showDialog = true
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            enabled = uiState.codeSnippets.isNotEmpty()
-        ) {
-            if (uiState.isLoading) {
-                ProgressDialogUtil.ShowGradientProgressDialog(
-                    message = "Loading",
-                    showDialog = true
-                )
-            } else {
-                Text(text = "Code and Submit")
-            }
-        }
     }
 }
 
@@ -202,7 +220,6 @@ private fun ColumnScope.ProblemDescriptionWebView(
 ) {
     Column(
         modifier = Modifier
-            .weight(1f)
             .verticalScroll(rememberScrollState())
     ) {
         AndroidView(
@@ -300,22 +317,11 @@ fun ProblemHeader(uiState: ProblemDetailsUiState) {
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // 1. Title with ID
-//        Text(
-//            text = "${uiState.questionId}. ${uiState.title}",
-//            style = MaterialTheme.typography.headlineSmall, // headlineSmall is better for mobile reach
-//            fontWeight = FontWeight.ExtraBold,
-//            color = MaterialTheme.colorScheme.onSurface,
-//            lineHeight = 32.sp
-//        )
-
-        // 2. Metadata Chips Row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Difficulty Tag (Semantic)
             Surface(
                 color = difficultyColor.copy(alpha = 0.1f),
                 shape = RoundedCornerShape(8.dp),
@@ -330,7 +336,6 @@ fun ProblemHeader(uiState: ProblemDetailsUiState) {
                 )
             }
 
-            // Category Tag (Brand Tonal)
             Surface(
                 color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
                 shape = RoundedCornerShape(8.dp)
@@ -357,34 +362,66 @@ fun ProblemHeader(uiState: ProblemDetailsUiState) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageSelectionDialog(
+fun LanguageSelectionSheet(
     codeSnippets: List<CodeSnippet>,
     onLanguageSelected: (CodeSnippet) -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
-        title = { Text("Select Language") },
-        text = {
-            Column {
-                codeSnippets.forEach { snippet ->
-                    Text(
-                        text = snippet.lang,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFF498A5C).copy(alpha = 0.4f)) }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp) // Extra padding for navigation bar
+        ) {
+            Text(
+                text = "Select Language",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+            )
+
+            LazyColumn {
+                items(codeSnippets) { snippet ->
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onLanguageSelected(snippet) }
-                            .padding(vertical = 8.dp)
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = snippet.lang,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        // Subtle indicator for the Emerald theme
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
                     )
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
         }
-    )
+    }
 }
 
 private fun getStyledHtml(content: String, textColor: Color): String {
@@ -487,7 +524,6 @@ fun ProblemDetailsScreenPreview() {
             ProblemDetailsContent(
                 modifier = Modifier.padding(paddingValues),
                 uiState = mockUiState,
-                titleSlug = "two-sum"
             ) {}
         }
     }
