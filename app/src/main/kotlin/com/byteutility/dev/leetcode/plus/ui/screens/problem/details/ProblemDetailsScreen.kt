@@ -440,7 +440,7 @@ private fun getStyledHtml(content: String, textColor: Color): String {
                     font-size: 15px;
                     line-height: 1.6;
                     margin: 0;
-                    padding: 8px;
+                    padding: 0px;
                     background-color: transparent;
                 }
                 /* Style Code Blocks (LeetCode specific) */
