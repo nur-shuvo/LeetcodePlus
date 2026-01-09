@@ -13,9 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,7 +36,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +59,8 @@ import com.byteutility.dev.leetcode.plus.utils.ProgressDialogUtil
 @Composable
 fun ProblemDetailsScreen(
     titleSlug: String,
-    onLeetcodeLoginVerify: () -> Unit = {}
+    onLeetcodeLoginVerify: () -> Unit = {},
+    onBack: () -> Unit = {}
 ) {
     val viewModel: ProblemDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
@@ -59,7 +71,20 @@ fun ProblemDetailsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Problem Detail", fontSize = 20.sp, fontWeight = Bold) })
+            TopAppBar(
+                title = {
+                    Text("Problem Detail", fontSize = 20.sp, fontWeight = Bold)
+                },
+                navigationIcon = {
+                    if (uiState.content.isNotEmpty() && uiState.codeSnippets.isNotEmpty() && !uiState.isPaid){
+                        IconButton(
+                            onClick = { onBack() }
+                        ) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
+                        }
+                    }
+                }
+            )
         }
     ) { paddingValues ->
         if (uiState.isLoading) {
@@ -90,7 +115,8 @@ fun ProblemDetailsScreen(
                 modifier = Modifier.padding(paddingValues),
                 uiState = uiState,
                 titleSlug = titleSlug,
-                onLeetcodeLoginVerify
+                onLeetcodeLoginVerify,
+                onBack
             )
         }
     }
@@ -101,11 +127,13 @@ fun ProblemDetailsContent(
     modifier: Modifier = Modifier,
     uiState: ProblemDetailsUiState,
     titleSlug: String,
-    onLeetcodeLoginVerify: () -> Unit
+    onLeetcodeLoginVerify: () -> Unit,
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val textColor = MaterialTheme.colorScheme.onSurface
     var showDialog by remember { mutableStateOf(false) }
+    var showPremiumDialog by remember { mutableStateOf(false) }
 
     if (showDialog) {
         LanguageSelectionDialog(
@@ -126,78 +154,126 @@ fun ProblemDetailsContent(
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "${uiState.questionId}. ${uiState.title}",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontSize = 28.sp
-            ),
-            fontWeight = Bold
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = Color(0xFFE0E0E0),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Text(
-                    text = uiState.difficulty,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Black
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = Color(0xFFE0E0E0),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Text(text = uiState.category, style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            TextButton(
-                onClick = {
-                    onLeetcodeLoginVerify.invoke()
-                }
-            ) {
-                Text(text = "Verify connection", fontSize = 16.sp)
-            }
-        }
+    if (uiState.content.isEmpty() && uiState.codeSnippets.isEmpty() && uiState.isPaid) {
 
         Column(
             modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                factory = { context ->
-                    WebView(context).apply {
-                        setBackgroundColor(0) // transparent background
-                    }
+            val premiumText = buildAnnotatedString {
+                append("This problem is part of LeetCode Premium. Subscribe on ")
+                val link = LinkAnnotation.Url(
+                    "https://leetcode.com/subscribe/?ref=lp_pl&source=qd",
+                    styles = TextLinkStyles(
+                        style = SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                )
+                pushLink(link)
+                append("LeetCode")
+                pop()
+                append(" to unlock access and start solving.")
+            }
+
+            Text(
+                text = premiumText,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                textAlign = TextAlign.Center
+            )
+
+            Button(
+                onClick = {
+                    onBack()
                 },
-                update = { webView ->
-                    val htmlContent = """
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+            ) {
+                Text(text = "Back to All Problems")
+            }
+        }
+
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "${uiState.questionId}. ${uiState.title}",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontSize = 28.sp
+                ),
+                fontWeight = Bold
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = Color(0xFFE0E0E0),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = uiState.difficulty,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = Color(0xFFE0E0E0),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text(text = uiState.category, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = {
+                        onLeetcodeLoginVerify.invoke()
+                    }
+                ) {
+                    Text(text = "Verify connection", fontSize = 16.sp)
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                AndroidView(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    factory = { context ->
+                        WebView(context).apply {
+                            setBackgroundColor(0) // transparent background
+                        }
+                    },
+                    update = { webView ->
+                        val htmlContent = """
                         <html>
                         <head>
                             <style>
@@ -215,29 +291,30 @@ fun ProblemDetailsContent(
                         </body>
                         </html>
                     """.trimIndent()
-                    webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
-                }
-            )
-        }
-
-        Button(
-            onClick = {
-                if (uiState.codeSnippets.isNotEmpty()) {
-                    showDialog = true
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            enabled = uiState.codeSnippets.isNotEmpty()
-        ) {
-            if (uiState.isLoading) {
-                ProgressDialogUtil.ShowGradientProgressDialog(
-                    message = "Loading",
-                    showDialog = true
+                        webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+                    }
                 )
-            } else {
-                Text(text = "Code and Submit")
+            }
+
+            Button(
+                onClick = {
+                    if (uiState.codeSnippets.isNotEmpty()) {
+                        showDialog = true
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                enabled = uiState.codeSnippets.isNotEmpty()
+            ) {
+                if (uiState.isLoading) {
+                    ProgressDialogUtil.ShowGradientProgressDialog(
+                        message = "Loading",
+                        showDialog = true
+                    )
+                } else {
+                    Text(text = "Code and Submit")
+                }
             }
         }
     }
@@ -302,8 +379,10 @@ fun ProblemDetailsScreenPreview() {
             ProblemDetailsContent(
                 modifier = Modifier.padding(paddingValues),
                 uiState = mockUiState,
-                titleSlug = "two-sum"
-            ) {}
+                titleSlug = "two-sum",
+                onLeetcodeLoginVerify = {},
+                onBack = {}
+            )
         }
     }
 }
