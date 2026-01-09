@@ -33,14 +33,15 @@ class ProblemDetailsViewModel @Inject constructor(
                         category = result.question.topicTags.joinToString(", ") { topicTag ->
                             topicTag.name
                         },
-                        content = result.question.content,
-                        codeSnippets = result.question.codeSnippets.map {
+                        content = result.question.content?:"",
+                        codeSnippets = result.question.codeSnippets?.map {
                             CodeSnippet(
                                 lang = it.lang,
                                 langSlug = it.langSlug,
                                 code = it.code
                             )
-                        },
+                        }?:emptyList(),
+                        isPaid = result.question.isPaidOnly,
                         isLoading = false
                     )
                 }
