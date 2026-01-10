@@ -18,9 +18,9 @@ class CustomDialog(val context: Context) {
 
     fun showLanSelectionDialog(
         dataSet: List<CodeSnippet>,
-        action:DialogAction<CodeSnippet>
-    ){
-        val view = LayoutInflater.from(context).inflate(R.layout.lan_selection_dialog,null)
+        action: DialogAction<CodeSnippet>
+    ) {
+        val view = LayoutInflater.from(context).inflate(R.layout.lan_selection_dialog, null)
         dialog.setContentView(view)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
@@ -51,7 +51,7 @@ class CustomDialog(val context: Context) {
         }
     }
 
-    interface DialogAction<T>{
-        fun positive(value:T)
+    interface DialogAction<T> {
+        fun positive(value: T)
     }
 }

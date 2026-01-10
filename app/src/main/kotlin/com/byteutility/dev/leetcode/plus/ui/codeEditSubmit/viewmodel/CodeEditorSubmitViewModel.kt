@@ -90,7 +90,7 @@ class CodeEditorSubmitViewModel @Inject constructor(
     }
 
     fun resetCode() = viewModelScope.launch {
-        val code = codeHistoryDataStore.getValue(PrefKey.INITIAL_CODE,"")
+        val code = codeHistoryDataStore.getValue(PrefKey.INITIAL_CODE, "")
         _uiEvent.emit(CodeEditorSubmitUIEvent.ResetCode(code))
     }
 
@@ -108,5 +108,5 @@ sealed class SubmissionState {
 
 sealed interface CodeEditorSubmitUIEvent {
     object NavigateToLeetcodeLogin : CodeEditorSubmitUIEvent
-    data class ResetCode(val initialCode: String?): CodeEditorSubmitUIEvent
+    data class ResetCode(val initialCode: String?) : CodeEditorSubmitUIEvent
 }

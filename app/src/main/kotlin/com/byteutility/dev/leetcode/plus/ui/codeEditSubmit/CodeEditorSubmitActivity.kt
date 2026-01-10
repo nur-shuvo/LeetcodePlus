@@ -96,7 +96,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             snippets?.let {
                 CustomDialog(this).showLanSelectionDialog(
                     dataSet = it,
-                    action = object: CustomDialog.DialogAction<CodeSnippet> {
+                    action = object : CustomDialog.DialogAction<CodeSnippet> {
                         override fun positive(value: CodeSnippet) {
                             configureEditorLanguage(value.langSlug)
                             setLanguage(value.langSlug)

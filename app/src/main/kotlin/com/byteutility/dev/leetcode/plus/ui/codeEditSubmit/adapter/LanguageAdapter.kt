@@ -9,7 +9,10 @@ import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.toTitleCase
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
 
-class LanguageAdapter(private val dataSet: List<CodeSnippet>, private val listener: OnClickListener) :
+class LanguageAdapter(
+    private val dataSet: List<CodeSnippet>,
+    private val listener: OnClickListener
+) :
     RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageViewHolder {
         val view =
