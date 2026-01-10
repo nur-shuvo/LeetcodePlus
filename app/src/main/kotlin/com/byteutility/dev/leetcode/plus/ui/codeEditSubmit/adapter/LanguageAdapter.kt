@@ -1,4 +1,4 @@
-package com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils
+package com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,9 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.byteutility.dev.leetcode.plus.R
+import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.toTitleCase
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
 
-class LanguageAdapter(private val dataSet: List<CodeSnippet>,private val listener: OnClickListener) :
+class LanguageAdapter(private val dataSet: List<CodeSnippet>, private val listener: OnClickListener) :
     RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageViewHolder {
         val view =
@@ -30,7 +31,7 @@ class LanguageAdapter(private val dataSet: List<CodeSnippet>,private val listene
         private val tvLan = itemView.findViewById<TextView>(R.id.tvLan)
 
         fun bind(value: CodeSnippet) {
-            tvLan.text = value.lang
+            tvLan.text = value.lang.toTitleCase()
 
             tvLan.setOnClickListener {
                 listener.onClick(value)
@@ -41,5 +42,4 @@ class LanguageAdapter(private val dataSet: List<CodeSnippet>,private val listene
     interface OnClickListener {
         fun onClick(value: CodeSnippet)
     }
-
 }

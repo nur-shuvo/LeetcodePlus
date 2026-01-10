@@ -19,6 +19,7 @@ import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.config.EditorLanguage
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.CustomDialog
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.getJsonExtra
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.putExtraJson
+import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.toTitleCase
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitUIEvent
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitViewModel
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.SubmissionState
@@ -70,7 +71,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     private fun setLanguage(lan: String?) {
         languageButton.text =
-            HtmlCompat.fromHtml("$lan", HtmlCompat.FROM_HTML_MODE_LEGACY)
+            HtmlCompat.fromHtml("${lan?.toTitleCase()}", HtmlCompat.FROM_HTML_MODE_LEGACY)
     }
 
     private fun setCode(savedCode: String?) {

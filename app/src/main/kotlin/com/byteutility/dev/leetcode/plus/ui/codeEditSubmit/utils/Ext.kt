@@ -23,3 +23,9 @@ inline fun <reified T> Intent.getJsonExtra(key: String): T? {
         null
     }
 }
+
+fun String.toTitleCase(): String {
+    return this.split(" ").joinToString(" ") { word ->
+        word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+    }
+}
