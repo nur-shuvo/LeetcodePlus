@@ -29,11 +29,16 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +50,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +59,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -78,10 +93,6 @@ fun ProblemDetailsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        viewModel.getQuestionDetails(titleSlug)
-    }
 
     Scaffold(
         topBar = {
@@ -189,7 +200,9 @@ fun ProblemDetailsScreen(
             ProblemDetailsContent(
                 modifier = Modifier.padding(paddingValues),
                 uiState = uiState,
-                onLeetcodeLoginVerify
+                titleSlug = titleSlug,
+                onLeetcodeLoginVerify,
+                onBack
             )
         }
     }
@@ -199,7 +212,8 @@ fun ProblemDetailsScreen(
 fun ProblemDetailsContent(
     modifier: Modifier,
     uiState: ProblemDetailsUiState,
-    onLeetcodeLoginVerify: () -> Unit
+    onLeetcodeLoginVerify: () -> Unit,
+    onBack: () -> Unit
 ) {
     val textColor = MaterialTheme.colorScheme.onSurface
     Column(
@@ -207,6 +221,54 @@ fun ProblemDetailsContent(
             .fillMaxSize()
             .padding(start = 16.dp, end = 16.dp, bottom = 0.dp)
     ) {
+        if (uiState.isPremiumContent) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                val premiumText = buildAnnotatedString {
+                    append("This problem is part of LeetCode Premium. Subscribe on ")
+                    val link = LinkAnnotation.Url(
+                        "https://leetcode.com/subscribe/?ref=lp_pl&source=qd",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = Bold
+                            )
+                        )
+                    )
+                    pushLink(link)
+                    append("LeetCode")
+                    pop()
+                    append(" to unlock access and start solving.")
+                }
+
+                Text(
+                    text = premiumText,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    textAlign = TextAlign.Center
+                )
+
+                Button(
+                    onClick = {
+                        onBack()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                ) {
+                    Text(text = "Back to All Problems")
+                }
+            }
+
+        }
         ProblemHeader(uiState)
         ConnectionVerifyBanner { onLeetcodeLoginVerify() }
         ProblemDescriptionWebView(uiState, textColor)
@@ -524,7 +586,9 @@ fun ProblemDetailsScreenPreview() {
             ProblemDetailsContent(
                 modifier = Modifier.padding(paddingValues),
                 uiState = mockUiState,
-            ) {}
+                onLeetcodeLoginVerify = {},
+                onBack = {}
+            )
         }
     }
 }
