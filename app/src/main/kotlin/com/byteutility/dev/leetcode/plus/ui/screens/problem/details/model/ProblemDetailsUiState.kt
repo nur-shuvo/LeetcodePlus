@@ -7,7 +7,7 @@ data class ProblemDetailsUiState(
     val category: String = "",
     val content: String = "",
     val codeSnippets: List<CodeSnippet> = emptyList(),
-    val isPaid: Boolean = false,
+    val isPremiumContent: Boolean = false,
     val isLoading: Boolean = true,
     val error: String? = null
 )

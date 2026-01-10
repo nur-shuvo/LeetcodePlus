@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +39,6 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -65,10 +63,6 @@ fun ProblemDetailsScreen(
     val viewModel: ProblemDetailsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getQuestionDetails(titleSlug)
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,12 +70,10 @@ fun ProblemDetailsScreen(
                     Text("Problem Detail", fontSize = 20.sp, fontWeight = Bold)
                 },
                 navigationIcon = {
-                    if (uiState.content.isNotEmpty() && uiState.codeSnippets.isNotEmpty() && !uiState.isPaid){
-                        IconButton(
-                            onClick = { onBack() }
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
-                        }
+                    IconButton(
+                        onClick = { onBack() }
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
                     }
                 }
             )
@@ -133,7 +125,6 @@ fun ProblemDetailsContent(
     val context = LocalContext.current
     val textColor = MaterialTheme.colorScheme.onSurface
     var showDialog by remember { mutableStateOf(false) }
-    var showPremiumDialog by remember { mutableStateOf(false) }
 
     if (showDialog) {
         LanguageSelectionDialog(
@@ -154,7 +145,7 @@ fun ProblemDetailsContent(
         )
     }
 
-    if (uiState.content.isEmpty() && uiState.codeSnippets.isEmpty() && uiState.isPaid) {
+    if (uiState.isPremiumContent) {
 
         Column(
             modifier = Modifier
@@ -171,7 +162,7 @@ fun ProblemDetailsContent(
                         style = SpanStyle(
                             color = MaterialTheme.colorScheme.primary,
                             textDecoration = TextDecoration.Underline,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = Bold
                         )
                     )
                 )
