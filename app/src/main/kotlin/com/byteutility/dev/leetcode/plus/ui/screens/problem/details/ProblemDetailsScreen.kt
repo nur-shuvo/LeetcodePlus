@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,16 +28,11 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -63,14 +57,10 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLinkStyles
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -139,7 +129,7 @@ fun ProblemDetailsScreen(
                         enabled = uiState.codeSnippets.isNotEmpty(),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF498A5C) // Your Emerald Green
+                            containerColor = Color(0xFF498A5C)
                         )
                     ) {
                         Text(
@@ -200,7 +190,6 @@ fun ProblemDetailsScreen(
             ProblemDetailsContent(
                 modifier = Modifier.padding(paddingValues),
                 uiState = uiState,
-                titleSlug = titleSlug,
                 onLeetcodeLoginVerify,
                 onBack
             )
@@ -222,7 +211,6 @@ fun ProblemDetailsContent(
             .padding(start = 16.dp, end = 16.dp, bottom = 0.dp)
     ) {
         if (uiState.isPremiumContent) {
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -267,16 +255,16 @@ fun ProblemDetailsContent(
                     Text(text = "Back to All Problems")
                 }
             }
-
+        } else {
+            ProblemHeader(uiState)
+            ConnectionVerifyBanner { onLeetcodeLoginVerify() }
+            ProblemDescriptionWebView(uiState, textColor)
         }
-        ProblemHeader(uiState)
-        ConnectionVerifyBanner { onLeetcodeLoginVerify() }
-        ProblemDescriptionWebView(uiState, textColor)
     }
 }
 
 @Composable
-private fun ColumnScope.ProblemDescriptionWebView(
+private fun ProblemDescriptionWebView(
     uiState: ProblemDetailsUiState,
     textColor: Color
 ) {
@@ -290,7 +278,7 @@ private fun ColumnScope.ProblemDescriptionWebView(
             factory = { context ->
                 WebView(context).apply {
                     settings.apply {
-                        javaScriptEnabled = false // Keep it safe unless you need interactivity
+                        javaScriptEnabled = false
                         loadWithOverviewMode = true
                         useWideViewPort = true
                         layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
@@ -301,7 +289,7 @@ private fun ColumnScope.ProblemDescriptionWebView(
             update = { webView ->
                 val styledHtml = getStyledHtml(uiState.content, textColor)
                 webView.loadDataWithBaseURL(
-                    "https://leetcode.com", // Providing a base URL helps with relative links/images
+                    "https://leetcode.com",
                     styledHtml,
                     "text/html",
                     "UTF-8",
@@ -334,7 +322,7 @@ fun ConnectionVerifyBanner(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Default.VpnKey, // Or Icons.Default.Link
+                    imageVector = Icons.Default.VpnKey,
                     contentDescription = null,
                     tint = brandGreen,
                     modifier = Modifier.size(18.dp)
@@ -442,7 +430,7 @@ fun LanguageSelectionSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp) // Extra padding for navigation bar
+                .padding(bottom = 32.dp)
         ) {
             Text(
                 text = "Select Language",
@@ -467,7 +455,6 @@ fun LanguageSelectionSheet(
                             color = MaterialTheme.colorScheme.onSurface
                         )
 
-                        // Subtle indicator for the Emerald theme
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
