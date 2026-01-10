@@ -9,13 +9,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.MainScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.contest.details.ContestDetailScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.leetcodelogin.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.ProblemDetailsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.solutions.VideoSolutionsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetset.SetWeeklyTargetScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.targetstatus.GoalProgressScreen
-import com.byteutility.dev.leetcode.plus.ui.screens.contest.details.ContestDetailScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.webview.CommonWebViewScreen
 
 @Composable
@@ -96,9 +96,10 @@ fun LeetCodePlusNavGraph(
             val problemDetails = backstackEntry.toRoute<ProblemDetails>()
             val titleSlug = problemDetails.titleSlug
             ProblemDetailsScreen(
-                titleSlug,
-                onLeetcodeLoginVerify = {navigationActions.navigateLeetcodeLoginWebView()},
-                onBack = {navigationActions.popCurrentDestination()}
+                titleSlug, onLeetcodeLoginVerify = {
+                    navigationActions.navigateLeetcodeLoginWebView()
+                },
+                onBack = { navigationActions.popCurrentDestination() }
             )
         }
 

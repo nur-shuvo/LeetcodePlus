@@ -26,7 +26,7 @@ class ProblemDetailsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProblemDetailsUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun getQuestionDetails(titleSlug: String) {
+    private fun getQuestionDetails(titleSlug: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
