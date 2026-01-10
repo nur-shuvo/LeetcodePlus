@@ -137,7 +137,8 @@ fun ProblemDetailsContent(
                         titleSlug,
                         uiState.questionId,
                         snippet.langSlug,
-                        snippet.code
+                        snippet.code,
+                        uiState.codeSnippets
                     )
                 )
             },
