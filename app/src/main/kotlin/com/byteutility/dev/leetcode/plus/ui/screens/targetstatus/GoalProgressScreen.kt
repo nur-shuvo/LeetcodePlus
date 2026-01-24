@@ -8,16 +8,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,16 +41,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.R
@@ -136,32 +139,58 @@ fun ProgressScreenContent(
                 if (uiState.problemsWithStatus.isNotEmpty()) {
                     LazyColumn(
                         modifier = Modifier
-                            .padding(start = 16.dp, end = 16.dp),
+                            .padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(bottom = 16.dp)
+                        contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
                     ) {
                         item {
-                            DateRow(
-                                startDate = uiState.period.startDate,
-                                endDate = uiState.period.endDate
-                            )
+                            ProgressSectionCard(
+                                title = "Goal Period",
+                                icon = Icons.Default.DateRange
+                            ) {
+                                DateRow(
+                                    startDate = uiState.period.startDate,
+                                    endDate = uiState.period.endDate
+                                )
+                            }
                         }
-                        items(uiState.problemsWithStatus) {
-                            ProblemCard(it, onNavigateToProblemDetails)
+                        item {
+                            ProgressSectionCard(
+                                title = "Problems (${uiState.problemsWithStatus.size})",
+                                icon = Icons.Default.Assignment
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    uiState.problemsWithStatus.forEach { problemStatus ->
+                                        ProblemCard(problemStatus, onNavigateToProblemDetails)
+                                    }
+                                }
+                            }
                         }
                     }
                 } else {
-                    Text(
-                        "Set a goal to see your progress",
-                        style = TextStyle(
-                            color = Color.Gray,
-                            fontSize = 12.sp,
-                            textAlign = TextAlign.Center
-                        ),
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.Center),
-                    )
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Assignment,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = Color.LightGray
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "Set a goal to see your progress",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
             AdBannerAdaptive(modifier = Modifier.fillMaxWidth())
@@ -177,86 +206,133 @@ fun ProblemCard(
     val backgroundColor = when (problemStatus.status) {
         "Completed" -> Color(0xFFE8F5E9)
         "In Progress" -> Color(0xFFFFF8E1)
-        else -> Color(0xFFF3E5F5)
+        else -> Color(0xFFF5F5F5)
     }
 
     val statusColor = when (problemStatus.status) {
         "Completed" -> Color(0xFF4CAF50)
         "In Progress" -> Color(0xFFFFA000)
-        else -> Color(0xFF9C27B0)
+        else -> Color(0xFF757575)
     }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = backgroundColor
-        ),
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
-                .clickable {
-                    onNavigateToProblemDetails.invoke(problemStatus.titleSlug)
-                }
+                .clickable { onNavigateToProblemDetails(problemStatus.titleSlug) }
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
                     text = problemStatus.title,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Status: ${problemStatus.status}",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = problemStatus.status,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
                         color = statusColor
                     )
                     Text(
-                        text = "Attempts Count: ${problemStatus.attemptsCount}",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = Color.DarkGray
+                        text = "${problemStatus.attemptsCount} attempts",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            if (problemStatus.status == "In Progress" || problemStatus.status == "Not Started") {
-                Image(
-                    modifier = Modifier
-                        .size(38.dp),
-                    painter = painterResource(R.drawable.baseline_pending_24),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(statusColor)
-                )
-            } else {
+            if (problemStatus.status == "Completed") {
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(28.dp)
                         .background(Color(0xFF4CAF50), shape = CircleShape)
                         .clip(CircleShape)
                 ) {
                     Image(
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(28.dp)
                             .align(Alignment.Center),
                         imageVector = done,
                         contentDescription = null,
                         colorFilter = ColorFilter.tint(Color.White)
                     )
                 }
+            } else {
+                Image(
+                    modifier = Modifier.size(28.dp),
+                    painter = painterResource(R.drawable.baseline_pending_24),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(statusColor)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ProgressSectionCard(
+    title: String,
+    icon: ImageVector,
+    content: @Composable () -> Unit
+) {
+    val gradientBrush = Brush.horizontalGradient(
+        colors = listOf(Color(0xFF4CAF50), Color.LightGray)
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(gradientBrush)
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                content()
             }
         }
     }
@@ -265,10 +341,8 @@ fun ProblemCard(
 @Composable
 fun DateRow(startDate: String, endDate: String) {
     Row(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
         DateItem(label = "Start Date", date = startDate)
@@ -281,17 +355,16 @@ fun DateItem(label: String, date: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                color = Color.Gray
-            )
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = date,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
-            )
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
