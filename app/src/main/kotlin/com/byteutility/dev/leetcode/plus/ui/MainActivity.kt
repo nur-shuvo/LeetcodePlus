@@ -2,16 +2,21 @@ package com.byteutility.dev.leetcode.plus.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.util.Consumer
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
@@ -57,6 +62,12 @@ class MainActivity : ComponentActivity() {
             setContent {
                 LeetcodePlusTheme {
                     val navController = rememberNavController()
+                    val context = LocalContext.current
+
+                    LaunchedEffect(Unit) {
+                        val activity = context as ComponentActivity
+                        handleShareIntent(activity.intent, navController)
+                    }
 
                     val startDestination =
                         if (userLoggedIn) {
@@ -71,6 +82,18 @@ class MainActivity : ComponentActivity() {
                         } else {
                             Login
                         }
+
+                    DisposableEffect(Unit) {
+                        val listener = Consumer<Intent> { intent ->
+                            handleShareIntent(intent, navController)
+                        }
+                        (context as ComponentActivity).addOnNewIntentListener(listener)
+                        onDispose {
+                            (context as ComponentActivity).removeOnNewIntentListener(
+                                listener
+                            )
+                        }
+                    }
 
                     LeetCodePlusNavGraph(navController, startDestination)
 
@@ -87,6 +110,16 @@ class MainActivity : ComponentActivity() {
         }
         goalStatusMonitor.start()
         dailyProblemStatusMonitor.start()
+    }
+
+    private fun handleShareIntent(intent: Intent?, navController: NavController) {
+        if (intent?.action == Intent.ACTION_SEND && intent.type == "text/plain") {
+            val url = intent.getStringExtra(Intent.EXTRA_TEXT)
+            val slug = url?.substringAfter("/problems/")?.substringBefore("/")
+            if (!slug.isNullOrEmpty() && url.contains("leetcode.com")) {
+                navController.navigate(ProblemDetails(slug))
+            }
+        }
     }
 
     private fun init() {
