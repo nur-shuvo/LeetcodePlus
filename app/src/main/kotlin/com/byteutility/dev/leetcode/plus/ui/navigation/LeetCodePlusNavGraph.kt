@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.MainScreen
@@ -92,7 +93,16 @@ fun LeetCodePlusNavGraph(
             }
         }
 
-        composable<ProblemDetails> { backstackEntry ->
+        composable<ProblemDetails>(
+            deepLinks = listOf(
+                navDeepLink<ProblemDetails>(
+                    basePath = "https://{sub}.leetcode.com/problems"
+                ),
+                navDeepLink<ProblemDetails>(
+                    basePath = "https://leetcode.com/problems"
+                )
+            )
+        ) { backstackEntry ->
             val problemDetails = backstackEntry.toRoute<ProblemDetails>()
             val titleSlug = problemDetails.titleSlug
             ProblemDetailsScreen(
