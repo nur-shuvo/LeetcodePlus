@@ -76,6 +76,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -226,25 +227,16 @@ fun HomeLayout(
                         })
                 },
                 actions = {
-                    OutlinedButton(
-                        onClick = {
-                            if (uiState.isWeeklyGoalSet) {
-                                onGoalStatus()
-                            } else {
-                                onSetGoal()
-                            }
+                    MainTopActions(
+                        isWeeklyGoalSet = uiState.isWeeklyGoalSet,
+                        avatarUrl = uiState.userBasicInfo.avatar,
+                        onSetGoal = onSetGoal,
+                        onGoalStatus = onGoalStatus,
+                        onLogoutClick = {
+                            showLogoutDialog = true
                         },
-                        modifier = Modifier.padding(end = 12.dp),
-                        border = BorderStroke(1.dp, Color.Gray),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            text = if (uiState.isWeeklyGoalSet) "See Goal Status" else "Set Goal",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                    LogoutButton({ showLogoutDialog = true }, uiState.userBasicInfo.avatar)
+                        modifier = Modifier.testTag("main_top_actions")
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFABDEF5).copy(
@@ -326,6 +318,36 @@ fun HomeLayout(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MainTopActions(
+    isWeeklyGoalSet: Boolean,
+    avatarUrl: String,
+    onSetGoal: () -> Unit,
+    onGoalStatus: () -> Unit,
+    onLogoutClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier) {
+        OutlinedButton(
+            onClick = {
+                if (isWeeklyGoalSet) onGoalStatus() else onSetGoal()
+            },
+            modifier = Modifier
+                .padding(end = 12.dp)
+                .testTag("goal_action_button"),
+            border = BorderStroke(1.dp, Color.Gray),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = if (isWeeklyGoalSet) "See Goal Status" else "Set Goal",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        LogoutButton(onLogoutClick, avatarUrl)
     }
 }
 
