@@ -59,4 +59,32 @@ class HomeScreenTest {
             .performClick()
         assert(statusClicked)
     }
+
+    @Test
+    fun dailyProblemCard_transitionsAndTriggersClick() {
+        var capturedSlug = ""
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.setContent {
+            DailyProblemCard(
+                title = "Two Sum",
+                verdict = "Not Started",
+                titleSlug = "two-sum",
+                difficulty = "Easy",
+                onNavigateToProblemDetails = { capturedSlug = it }
+            )
+        }
+
+        composeTestRule.onNodeWithTag("problem_placeholder").assertIsDisplayed()
+        composeTestRule.mainClock.advanceTimeBy(1100L)
+        composeTestRule.mainClock.advanceTimeByFrame()
+
+        composeTestRule.onNodeWithTag("problem_details_card").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Two Sum").assertIsDisplayed()
+
+        composeTestRule.onNodeWithTag("problem_details_card").performClick()
+
+        assert(capturedSlug == "two-sum")
+    }
 }

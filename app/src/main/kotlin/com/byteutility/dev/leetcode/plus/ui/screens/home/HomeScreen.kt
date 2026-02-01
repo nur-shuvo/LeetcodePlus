@@ -863,6 +863,7 @@ fun ProblemTextPlaceholder(remainingTime: String) {
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .fillMaxWidth()
+            .testTag("problem_placeholder")
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -921,6 +922,7 @@ fun ProblemDetailsCard(
             }
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .fillMaxWidth()
+            .testTag("problem_details_card")
     ) {
         Row(
             modifier = Modifier
