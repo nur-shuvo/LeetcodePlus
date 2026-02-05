@@ -37,7 +37,7 @@ class SetWeeklyTargetViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            problemsList.value = problemsRepository.getProblems(limit = 3000)
+            problemsList.value = problemsRepository.getProblems()
         }
     }
 
