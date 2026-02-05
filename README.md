@@ -6,8 +6,7 @@ Additionally, you can set your own weekly goal through this application and this
     <img src="ss/feature_graphic_1024x500.png" alt="LeetCode Plus Feature Graphic" width="100%"/>
 </p>
 
-Get the APK: https://apkpure.com/leetcode-plus/com.byteutility.dev.leetcode.plus
-
+Get the APK: https://play.google.com/store/apps/details?id=com.byteutility.dev.leetcode.plus
 ## Key Features 🌟
 <img src="ss/leetcode_features.png" alt="Screenshot 1" style="display: block; margin: auto;" />
 
