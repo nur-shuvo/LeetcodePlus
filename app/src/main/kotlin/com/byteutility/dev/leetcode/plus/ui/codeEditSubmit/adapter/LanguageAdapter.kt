@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.byteutility.dev.leetcode.plus.R
-import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.toTitleCase
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
+import com.byteutility.dev.leetcode.plus.utils.toTitleCase
 
 class LanguageAdapter(
     private val dataSet: List<CodeSnippet>,
@@ -28,7 +28,6 @@ class LanguageAdapter(
     override fun getItemCount(): Int {
         return dataSet.size
     }
-
 
     inner class LanguageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvLan = itemView.findViewById<TextView>(R.id.tvLan)

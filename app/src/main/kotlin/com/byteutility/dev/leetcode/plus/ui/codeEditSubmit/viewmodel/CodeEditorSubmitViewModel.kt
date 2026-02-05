@@ -6,8 +6,8 @@ import com.byteutility.dev.leetcode.plus.LeetCodePlusApplication.Companion.appCo
 import com.byteutility.dev.leetcode.plus.data.datastore.CodeHistoryDataStore
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepository
+import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
 import com.byteutility.dev.leetcode.plus.network.responseVo.SubmissionCheckResponse
-import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.utils.PrefKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,6 +31,11 @@ class CodeEditorSubmitViewModel @Inject constructor(
 
     private val _uiEvent: MutableSharedFlow<CodeEditorSubmitUIEvent?> = MutableSharedFlow()
     val uiEvent = _uiEvent.asSharedFlow()
+
+    private var codeSnippet: CodeSnippet? = null
+    fun setCodeSnippet(codeSnippet: CodeSnippet?){
+        this.codeSnippet = codeSnippet
+    }
 
     suspend fun getSavedCode(questionId: String, language: String): String? {
         return codeHistoryDataStore.getCode(questionId, language)
@@ -82,20 +87,8 @@ class CodeEditorSubmitViewModel @Inject constructor(
         }
     }
 
-    fun saveInitialCode(code: String) = viewModelScope.launch {
-        codeHistoryDataStore.saveValue(
-            key = PrefKey.INITIAL_CODE,
-            value = code
-        )
-    }
-
     fun resetCode() = viewModelScope.launch {
-        val code = codeHistoryDataStore.getValue(PrefKey.INITIAL_CODE, "")
-        _uiEvent.emit(CodeEditorSubmitUIEvent.ResetCode(code))
-    }
-
-    fun clearAllLocalData() = viewModelScope.launch {
-        codeHistoryDataStore.clearAll()
+        _uiEvent.emit(CodeEditorSubmitUIEvent.ResetCode(codeSnippet))
     }
 }
 
@@ -108,5 +101,5 @@ sealed class SubmissionState {
 
 sealed interface CodeEditorSubmitUIEvent {
     object NavigateToLeetcodeLogin : CodeEditorSubmitUIEvent
-    data class ResetCode(val initialCode: String?) : CodeEditorSubmitUIEvent
+    data class ResetCode(val codeSnippet: CodeSnippet?) : CodeEditorSubmitUIEvent
 }

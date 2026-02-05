@@ -8,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AlertDialog.Builder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
@@ -17,13 +16,13 @@ import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.MainActivity
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.config.EditorLanguageHelper
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.CustomDialog
-import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.getJsonExtra
-import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.putExtraJson
-import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.toTitleCase
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitUIEvent
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitViewModel
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.SubmissionState
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
+import com.byteutility.dev.leetcode.plus.utils.getJsonExtra
+import com.byteutility.dev.leetcode.plus.utils.putExtraJson
+import com.byteutility.dev.leetcode.plus.utils.toTitleCase
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.launch
@@ -36,7 +35,6 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     private val initialCode by lazy { intent.getStringExtra(EXTRA_INITIAL_CODE) }
     private val questionId by lazy { intent.getStringExtra(EXTRA_QUESTION_ID) }
     private var snippets: List<CodeSnippet>? = null
-
     private val codeEditor by lazy { findViewById<CodeEditor>(R.id.codeEditor) }
     private val submitButton by lazy { findViewById<TextView>(R.id.submit) }
     private val languageButton by lazy { findViewById<TextView>(R.id.language) }
@@ -61,8 +59,6 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     private fun initView() {
         configureEditorLanguage(language)
         setLanguage(language)
-        viewModel.saveInitialCode(initialCode ?: "")
-
         lifecycleScope.launch {
             val savedCode = viewModel.getSavedCode(questionId!!, language!!)
             setCode(savedCode)
@@ -100,8 +96,8 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                         override fun positive(value: CodeSnippet) {
                             configureEditorLanguage(value.langSlug)
                             setLanguage(value.langSlug)
-                            viewModel.saveInitialCode(value.code)
                             setCode(value.code)
+                            viewModel.setCodeSnippet(value)
                         }
                     }
                 )
@@ -133,7 +129,12 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     }
 
                     is CodeEditorSubmitUIEvent.ResetCode -> {
-                        setCode(event.initialCode)
+                       val initialCode =  if (event.codeSnippet == null){
+                            initialCode
+                        }else{
+                            event.codeSnippet.code
+                        }
+                        setCode(initialCode)
                     }
 
                     else -> {}
@@ -160,7 +161,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                             message += "\nCompile error: ${state.response.compileError}"
                         }
 
-                        AlertDialog.Builder(this@CodeEditorSubmitActivity)
+                        Builder(this@CodeEditorSubmitActivity)
                             .setTitle("Submission Result")
                             .setMessage(message)
                             .setPositiveButton("OK") { _, _ ->

@@ -3,10 +3,10 @@ package com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.graphics.drawable.toDrawable
 import androidx.recyclerview.widget.RecyclerView
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.adapter.LanguageAdapter
@@ -20,9 +20,9 @@ class CustomDialog(val context: Context) {
         dataSet: List<CodeSnippet>,
         action: DialogAction<CodeSnippet>
     ) {
-        val view = LayoutInflater.from(context).inflate(R.layout.lan_selection_dialog, null)
+        val view = LayoutInflater.from(context).inflate(R.layout.lan_selection_dialog,null)
         dialog.setContentView(view)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
 
         dialog.window?.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
