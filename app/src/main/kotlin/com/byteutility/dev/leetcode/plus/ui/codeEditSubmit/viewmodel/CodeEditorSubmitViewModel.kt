@@ -6,6 +6,7 @@ import com.byteutility.dev.leetcode.plus.LeetCodePlusApplication.Companion.appCo
 import com.byteutility.dev.leetcode.plus.data.datastore.CodeHistoryDataStore
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepository
+import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
 import com.byteutility.dev.leetcode.plus.network.responseVo.SubmissionCheckResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -30,6 +31,11 @@ class CodeEditorSubmitViewModel @Inject constructor(
 
     private val _uiEvent: MutableSharedFlow<CodeEditorSubmitUIEvent?> = MutableSharedFlow()
     val uiEvent = _uiEvent.asSharedFlow()
+
+    private var codeSnippet: CodeSnippet? = null
+    fun setCodeSnippet(codeSnippet: CodeSnippet?){
+        this.codeSnippet = codeSnippet
+    }
 
     suspend fun getSavedCode(questionId: String, language: String): String? {
         return codeHistoryDataStore.getCode(questionId, language)
@@ -80,6 +86,10 @@ class CodeEditorSubmitViewModel @Inject constructor(
             }
         }
     }
+
+    fun resetCode() = viewModelScope.launch {
+        _uiEvent.emit(CodeEditorSubmitUIEvent.ResetCode(codeSnippet))
+    }
 }
 
 sealed class SubmissionState {
@@ -91,4 +101,5 @@ sealed class SubmissionState {
 
 sealed interface CodeEditorSubmitUIEvent {
     object NavigateToLeetcodeLogin : CodeEditorSubmitUIEvent
+    data class ResetCode(val codeSnippet: CodeSnippet?) : CodeEditorSubmitUIEvent
 }

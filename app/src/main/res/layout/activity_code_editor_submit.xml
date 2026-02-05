@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -12,43 +13,65 @@
         app:behavior_peekHeight="350dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/bg_background_white_12dp"
-            android:orientation="horizontal"
-            android:padding="8dp"
-            android:paddingHorizontal="6dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp">
 
             <Button
                 android:id="@+id/submit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_weight="1"
                 android:background="@drawable/button_rounded"
+                android:ellipsize="end"
                 android:padding="6dp"
                 android:text="Submit"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ivReset"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/ivReset"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/ic_reset"
+                app:layout_constraintBottom_toBottomOf="@id/submit"
+                app:layout_constraintEnd_toStartOf="@+id/language"
+                app:layout_constraintStart_toEndOf="@id/submit"
+                app:layout_constraintTop_toTopOf="@id/submit"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/language"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:padding="4dp"
-                android:text="Lang: Kotlin"
-                android:textAlignment="textEnd"
+                android:layout_marginStart="20dp"
+                android:background="@drawable/bg_lan_text"
+                android:drawableEnd="@drawable/ic_arrow_down"
+                android:drawablePadding="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:padding="8dp"
+                android:textAlignment="center"
                 android:textColor="@color/black"
-                android:textSize="20sp" />
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@id/submit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivReset"
+                app:layout_constraintTop_toTopOf="@id/submit"
+                tools:text="Kotlin" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <io.github.rosemoe.sora.widget.CodeEditor
             android:id="@+id/codeEditor"
