@@ -1,5 +1,7 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.home
 
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -86,5 +88,25 @@ class HomeScreenTest {
         composeTestRule.onNodeWithTag("problem_details_card").performClick()
 
         assert(capturedSlug == "two-sum")
+    }
+
+    @Test
+    fun difficultyText_hasCorrectColorForEasy() {
+        val difficulty = "Easy";
+        val expectedColor = getDifficultyColor(difficulty)
+        composeTestRule.setContent {
+            ProblemDetailsCard(
+                difficulty = difficulty,
+                remainingTime = "12:00:00",
+                title = "Two Sum",
+                titleSlug = "two-sum",
+                verdict = "Not Started",
+                onNavigateToProblemDetails = {}
+            )
+        }
+
+        // Assert color is Green
+        composeTestRule.onNodeWithTag("difficulty_text", useUnmergedTree = true)
+            .assert(SemanticsMatcher.expectValue(DifficultyColorKey, expectedColor))
     }
 }

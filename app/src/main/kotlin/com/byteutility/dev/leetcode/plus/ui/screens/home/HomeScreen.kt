@@ -78,6 +78,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -893,6 +896,9 @@ fun ProblemTextPlaceholder(remainingTime: String) {
     }
 }
 
+val DifficultyColorKey = SemanticsPropertyKey<Color>("DifficultyColor")
+var SemanticsPropertyReceiver.difficultyColor by DifficultyColorKey
+
 @Composable
 fun ProblemDetailsCard(
     title: String,
@@ -951,18 +957,16 @@ fun ProblemDetailsCard(
                 modifier = Modifier.fillMaxWidth(0.25f),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
+                val diffColor = getDifficultyColor(difficulty)
                 Text(
                     text = difficulty,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = when (difficulty) {
-                        "Easy" -> Color(0xFF4CAF50)
-                        "Medium" -> Color(0xFFFFC107)
-
-                        else -> Color(0xFFF44336)
-                    }
+                    modifier = Modifier.fillMaxWidth()
+                        .semantics { difficultyColor = diffColor }
+                        .testTag("difficulty_text"),
+                    color = diffColor
                 )
                 Text(
                     text = remainingTime,
@@ -971,6 +975,12 @@ fun ProblemDetailsCard(
             }
         }
     }
+}
+
+fun getDifficultyColor(difficulty: String): Color = when (difficulty) {
+    "Easy" -> Color(0xFF4CAF50)
+    "Medium" -> Color(0xFFFFC107)
+    else -> Color(0xFFF44336)
 }
 
 @Composable
