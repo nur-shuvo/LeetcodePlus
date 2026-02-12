@@ -76,7 +76,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -226,25 +230,16 @@ fun HomeLayout(
                         })
                 },
                 actions = {
-                    OutlinedButton(
-                        onClick = {
-                            if (uiState.isWeeklyGoalSet) {
-                                onGoalStatus()
-                            } else {
-                                onSetGoal()
-                            }
+                    MainTopActions(
+                        isWeeklyGoalSet = uiState.isWeeklyGoalSet,
+                        avatarUrl = uiState.userBasicInfo.avatar,
+                        onSetGoal = onSetGoal,
+                        onGoalStatus = onGoalStatus,
+                        onLogoutClick = {
+                            showLogoutDialog = true
                         },
-                        modifier = Modifier.padding(end = 12.dp),
-                        border = BorderStroke(1.dp, Color.Gray),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            text = if (uiState.isWeeklyGoalSet) "See Goal Status" else "Set Goal",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                    LogoutButton({ showLogoutDialog = true }, uiState.userBasicInfo.avatar)
+                        modifier = Modifier.testTag("main_top_actions")
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFABDEF5).copy(
@@ -326,6 +321,36 @@ fun HomeLayout(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MainTopActions(
+    isWeeklyGoalSet: Boolean,
+    avatarUrl: String,
+    onSetGoal: () -> Unit,
+    onGoalStatus: () -> Unit,
+    onLogoutClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier) {
+        OutlinedButton(
+            onClick = {
+                if (isWeeklyGoalSet) onGoalStatus() else onSetGoal()
+            },
+            modifier = Modifier
+                .padding(end = 12.dp)
+                .testTag("goal_action_button"),
+            border = BorderStroke(1.dp, Color.Gray),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = if (isWeeklyGoalSet) "See Goal Status" else "Set Goal",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        LogoutButton(onLogoutClick, avatarUrl)
     }
 }
 
@@ -841,6 +866,7 @@ fun ProblemTextPlaceholder(remainingTime: String) {
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .fillMaxWidth()
+            .testTag("problem_placeholder")
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -869,6 +895,9 @@ fun ProblemTextPlaceholder(remainingTime: String) {
         }
     }
 }
+
+val DifficultyColorKey = SemanticsPropertyKey<Color>("DifficultyColor")
+var SemanticsPropertyReceiver.difficultyColor by DifficultyColorKey
 
 @Composable
 fun ProblemDetailsCard(
@@ -899,6 +928,7 @@ fun ProblemDetailsCard(
             }
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .fillMaxWidth()
+            .testTag("problem_details_card")
     ) {
         Row(
             modifier = Modifier
@@ -927,18 +957,16 @@ fun ProblemDetailsCard(
                 modifier = Modifier.fillMaxWidth(0.25f),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
+                val diffColor = getDifficultyColor(difficulty)
                 Text(
                     text = difficulty,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = when (difficulty) {
-                        "Easy" -> Color(0xFF4CAF50)
-                        "Medium" -> Color(0xFFFFC107)
-
-                        else -> Color(0xFFF44336)
-                    }
+                    modifier = Modifier.fillMaxWidth()
+                        .semantics { difficultyColor = diffColor }
+                        .testTag("difficulty_text"),
+                    color = diffColor
                 )
                 Text(
                     text = remainingTime,
@@ -947,6 +975,12 @@ fun ProblemDetailsCard(
             }
         }
     }
+}
+
+fun getDifficultyColor(difficulty: String): Color = when (difficulty) {
+    "Easy" -> Color(0xFF4CAF50)
+    "Medium" -> Color(0xFFFFC107)
+    else -> Color(0xFFF44336)
 }
 
 @Composable
