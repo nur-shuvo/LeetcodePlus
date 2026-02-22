@@ -31,7 +31,8 @@ import kotlinx.coroutines.launch
 class CodeEditorSubmitActivity : AppCompatActivity() {
 
     private val titleSlug by lazy { intent.getStringExtra(EXTRA_TITLE_SLUG) }
-    private val language by lazy { intent.getStringExtra(EXTRA_LANGUAGE) }
+    private val language by lazy { intent.getStringExtra(EXTRA_LANGUAGE_SLUG) }
+    private val selectedLanguage by lazy { intent.getStringExtra(SELECTED_LANGUAGE) }
     private val initialCode by lazy { intent.getStringExtra(EXTRA_INITIAL_CODE) }
     private val questionId by lazy { intent.getStringExtra(EXTRA_QUESTION_ID) }
     private var snippets: List<CodeSnippet>? = null
@@ -59,7 +60,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     private fun initView() {
         viewModel.setCodeSnippet(CodeSnippet(lang = language!!, langSlug = language!!, code = initialCode!!))
         configureEditorLanguage(language)
-        setLanguage(language)
+        setLanguage(selectedLanguage)
         setCode(language,initialCode)
     }
 
@@ -94,7 +95,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             snippets?.let { snippets ->
                 LanguageBottomSheetDialog.newInstance(snippets) { selectedSnippet ->
                     configureEditorLanguage(selectedSnippet.langSlug)
-                    setLanguage(selectedSnippet.langSlug)
+                    setLanguage(selectedSnippet.lang)
                     setCode(selectedSnippet.langSlug,selectedSnippet.code)
                     viewModel.setCodeSnippet(selectedSnippet)
                 }.show(supportFragmentManager, "LanguageBottomSheet")
@@ -201,24 +202,26 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_TITLE_SLUG = "titleSlug"
-        const val EXTRA_LANGUAGE = "language"
+        const val EXTRA_LANGUAGE_SLUG = "languageSlug"
         const val EXTRA_INITIAL_CODE = "initialCode"
         const val EXTRA_QUESTION_ID = "questionId"
         const val EXTRA_ALL_LANGUAGES = "EXTRA_ALL_LANGUAGES"
-
+        const val SELECTED_LANGUAGE = "SELECTED_LANGUAGE"
         fun getIntent(
             context: Context,
             titleSlug: String,
             questionId: String,
-            language: String? = null,
+            langSlug: String? = null,
             initialCode: String? = null,
+            selectedLanguage: String?,
             allLanguages: List<CodeSnippet>
         ): Intent {
             return Intent(context, CodeEditorSubmitActivity::class.java).apply {
                 putExtra(EXTRA_TITLE_SLUG, titleSlug)
                 putExtra(EXTRA_QUESTION_ID, questionId)
-                putExtra(EXTRA_LANGUAGE, language)
+                putExtra(EXTRA_LANGUAGE_SLUG, langSlug)
                 putExtra(EXTRA_INITIAL_CODE, initialCode)
+                putExtra(SELECTED_LANGUAGE,selectedLanguage)
                 putExtraJson(EXTRA_ALL_LANGUAGES, allLanguages)
             }
         }

@@ -156,6 +156,7 @@ fun ProblemDetailsScreen(
                             uiState.questionId,
                             snippet.langSlug,
                             snippet.code,
+                            snippet.lang,
                             uiState.codeSnippets
                         )
                     )
