@@ -135,7 +135,7 @@ fun ProblemDetailsScreen(
                         Text(
                             text = "Code and Submit",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = Bold
                         )
                     }
                 }
@@ -155,7 +155,9 @@ fun ProblemDetailsScreen(
                             titleSlug,
                             uiState.questionId,
                             snippet.langSlug,
-                            snippet.code
+                            snippet.code,
+                            snippet.lang,
+                            uiState.codeSnippets
                         )
                     )
                 },
@@ -343,7 +345,7 @@ fun ConnectionVerifyBanner(
                     text = "Verify connection",
                     style = MaterialTheme.typography.labelLarge,
                     color = brandGreen,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = Bold
                 )
             }
         }
@@ -382,7 +384,7 @@ fun ProblemHeader(uiState: ProblemDetailsUiState) {
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.labelLarge,
                     color = difficultyColor,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = Bold
                 )
             }
 
@@ -435,7 +437,7 @@ fun LanguageSelectionSheet(
             Text(
                 text = "Select Language",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                fontWeight = Bold,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
             )
 
