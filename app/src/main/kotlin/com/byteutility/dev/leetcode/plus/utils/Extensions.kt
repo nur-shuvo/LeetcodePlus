@@ -95,3 +95,4 @@ fun String.toTitleCase(): String {
         word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
     }
 }
+

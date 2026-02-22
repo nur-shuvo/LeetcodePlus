@@ -58,10 +58,16 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        viewModel.setCodeSnippet(CodeSnippet(lang = language!!, langSlug = language!!, code = initialCode!!))
+        viewModel.setCodeSnippet(
+            CodeSnippet(
+                lang = language!!,
+                langSlug = language!!,
+                code = initialCode!!
+            )
+        )
         configureEditorLanguage(language)
         setLanguage(selectedLanguage)
-        setCode(language,initialCode)
+        setCode(language, initialCode)
     }
 
     private fun setLanguage(lan: String?) {
@@ -69,7 +75,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             HtmlCompat.fromHtml("${lan?.toTitleCase()}", HtmlCompat.FROM_HTML_MODE_LEGACY)
     }
 
-    private fun setCode(language: String?,initialCode: String?) {
+    private fun setCode(language: String?, initialCode: String?) {
         lifecycleScope.launch {
             val savedCode = viewModel.getSavedCode(questionId!!, language!!)
             val code = savedCode ?: initialCode
@@ -96,7 +102,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                 LanguageBottomSheetDialog.newInstance(snippets) { selectedSnippet ->
                     configureEditorLanguage(selectedSnippet.langSlug)
                     setLanguage(selectedSnippet.lang)
-                    setCode(selectedSnippet.langSlug,selectedSnippet.code)
+                    setCode(selectedSnippet.langSlug, selectedSnippet.code)
                     viewModel.setCodeSnippet(selectedSnippet)
                 }.show(supportFragmentManager, "LanguageBottomSheet")
             }
