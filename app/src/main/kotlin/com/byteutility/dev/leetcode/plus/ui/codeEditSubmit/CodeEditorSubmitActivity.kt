@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.MainActivity
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.config.EditorLanguageHelper
-import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.CustomDialog
+import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.LanguageBottomSheetDialog
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitUIEvent
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitViewModel
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.SubmissionState
@@ -57,12 +57,10 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     }
 
     private fun initView() {
+        viewModel.setCodeSnippet(CodeSnippet(lang = language!!, langSlug = language!!, code = initialCode!!))
         configureEditorLanguage(language)
         setLanguage(language)
-        lifecycleScope.launch {
-            val savedCode = viewModel.getSavedCode(questionId!!, language!!)
-            setCode(savedCode)
-        }
+        setCode(language,initialCode)
     }
 
     private fun setLanguage(lan: String?) {
@@ -70,8 +68,12 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             HtmlCompat.fromHtml("${lan?.toTitleCase()}", HtmlCompat.FROM_HTML_MODE_LEGACY)
     }
 
-    private fun setCode(savedCode: String?) {
-        codeEditor.setText(savedCode ?: initialCode)
+    private fun setCode(language: String?,initialCode: String?) {
+        lifecycleScope.launch {
+            val savedCode = viewModel.getSavedCode(questionId!!, language!!)
+            val code = savedCode ?: initialCode
+            codeEditor.setText(code)
+        }
     }
 
     private fun initListener() {
@@ -89,18 +91,13 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         }
 
         languageButton.setOnClickListener {
-            snippets?.let {
-                CustomDialog(this).showLanSelectionDialog(
-                    dataSet = it,
-                    action = object : CustomDialog.DialogAction<CodeSnippet> {
-                        override fun positive(value: CodeSnippet) {
-                            configureEditorLanguage(value.langSlug)
-                            setLanguage(value.langSlug)
-                            setCode(value.code)
-                            viewModel.setCodeSnippet(value)
-                        }
-                    }
-                )
+            snippets?.let { snippets ->
+                LanguageBottomSheetDialog.newInstance(snippets) { selectedSnippet ->
+                    configureEditorLanguage(selectedSnippet.langSlug)
+                    setLanguage(selectedSnippet.langSlug)
+                    setCode(selectedSnippet.langSlug,selectedSnippet.code)
+                    viewModel.setCodeSnippet(selectedSnippet)
+                }.show(supportFragmentManager, "LanguageBottomSheet")
             }
         }
     }
@@ -129,12 +126,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     }
 
                     is CodeEditorSubmitUIEvent.ResetCode -> {
-                       val initialCode =  if (event.codeSnippet == null){
-                            initialCode
-                        }else{
-                            event.codeSnippet.code
-                        }
-                        setCode(initialCode)
+                        codeEditor.setText(event.codeSnippet?.code)
                     }
 
                     else -> {}

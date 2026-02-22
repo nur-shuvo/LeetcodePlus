@@ -7,41 +7,36 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
-import com.byteutility.dev.leetcode.plus.utils.toTitleCase
 
 class LanguageAdapter(
-    private val dataSet: List<CodeSnippet>,
-    private val listener: OnClickListener
-) :
-    RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder>() {
+    private val languages: List<CodeSnippet>,
+    private val onItemClick: (CodeSnippet) -> Unit
+) : RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_language, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_language, parent, false)
         return LanguageViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: LanguageViewHolder, position: Int) {
-        val data = dataSet[position]
-        holder.bind(data)
+        holder.bind(languages[position], position == languages.size - 1)
     }
 
-    override fun getItemCount(): Int {
-        return dataSet.size
-    }
+    override fun getItemCount(): Int = languages.size
 
     inner class LanguageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvLan = itemView.findViewById<TextView>(R.id.tvLan)
 
-        fun bind(value: CodeSnippet) {
-            tvLan.text = value.lang.toTitleCase()
+        private val tvLanguageName: TextView = itemView.findViewById(R.id.tvLanguageName)
+        private val itemContainer: View = itemView.findViewById(R.id.itemContainer)
+        private val divider: View = itemView.findViewById(R.id.divider)
 
-            tvLan.setOnClickListener {
-                listener.onClick(value)
+        fun bind(snippet: CodeSnippet, isLastItem: Boolean) {
+            tvLanguageName.text = snippet.lang
+            itemContainer.setOnClickListener {
+                onItemClick(snippet)
             }
+            divider.visibility = if (isLastItem) View.GONE else View.VISIBLE
         }
-    }
-
-    interface OnClickListener {
-        fun onClick(value: CodeSnippet)
     }
 }
