@@ -4,9 +4,15 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.core.content.getSystemService
+import com.byteutility.dev.leetcode.plus.BuildConfig
+import com.byteutility.dev.leetcode.plus.ui.networkmonitor.NetworkMonitorActivity
+import com.byteutility.dev.leetcode.plus.ui.networkmonitor.ShakeDetector
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
@@ -46,6 +52,9 @@ class MainActivity : ComponentActivity() {
 
     private var extraStartDestination: String? = null
     private var dailyProblemTitleSlug: String? = null
+
+    private lateinit var sensorManager: SensorManager
+    private lateinit var shakeDetector: ShakeDetector
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -110,6 +119,32 @@ class MainActivity : ComponentActivity() {
         }
         goalStatusMonitor.start()
         dailyProblemStatusMonitor.start()
+        initShakeDetector()
+    }
+
+    private fun initShakeDetector() {
+        sensorManager = getSystemService()!!
+        shakeDetector = ShakeDetector {
+            startActivity(Intent(this, NetworkMonitorActivity::class.java))
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (BuildConfig.DEBUG) {
+            sensorManager.registerListener(
+                shakeDetector,
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_UI,
+            )
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (BuildConfig.DEBUG) {
+            sensorManager.unregisterListener(shakeDetector)
+        }
     }
 
     private fun handleShareIntent(intent: Intent?, navController: NavController) {

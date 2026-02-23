@@ -4,6 +4,7 @@ import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import com.byteutility.dev.leetcode.plus.network.converter.JsonOrXmlConverter
 import com.byteutility.dev.leetcode.plus.network.interceptor.HttpHeaderInterceptor
+import com.byteutility.dev.leetcode.plus.network.interceptor.NetworkLogInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,7 +32,8 @@ object RestApiModule {
     @Provides
     fun providesOkHttpClient(
         httpHeaderInterceptor: HttpHeaderInterceptor,
-        httpLoggingInterceptor: HttpLoggingInterceptor
+        httpLoggingInterceptor: HttpLoggingInterceptor,
+        networkLogInterceptor: NetworkLogInterceptor,
     ): OkHttpClient {
         return OkHttpClient
             .Builder()
@@ -39,6 +41,7 @@ object RestApiModule {
             .readTimeout(READ_TIME, TimeUnit.SECONDS)
             .writeTimeout(WRITE_TIME, TimeUnit.SECONDS)
             .addInterceptor(httpHeaderInterceptor)
+            .addInterceptor(networkLogInterceptor)
             .addInterceptor(httpLoggingInterceptor)
             .build()
     }
