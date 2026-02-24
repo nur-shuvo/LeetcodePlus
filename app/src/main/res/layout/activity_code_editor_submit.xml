@@ -16,7 +16,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/bg_background_white_12dp"
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp">
@@ -27,7 +27,6 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_run_button"
                 android:ellipsize="end"
-                android:padding="6dp"
                 android:text="Run"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
@@ -37,7 +36,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/submit"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.3" />
+                app:layout_constraintWidth_percent="0.15" />
 
             <Button
                 android:id="@+id/submit"
@@ -75,7 +74,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:background="@drawable/bg_lan_text"
-                android:drawableEnd="@drawable/ic_arrow_down"
                 android:drawablePadding="8dp"
                 android:ellipsize="end"
                 android:maxLines="1"
@@ -83,6 +81,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="18sp"
+                app:drawableEndCompat="@drawable/ic_arrow_down"
                 app:layout_constraintBottom_toBottomOf="@id/submit"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivReset"
@@ -95,7 +94,7 @@
             android:id="@+id/codeEditor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="6dp"
+            android:padding="8dp"
             app:autoCompleteEnabled="true"
             app:highlightBracketPair="true"
             app:text=""
