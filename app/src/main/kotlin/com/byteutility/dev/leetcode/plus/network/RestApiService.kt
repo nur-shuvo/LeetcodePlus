@@ -3,11 +3,14 @@ package com.byteutility.dev.leetcode.plus.network
 import com.byteutility.dev.leetcode.plus.network.annotation.Format
 import com.byteutility.dev.leetcode.plus.network.annotation.RequestFormat
 import com.byteutility.dev.leetcode.plus.network.annotation.ResponseFormat
+import com.byteutility.dev.leetcode.plus.network.requestVO.InterpretSolutionRequest
 import com.byteutility.dev.leetcode.plus.network.requestVO.ProblemSubmitRequest
 import com.byteutility.dev.leetcode.plus.network.responseVo.DailyQuestionResponse
+import com.byteutility.dev.leetcode.plus.network.responseVo.InterpretSolutionResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetCodeQuestionResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetcodeUpcomingContestsResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.ProblemSetResponseVo
+import com.byteutility.dev.leetcode.plus.network.responseVo.RunCodeCheckResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.SubmissionCheckResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.SubmitLeetcodeProblemResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserContestVo
@@ -96,4 +99,23 @@ interface RestApiService {
         @Header("x-csrftoken") csrfToken: String,
         @Header("Cookie") cookie: String,
     ): SubmissionCheckResponse
+
+    @ResponseFormat(Format.JSON)
+    @RequestFormat(Format.JSON)
+    @POST("https://leetcode.com/problems/{titleSlug}/interpret_solution/")
+    suspend fun interpretSolution(
+        @Path("titleSlug") titleSlug: String,
+        @Header("x-csrftoken") csrfToken: String,
+        @Header("Cookie") cookie: String,
+        @Body request: InterpretSolutionRequest,
+        @Header("Referer") referer: String = "https://leetcode.com/problems/$titleSlug/",
+    ): InterpretSolutionResponse
+
+    @ResponseFormat(Format.JSON)
+    @GET("https://leetcode.com/submissions/detail/{interpretId}/check/")
+    suspend fun getRunCodeResult(
+        @Path("interpretId") interpretId: String,
+        @Header("x-csrftoken") csrfToken: String,
+        @Header("Cookie") cookie: String,
+    ): RunCodeCheckResponse
 }

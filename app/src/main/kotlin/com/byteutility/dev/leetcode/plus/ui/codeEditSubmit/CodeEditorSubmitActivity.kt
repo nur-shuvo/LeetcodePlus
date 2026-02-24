@@ -4,10 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AlertDialog.Builder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
@@ -18,6 +22,7 @@ import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.config.EditorLanguage
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.utils.LanguageBottomSheetDialog
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitUIEvent
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.CodeEditorSubmitViewModel
+import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.RunCodeState
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.viewmodel.SubmissionState
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
 import com.byteutility.dev.leetcode.plus.utils.getJsonExtra
@@ -35,11 +40,15 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     private val selectedLanguage by lazy { intent.getStringExtra(SELECTED_LANGUAGE) }
     private val initialCode by lazy { intent.getStringExtra(EXTRA_INITIAL_CODE) }
     private val questionId by lazy { intent.getStringExtra(EXTRA_QUESTION_ID) }
+    private val testCasesExtra by lazy { intent.getStringExtra(EXTRA_TEST_CASES) }
     private var snippets: List<CodeSnippet>? = null
     private val codeEditor by lazy { findViewById<CodeEditor>(R.id.codeEditor) }
     private val submitButton by lazy { findViewById<TextView>(R.id.submit) }
+    private val runButton by lazy { findViewById<Button>(R.id.btnRun) }
     private val languageButton by lazy { findViewById<TextView>(R.id.language) }
     private val resetBtn by lazy { findViewById<ImageView>(R.id.ivReset) }
+
+    private var runProgressDialog: AlertDialog? = null
 
     private val viewModel: CodeEditorSubmitViewModel by viewModels()
 
@@ -50,6 +59,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         initView()
         initListener()
         collectSubmissionResult()
+        collectRunCodeResult()
         collectUiEvent()
     }
 
@@ -90,6 +100,16 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                 language!!,
                 codeEditor.text.toString(),
                 questionId!!
+            )
+        }
+
+        runButton.setOnClickListener {
+            viewModel.runCode(
+                titleSlug!!,
+                language!!,
+                codeEditor.text.toString(),
+                questionId!!,
+                testCasesExtra ?: ""
             )
         }
 
@@ -185,6 +205,51 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         }
     }
 
+    private fun buildRunProgressDialog(): AlertDialog {
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_run_progress, null)
+        return Builder(this)
+            .setView(view)
+            .setCancelable(false)
+            .create()
+    }
+
+    private fun collectRunCodeResult() {
+        lifecycleScope.launch {
+            viewModel.runCodeState.collect { state ->
+                when (state) {
+                    is RunCodeState.Running -> {
+                        runButton.isEnabled = false
+                        runProgressDialog = buildRunProgressDialog()
+                        runProgressDialog?.show()
+                    }
+
+                    is RunCodeState.Success -> {
+                        runProgressDialog?.dismiss()
+                        runProgressDialog = null
+                        runButton.isEnabled = true
+                        RunCodeResultBottomSheet.newInstance(state.response, state.dataInput)
+                            .show(supportFragmentManager, "RunCodeResult")
+                    }
+
+                    is RunCodeState.Error -> {
+                        runProgressDialog?.dismiss()
+                        runProgressDialog = null
+                        runButton.isEnabled = true
+                        Toast.makeText(
+                            this@CodeEditorSubmitActivity,
+                            "${state.exception}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    is RunCodeState.Idle -> {
+                        runButton.isEnabled = true
+                    }
+                }
+            }
+        }
+    }
+
     private fun configureEditorLanguage(lan: String?) {
         lan?.let { lang ->
             val success = EditorLanguageHelper.configureEditor(codeEditor, lang)
@@ -203,6 +268,8 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        runProgressDialog?.dismiss()
+        runProgressDialog = null
         codeEditor.release()
     }
 
@@ -213,6 +280,8 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         const val EXTRA_QUESTION_ID = "questionId"
         const val EXTRA_ALL_LANGUAGES = "EXTRA_ALL_LANGUAGES"
         const val SELECTED_LANGUAGE = "SELECTED_LANGUAGE"
+        const val EXTRA_TEST_CASES = "EXTRA_TEST_CASES"
+
         fun getIntent(
             context: Context,
             titleSlug: String,
@@ -220,15 +289,17 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             langSlug: String? = null,
             initialCode: String? = null,
             selectedLanguage: String?,
-            allLanguages: List<CodeSnippet>
+            allLanguages: List<CodeSnippet>,
+            testCases: String? = null
         ): Intent {
             return Intent(context, CodeEditorSubmitActivity::class.java).apply {
                 putExtra(EXTRA_TITLE_SLUG, titleSlug)
                 putExtra(EXTRA_QUESTION_ID, questionId)
                 putExtra(EXTRA_LANGUAGE_SLUG, langSlug)
                 putExtra(EXTRA_INITIAL_CODE, initialCode)
-                putExtra(SELECTED_LANGUAGE,selectedLanguage)
+                putExtra(SELECTED_LANGUAGE, selectedLanguage)
                 putExtraJson(EXTRA_ALL_LANGUAGES, allLanguages)
+                putExtra(EXTRA_TEST_CASES, testCases)
             }
         }
     }

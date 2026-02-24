@@ -9,5 +9,6 @@ data class ProblemDetailsUiState(
     val codeSnippets: List<CodeSnippet> = emptyList(),
     val isPremiumContent: Boolean = false,
     val isLoading: Boolean = true,
-    val error: String? = null
+    val error: String? = null,
+    val exampleTestcases: String = ""
 )

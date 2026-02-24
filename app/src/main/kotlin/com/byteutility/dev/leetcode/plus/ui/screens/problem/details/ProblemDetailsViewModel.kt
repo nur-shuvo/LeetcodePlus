@@ -48,7 +48,8 @@ class ProblemDetailsViewModel @Inject constructor(
                             )
                         } ?: emptyList(),
                         isPremiumContent = result.question.content == null && result.question.codeSnippets == null && result.question.isPaidOnly,
-                        isLoading = false
+                        isLoading = false,
+                        exampleTestcases = result.question.exampleTestcases
                     )
                 }
             } catch (e: Exception) {

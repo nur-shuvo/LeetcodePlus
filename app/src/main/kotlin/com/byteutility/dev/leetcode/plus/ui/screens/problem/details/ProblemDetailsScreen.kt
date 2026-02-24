@@ -157,7 +157,8 @@ fun ProblemDetailsScreen(
                             snippet.langSlug,
                             snippet.code,
                             snippet.lang,
-                            uiState.codeSnippets
+                            uiState.codeSnippets,
+                            uiState.exampleTestcases.takeIf { it.isNotBlank() }
                         )
                     )
                 },

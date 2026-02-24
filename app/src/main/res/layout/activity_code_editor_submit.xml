@@ -16,15 +16,34 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:background="@drawable/bg_background_white_12dp"
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp">
 
             <Button
+                android:id="@+id/btnRun"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_run_button"
+                android:ellipsize="end"
+                android:padding="6dp"
+                android:text="Run"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/submit"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.3" />
+
+            <Button
                 android:id="@+id/submit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/button_rounded"
                 android:ellipsize="end"
                 android:padding="6dp"
@@ -35,15 +54,14 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/ivReset"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnRun"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/ivReset"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="12dp"
                 android:src="@drawable/ic_reset"
                 app:layout_constraintBottom_toBottomOf="@id/submit"
                 app:layout_constraintEnd_toStartOf="@+id/language"
@@ -55,7 +73,7 @@
                 android:id="@+id/language"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="12dp"
                 android:background="@drawable/bg_lan_text"
                 android:drawableEnd="@drawable/ic_arrow_down"
                 android:drawablePadding="8dp"
@@ -82,7 +100,6 @@
             app:highlightBracketPair="true"
             app:text=""
             app:textSize="18sp" />
-
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
