@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AlertDialog.Builder
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
@@ -95,12 +96,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     private fun initListener() {
         submitButton.setOnClickListener {
-            viewModel.submit(
-                titleSlug!!,
-                language!!,
-                codeEditor.text.toString(),
-                questionId!!
-            )
+            showSubmitConfirmation()
         }
 
         runButton.setOnClickListener {
@@ -127,6 +123,18 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                 }.show(supportFragmentManager, "LanguageBottomSheet")
             }
         }
+    }
+
+    private fun showSubmitConfirmation() {
+        val sheet = BottomSheetDialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_submit_confirm, null)
+        sheet.setContentView(view)
+        view.findViewById<Button>(R.id.btnCancel).setOnClickListener { sheet.dismiss() }
+        view.findViewById<Button>(R.id.btnConfirmSubmit).setOnClickListener {
+            sheet.dismiss()
+            viewModel.submit(titleSlug!!, language!!, codeEditor.text.toString(), questionId!!)
+        }
+        sheet.show()
     }
 
     private fun collectUiEvent() {
