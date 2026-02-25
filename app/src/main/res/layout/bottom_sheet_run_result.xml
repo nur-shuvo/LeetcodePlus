@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Status header -->
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="6dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:background="@drawable/bg_status_chip" />
+
+    <!-- Compile error section -->
+    <LinearLayout
+        android:id="@+id/layoutCompileError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Compile Error"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#FF2D55"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvCompileError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            android:textColor="?android:attr/textColorPrimary"
+            android:background="@drawable/bg_code_block"
+            android:padding="8dp" />
+    </LinearLayout>
+
+    <!-- Runtime error section -->
+    <LinearLayout
+        android:id="@+id/layoutRuntimeError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Runtime Error"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#FF2D55"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvRuntimeError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            android:textColor="?android:attr/textColorPrimary"
+            android:background="@drawable/bg_code_block"
+            android:padding="8dp" />
+    </LinearLayout>
+
+    <!-- TLE section -->
+    <TextView
+        android:id="@+id/tvTle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Time Limit Exceeded"
+        android:textSize="14sp"
+        android:textColor="#FF2D55"
+        android:layout_marginBottom="12dp"
+        android:visibility="gone" />
+
+    <!-- Per-test-case results container (scrollable) -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/layoutTestCases"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+    <!-- Summary row -->
+    <LinearLayout
+        android:id="@+id/layoutSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="12dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#1A000000"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvRuntimeMemory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="?android:attr/textColorSecondary" />
+    </LinearLayout>
+
+</LinearLayout>

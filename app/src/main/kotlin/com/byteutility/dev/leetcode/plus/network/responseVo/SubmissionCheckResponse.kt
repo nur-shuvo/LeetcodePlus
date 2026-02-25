@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class SubmissionCheckResponse(
     @SerializedName("status_msg")
     val statusMessage: String,
+    @SerializedName("state")
     val state: String,
     @SerializedName("compile_error")
     val compileError: String? = null,

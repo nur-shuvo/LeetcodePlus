@@ -7,6 +7,7 @@ import com.byteutility.dev.leetcode.plus.data.datastore.CodeHistoryDataStore
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepository
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
+import com.byteutility.dev.leetcode.plus.network.responseVo.RunCodeCheckResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.SubmissionCheckResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -28,6 +29,9 @@ class CodeEditorSubmitViewModel @Inject constructor(
 
     private val _submissionState = MutableStateFlow<SubmissionState>(SubmissionState.Idle)
     val submissionState: StateFlow<SubmissionState> = _submissionState
+
+    private val _runCodeState = MutableStateFlow<RunCodeState>(RunCodeState.Idle)
+    val runCodeState: StateFlow<RunCodeState> = _runCodeState
 
     private val _uiEvent: MutableSharedFlow<CodeEditorSubmitUIEvent?> = MutableSharedFlow()
     val uiEvent = _uiEvent.asSharedFlow()
@@ -87,6 +91,42 @@ class CodeEditorSubmitViewModel @Inject constructor(
         }
     }
 
+    fun runCode(titleSlug: String, language: String, code: String, questionId: String, testCases: String) {
+        viewModelScope.launch {
+            if (getCsrfToken().isNullOrEmpty() || getSessionToken().isNullOrEmpty()) {
+                _uiEvent.emit(CodeEditorSubmitUIEvent.NavigateToLeetcodeLogin)
+                return@launch
+            }
+            _runCodeState.value = RunCodeState.Running
+            try {
+                val result = codeEditorSubmitRepository.interpretSolution(titleSlug, language, code, questionId, testCases)
+                pollForRunCodeResult(result.interpretId, testCases)
+            } catch (e: Exception) {
+                _runCodeState.value = RunCodeState.Error(e)
+            }
+        }
+    }
+
+    private fun pollForRunCodeResult(interpretId: String, dataInput: String) {
+        viewModelScope.launch {
+            var shouldContinuePolling = true
+
+            while (isActive && shouldContinuePolling) {
+                delay(1.seconds)
+                try {
+                    val result = codeEditorSubmitRepository.getRunCodeResult(interpretId)
+                    if (result.state == "SUCCESS") {
+                        _runCodeState.value = RunCodeState.Success(result, dataInput)
+                        shouldContinuePolling = false
+                    }
+                } catch (e: Exception) {
+                    _runCodeState.value = RunCodeState.Error(e)
+                    shouldContinuePolling = false
+                }
+            }
+        }
+    }
+
     fun resetCode() = viewModelScope.launch {
         _uiEvent.emit(CodeEditorSubmitUIEvent.ResetCode(codeSnippet))
     }
@@ -97,6 +137,13 @@ sealed class SubmissionState {
     object Submitting : SubmissionState()
     data class Success(val response: SubmissionCheckResponse) : SubmissionState()
     data class Error(val exception: Exception) : SubmissionState()
+}
+
+sealed class RunCodeState {
+    object Idle : RunCodeState()
+    object Running : RunCodeState()
+    data class Success(val response: RunCodeCheckResponse, val dataInput: String) : RunCodeState()
+    data class Error(val exception: Exception) : RunCodeState()
 }
 
 sealed interface CodeEditorSubmitUIEvent {

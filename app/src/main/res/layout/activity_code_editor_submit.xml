@@ -22,9 +22,27 @@
             android:paddingVertical="8dp">
 
             <Button
+                android:id="@+id/btnRun"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_run_button"
+                android:ellipsize="end"
+                android:text="Run"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/submit"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.15" />
+
+            <Button
                 android:id="@+id/submit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/button_rounded"
                 android:ellipsize="end"
                 android:padding="6dp"
@@ -35,15 +53,14 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/ivReset"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnRun"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/ivReset"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="12dp"
                 android:src="@drawable/ic_reset"
                 app:layout_constraintBottom_toBottomOf="@id/submit"
                 app:layout_constraintEnd_toStartOf="@+id/language"
@@ -55,9 +72,8 @@
                 android:id="@+id/language"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="12dp"
                 android:background="@drawable/bg_lan_text"
-                android:drawableEnd="@drawable/ic_arrow_down"
                 android:drawablePadding="8dp"
                 android:ellipsize="end"
                 android:maxLines="1"
@@ -65,6 +81,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="18sp"
+                app:drawableEndCompat="@drawable/ic_arrow_down"
                 app:layout_constraintBottom_toBottomOf="@id/submit"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivReset"
@@ -77,12 +94,11 @@
             android:id="@+id/codeEditor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="6dp"
+            android:padding="8dp"
             app:autoCompleteEnabled="true"
             app:highlightBracketPair="true"
             app:text=""
             app:textSize="18sp" />
-
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
