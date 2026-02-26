@@ -36,7 +36,8 @@ class CodeEditorSubmitViewModel @Inject constructor(
     private val _uiEvent: MutableSharedFlow<CodeEditorSubmitUIEvent?> = MutableSharedFlow()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private var codeSnippet: CodeSnippet? = null
+    var codeSnippet: CodeSnippet? = null
+        private set
     fun setCodeSnippet(codeSnippet: CodeSnippet?){
         this.codeSnippet = codeSnippet
     }

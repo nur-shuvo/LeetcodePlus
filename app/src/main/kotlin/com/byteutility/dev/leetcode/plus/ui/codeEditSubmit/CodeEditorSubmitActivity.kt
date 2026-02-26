@@ -271,7 +271,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        viewModel.saveCode(questionId!!, language!!, codeEditor.text.toString())
+        viewModel.saveCode(questionId!!, viewModel.codeSnippet?.langSlug!!, codeEditor.text.toString())
     }
 
     override fun onDestroy() {
