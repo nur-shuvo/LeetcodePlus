@@ -20,7 +20,7 @@ class LanguageBottomSheetDialog : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.language_selection_bottom_sheet,container,false)
+        return inflater.inflate(R.layout.language_selection_bottom_sheet, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -2,18 +2,22 @@ package com.byteutility.dev.leetcode.plus.ui.codeEditSubmit
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
+import android.widget.HorizontalScrollView
 import android.widget.ImageView
-import android.widget.ProgressBar
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AlertDialog.Builder
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
@@ -29,6 +33,7 @@ import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSn
 import com.byteutility.dev.leetcode.plus.utils.getJsonExtra
 import com.byteutility.dev.leetcode.plus.utils.putExtraJson
 import com.byteutility.dev.leetcode.plus.utils.toTitleCase
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.launch
@@ -44,6 +49,8 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     private val testCasesExtra by lazy { intent.getStringExtra(EXTRA_TEST_CASES) }
     private var snippets: List<CodeSnippet>? = null
     private val codeEditor by lazy { findViewById<CodeEditor>(R.id.codeEditor) }
+
+    private val accessoryBar by lazy { findViewById<HorizontalScrollView>(R.id.keyboardAccessoryBar) }
     private val submitButton by lazy { findViewById<TextView>(R.id.submit) }
     private val runButton by lazy { findViewById<Button>(R.id.btnRun) }
     private val languageButton by lazy { findViewById<TextView>(R.id.language) }
@@ -79,6 +86,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         configureEditorLanguage(language)
         setLanguage(selectedLanguage)
         setCode(language, initialCode)
+        setupKeyboardBar()
     }
 
     private fun setLanguage(lan: String?) {
@@ -91,6 +99,39 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             val savedCode = viewModel.getSavedCode(questionId!!, language!!)
             val code = savedCode ?: initialCode
             codeEditor.setText(code)
+        }
+    }
+
+    private fun setupKeyboardBar() {
+        val keysContainer = findViewById<LinearLayout>(R.id.keysContainer)
+        val symbols = listOf("{", "}", "(", ")", "[", "]", ";", ",", ".", "<", ">", "/", "\"", ":")
+        val outValue = TypedValue()
+        theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+        val rippleRes = outValue.resourceId
+        symbols.forEach { symbol ->
+            val textView = TextView(this).apply {
+                text = symbol
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+                gravity = Gravity.CENTER
+                setPadding(40, 20, 40, 20)
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                )
+                setTextColor(Color.DKGRAY)
+                setBackgroundResource(rippleRes)
+                isClickable = true
+                isFocusable = true
+
+                setOnClickListener {
+                    codeEditor.insertText(symbol, 1)
+                }
+            }
+            keysContainer.addView(textView)
+        }
+
+        codeEditor.setOnFocusChangeListener { _, hasFocus ->
+            accessoryBar.visibility = if (hasFocus) View.VISIBLE else View.GONE
         }
     }
 
@@ -271,7 +312,11 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        viewModel.saveCode(questionId!!, viewModel.codeSnippet?.langSlug!!, codeEditor.text.toString())
+        viewModel.saveCode(
+            questionId!!,
+            viewModel.codeSnippet?.langSlug!!,
+            codeEditor.text.toString()
+        )
     }
 
     override fun onDestroy() {
