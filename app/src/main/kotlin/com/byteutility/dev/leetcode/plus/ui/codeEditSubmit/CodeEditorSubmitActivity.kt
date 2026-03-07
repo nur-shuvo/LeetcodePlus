@@ -2,14 +2,14 @@ package com.byteutility.dev.leetcode.plus.ui.codeEditSubmit
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
-import android.content.res.ColorStateList
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.RippleDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -43,6 +43,7 @@ import com.byteutility.dev.leetcode.plus.utils.toTitleCase
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.rosemoe.sora.widget.CodeEditor
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -56,10 +57,9 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     private val testCasesExtra by lazy { intent.getStringExtra(EXTRA_TEST_CASES) }
     private var snippets: List<CodeSnippet>? = null
     private val codeEditor by lazy { findViewById<CodeEditor>(R.id.codeEditor) }
-
     private val accessoryBar by lazy { findViewById<HorizontalScrollView>(R.id.keyboardAccessoryBar) }
     private val submitButton by lazy { findViewById<TextView>(R.id.submit) }
-    private val runButton by lazy { findViewById<Button>(R.id.btnRun) }
+    private val runButton by lazy { findViewById<TextView>(R.id.btnRun) }
     private val languageButton by lazy { findViewById<TextView>(R.id.language) }
     private val resetBtn by lazy { findViewById<ImageView>(R.id.ivReset) }
 
@@ -118,26 +118,35 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         symbols.forEach { symbol ->
             val textView = TextView(this).apply {
                 text = symbol
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
                 gravity = Gravity.CENTER
-                setPadding(40, 20, 40, 20)
+                typeface = android.graphics.Typeface.MONOSPACE
+                setPadding(36, 0, 36, 0)
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.MATCH_PARENT
+                ).apply {
+                    setMargins(2, 8, 2, 8)
+                }
+                setTextColor(Color.parseColor("#CC000000"))
+
+                val radius = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 6f, resources.displayMetrics
                 )
-                setTextColor(Color.DKGRAY)
+                val shape = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = radius
+                    setColor(Color.parseColor("#14000000"))
+                }
+                val ripple = RippleDrawable(
+                    ColorStateList.valueOf(Color.parseColor("#33000000")),
+                    shape,
+                    shape
+                )
+                background = ripple
                 isClickable = true
                 isFocusable = true
-
-                // Bounded ripple that respects the view's bounds
-                val rippleColor = ColorStateList.valueOf(Color.parseColor("#29000000"))
-                val contentDrawable = ColorDrawable(Color.TRANSPARENT)
-                val maskDrawable = ColorDrawable(Color.WHITE) // defines ripple bounds
-                background = RippleDrawable(rippleColor, contentDrawable, maskDrawable)
-
-                setOnClickListener {
-                    codeEditor.insertText(symbol, 1)
-                }
+                setOnClickListener { codeEditor.insertText(symbol, 1) }
             }
             keysContainer.addView(textView)
         }
@@ -149,8 +158,6 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     private fun setupWindowInsets() {
         val rootView = findViewById<View>(android.R.id.content)
-
-        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         ViewCompat.setWindowInsetsAnimationCallback(
             rootView,
@@ -164,7 +171,6 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     return insets
                 }
 
-                // Called when animation ends (keyboard fully open/closed)
                 override fun onEnd(animation: WindowInsetsAnimationCompat) {
                     super.onEnd(animation)
                     val insets = ViewCompat.getRootWindowInsets(rootView) ?: return
@@ -173,7 +179,6 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             }
         )
 
-        // Handle initial state (no animation, e.g. activity starts with keyboard already open)
         rootView.post {
             val insets = ViewCompat.getRootWindowInsets(rootView) ?: return@post
             applyBottomPadding(rootView, insets)
@@ -313,12 +318,17 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
             .create()
     }
 
+    private fun setRunButtonEnabled(enabled: Boolean) {
+        runButton.isEnabled = enabled
+        runButton.alpha = if (enabled) 1f else 0.5f
+    }
+
     private fun collectRunCodeResult() {
         lifecycleScope.launch {
             viewModel.runCodeState.collect { state ->
                 when (state) {
                     is RunCodeState.Running -> {
-                        runButton.isEnabled = false
+                        setRunButtonEnabled(false)
                         runProgressDialog = buildRunProgressDialog()
                         runProgressDialog?.show()
                     }
@@ -326,7 +336,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     is RunCodeState.Success -> {
                         runProgressDialog?.dismiss()
                         runProgressDialog = null
-                        runButton.isEnabled = true
+                        setRunButtonEnabled(true)
                         RunCodeResultBottomSheet.newInstance(state.response, state.dataInput)
                             .show(supportFragmentManager, "RunCodeResult")
                     }
@@ -334,7 +344,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     is RunCodeState.Error -> {
                         runProgressDialog?.dismiss()
                         runProgressDialog = null
-                        runButton.isEnabled = true
+                        setRunButtonEnabled(true)
                         Toast.makeText(
                             this@CodeEditorSubmitActivity,
                             "${state.exception}",
@@ -343,7 +353,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     }
 
                     is RunCodeState.Idle -> {
-                        runButton.isEnabled = true
+                        setRunButtonEnabled(true)
                     }
                 }
             }
