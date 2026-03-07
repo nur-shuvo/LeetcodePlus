@@ -7,6 +7,9 @@ import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
+import android.content.res.ColorStateList
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.RippleDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -20,6 +23,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AlertDialog.Builder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsAnimationCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.MainActivity
@@ -62,10 +69,12 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.activity_code_editor_submit)
         getBundle()
         initView()
         initListener()
+        setupWindowInsets()
         collectSubmissionResult()
         collectRunCodeResult()
         collectUiEvent()
@@ -105,9 +114,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     private fun setupKeyboardBar() {
         val keysContainer = findViewById<LinearLayout>(R.id.keysContainer)
         val symbols = listOf("{", "}", "(", ")", "[", "]", ";", ",", ".", "<", ">", "/", "\"", ":")
-        val outValue = TypedValue()
-        theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-        val rippleRes = outValue.resourceId
+
         symbols.forEach { symbol ->
             val textView = TextView(this).apply {
                 text = symbol
@@ -119,9 +126,14 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     LinearLayout.LayoutParams.MATCH_PARENT
                 )
                 setTextColor(Color.DKGRAY)
-                setBackgroundResource(rippleRes)
                 isClickable = true
                 isFocusable = true
+
+                // Bounded ripple that respects the view's bounds
+                val rippleColor = ColorStateList.valueOf(Color.parseColor("#29000000"))
+                val contentDrawable = ColorDrawable(Color.TRANSPARENT)
+                val maskDrawable = ColorDrawable(Color.WHITE) // defines ripple bounds
+                background = RippleDrawable(rippleColor, contentDrawable, maskDrawable)
 
                 setOnClickListener {
                     codeEditor.insertText(symbol, 1)
@@ -133,6 +145,45 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         codeEditor.setOnFocusChangeListener { _, hasFocus ->
             accessoryBar.visibility = if (hasFocus) View.VISIBLE else View.GONE
         }
+    }
+
+    private fun setupWindowInsets() {
+        val rootView = findViewById<View>(android.R.id.content)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        ViewCompat.setWindowInsetsAnimationCallback(
+            rootView,
+            object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_STOP) {
+
+                override fun onProgress(
+                    insets: WindowInsetsCompat,
+                    runningAnimations: MutableList<WindowInsetsAnimationCompat>
+                ): WindowInsetsCompat {
+                    applyBottomPadding(rootView, insets)
+                    return insets
+                }
+
+                // Called when animation ends (keyboard fully open/closed)
+                override fun onEnd(animation: WindowInsetsAnimationCompat) {
+                    super.onEnd(animation)
+                    val insets = ViewCompat.getRootWindowInsets(rootView) ?: return
+                    applyBottomPadding(rootView, insets)
+                }
+            }
+        )
+
+        // Handle initial state (no animation, e.g. activity starts with keyboard already open)
+        rootView.post {
+            val insets = ViewCompat.getRootWindowInsets(rootView) ?: return@post
+            applyBottomPadding(rootView, insets)
+        }
+    }
+
+    private fun applyBottomPadding(view: View, insets: WindowInsetsCompat) {
+        val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+        val navBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+        view.setPadding(0, 0, 0, maxOf(imeInsets.bottom, navBarInsets.bottom))
     }
 
     private fun initListener() {
