@@ -43,7 +43,6 @@ import com.byteutility.dev.leetcode.plus.utils.toTitleCase
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.rosemoe.sora.widget.CodeEditor
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
