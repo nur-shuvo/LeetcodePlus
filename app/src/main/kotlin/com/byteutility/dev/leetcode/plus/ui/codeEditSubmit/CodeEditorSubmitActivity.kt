@@ -22,6 +22,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AlertDialog.Builder
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -112,11 +113,21 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     private fun setupKeyboardBar() {
         val keysContainer = findViewById<LinearLayout>(R.id.keysContainer)
-        val symbols = listOf("{", "}", "(", ")", "[", "]", ";", ",", ".", "<", ">", "/", "\"", ":")
+        val symbols = listOf("Undo", "Redo") + listOf("{", "}", "(", ")", "[", "]", ";", ",", ".", "<", ">", "/", "\"", ":")
 
         symbols.forEach { symbol ->
             val textView = TextView(this).apply {
-                text = symbol
+                if (symbol == "Undo" || symbol == "Redo") {
+                    val iconRes = if (symbol == "Undo") R.drawable.ic_undo else R.drawable.ic_redo
+                    val drawable = ContextCompat.getDrawable(context, iconRes)?.apply {
+                        setTint(Color.parseColor("#CC000000"))
+                    }
+                    setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+                    text = ""
+                } else {
+                    text = symbol
+                    setCompoundDrawablesWithIntrinsicBounds(null, null, null, null) // Clear drawables for symbols
+                }
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
                 gravity = Gravity.CENTER
                 typeface = android.graphics.Typeface.MONOSPACE
@@ -145,7 +156,13 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                 background = ripple
                 isClickable = true
                 isFocusable = true
-                setOnClickListener { codeEditor.insertText(symbol, 1) }
+                setOnClickListener {
+                    when (symbol) {
+                        "Undo" -> if (codeEditor.canUndo()) codeEditor.undo()
+                        "Redo" -> if (codeEditor.canRedo()) codeEditor.redo()
+                        else -> codeEditor.insertText(symbol, 1)
+                    }
+                }
             }
             keysContainer.addView(textView)
         }
