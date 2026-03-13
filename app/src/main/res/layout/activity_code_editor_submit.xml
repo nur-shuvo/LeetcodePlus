@@ -13,92 +13,109 @@
         app:behavior_peekHeight="350dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Top toolbar -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_background_white_12dp"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
+            android:layout_height="56dp"
+            android:background="@color/surface"
+            android:elevation="2dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp">
 
-            <Button
+            <TextView
                 android:id="@+id/btnRun"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_run_button"
-                android:ellipsize="end"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_run_outlined"
+                android:gravity="center"
+                android:paddingHorizontal="16dp"
                 android:text="Run"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/submit"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.15" />
+                android:textColor="#2CBB5D"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-            <Button
+            <TextView
                 android:id="@+id/submit"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/button_rounded"
-                android:ellipsize="end"
-                android:padding="6dp"
+                android:background="@drawable/bg_submit_filled"
+                android:gravity="center"
+                android:paddingHorizontal="20dp"
                 android:text="Submit"
-                android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/ivReset"
-                app:layout_constraintStart_toEndOf="@+id/btnRun"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <ImageView
                 android:id="@+id/ivReset"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="12dp"
-                android:src="@drawable/ic_reset"
-                app:layout_constraintBottom_toBottomOf="@id/submit"
-                app:layout_constraintEnd_toStartOf="@+id/language"
-                app:layout_constraintStart_toEndOf="@id/submit"
-                app:layout_constraintTop_toTopOf="@id/submit"
-                tools:ignore="ContentDescription" />
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="Reset code"
+                android:padding="8dp"
+                android:src="@drawable/ic_reset" />
 
             <TextView
                 android:id="@+id/language"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:background="@drawable/bg_lan_text"
-                android:drawablePadding="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_language_chip"
+                android:drawablePadding="6dp"
                 android:ellipsize="end"
+                android:gravity="center"
                 android:maxLines="1"
-                android:padding="8dp"
-                android:textAlignment="center"
-                android:textColor="@color/black"
-                android:textSize="18sp"
+                android:paddingHorizontal="12dp"
+                android:textColor="#1A1A1A"
+                android:textSize="13sp"
                 app:drawableEndCompat="@drawable/ic_arrow_down"
-                app:layout_constraintBottom_toBottomOf="@id/submit"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/ivReset"
-                app:layout_constraintTop_toTopOf="@id/submit"
                 tools:text="Kotlin" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E7EB" />
+
+        <!-- Code editor -->
         <io.github.rosemoe.sora.widget.CodeEditor
             android:id="@+id/codeEditor"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="8dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="12dp"
             app:autoCompleteEnabled="true"
             app:highlightBracketPair="true"
-            app:text=""
-            app:textSize="18sp" />
+            app:textSize="15sp" />
+
+        <!-- Keyboard accessory bar -->
+        <HorizontalScrollView
+            android:id="@+id/keyboardAccessoryBar"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="#F3F4F6"
+            android:elevation="4dp"
+            android:scrollbars="none"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/keysContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="4dp" />
+
+        </HorizontalScrollView>
+
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

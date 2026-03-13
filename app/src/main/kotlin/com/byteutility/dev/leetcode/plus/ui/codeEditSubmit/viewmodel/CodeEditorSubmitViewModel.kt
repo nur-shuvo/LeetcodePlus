@@ -6,9 +6,9 @@ import com.byteutility.dev.leetcode.plus.LeetCodePlusApplication.Companion.appCo
 import com.byteutility.dev.leetcode.plus.data.datastore.CodeHistoryDataStore
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepository
-import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
 import com.byteutility.dev.leetcode.plus.network.responseVo.RunCodeCheckResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.SubmissionCheckResponse
+import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSnippet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -38,7 +38,7 @@ class CodeEditorSubmitViewModel @Inject constructor(
 
     var codeSnippet: CodeSnippet? = null
         private set
-    fun setCodeSnippet(codeSnippet: CodeSnippet?){
+    fun setCodeSnippet(codeSnippet: CodeSnippet?) {
         this.codeSnippet = codeSnippet
     }
 
