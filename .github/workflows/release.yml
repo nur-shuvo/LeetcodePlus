@@ -1,0 +1,48 @@
+name: Release Version
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  bump-and-tag:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Bump Version
+        run: |
+          FILE=version.properties
+
+          source $FILE
+
+          NEW_CODE=$((VERSION_CODE + 1))
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION_NAME"
+          NEW_PATCH=$((PATCH + 1))
+          NEW_NAME="$MAJOR.$MINOR.$NEW_PATCH"
+
+          echo "VERSION_CODE=$NEW_CODE" > $FILE
+          echo "VERSION_NAME=$NEW_NAME" >> $FILE
+
+          echo "New Version: $NEW_NAME ($NEW_CODE)"
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add version.properties
+          git commit -m "Release: bump version"
+          git push
+
+      - name: Create Git Tag
+        run: |
+          source version.properties
+          git tag "v$VERSION_NAME"
+          git push origin "v$VERSION_NAME"

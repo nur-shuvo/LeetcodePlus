@@ -16,6 +16,10 @@ android {
     namespace = "com.byteutility.dev.leetcode.plus"
     compileSdk = 35
 
+    val versionPropsFile = rootProject.file("version.properties")
+    val versionProps = Properties()
+    versionProps.load(FileInputStream(versionPropsFile))
+
     // Load local properties
     val localPropertiesFile = rootProject.file("local.properties")
     val localProperties = Properties()
@@ -34,8 +38,8 @@ android {
         applicationId = "com.byteutility.dev.leetcode.plus"
         minSdk = 29
         targetSdk = 35
-        versionCode = 15
-        versionName = "1.1.4"
+        versionCode = versionProps["VERSION_CODE"].toString().toInt()
+        versionName = versionProps["VERSION_NAME"].toString()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
