@@ -39,20 +39,15 @@ class UserLoginViewModel @Inject constructor(
             }
             _loginState.value = LoginState.Loading
             try {
-                // TODO: need parse message if user name does not exist
-                restApiService.getUserProfile(userName)
+                val profile = restApiService.getUserProfile(userName)
+                if (profile.username == null) throw Exception("Username is not valid")
                 userDatastore.saveUserBasicInfo(
                     userBasicInfo = UserBasicInfo(userName = userName)
                 )
                 _loginState.value = LoginState.Success(userName)
                 UserDetailsSyncWorker.enqueuePeriodicWork(context, userDatastore)
             } catch (e: Exception) {
-                _loginState.value = LoginState.Error("Failed to retrieve user profile.")
-                Toast.makeText(
-                    context,
-                    "Error: ${e.message}, try again after 15 mints",
-                    Toast.LENGTH_SHORT
-                ).show()
+                _loginState.value = LoginState.Error(e.message.orEmpty())
             }
         }
     }
