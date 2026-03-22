@@ -24,6 +24,7 @@ import com.byteutility.dev.leetcode.plus.data.worker.ReminderNotificationWorker
 import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
+import com.byteutility.dev.leetcode.plus.network.responseVo.sortByStartTime
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.LeetcodeUpcomingContestsState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserSubmissionState
@@ -185,7 +186,7 @@ class HomeScreenViewModel @Inject constructor(
             runCatching {
                 val contests = userDetailsRepository.getLeetcodeUpcomingContests()
                 _leetcodeUpcomingContestsState.update {
-                    it.copy(isLoading = false, contests = contests.objects)
+                    it.copy(isLoading = false, contests = contests.objects.sortByStartTime())
                 }
             }.onFailure {
                 _leetcodeUpcomingContestsState.update {

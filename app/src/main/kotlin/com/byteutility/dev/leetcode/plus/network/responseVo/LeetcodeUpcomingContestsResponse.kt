@@ -2,6 +2,8 @@
 package com.byteutility.dev.leetcode.plus.network.responseVo
 
 import com.google.gson.annotations.SerializedName
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class LeetcodeUpcomingContestsResponse(
     @SerializedName("meta") val meta: Meta,
@@ -32,3 +34,11 @@ data class Contest(
     @SerializedName("resource_id") val resourceId: Int,
     @SerializedName("start") val start: String
 )
+
+fun List<Contest>.sortByStartTime(): List<Contest> {
+    val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+
+    return sortedBy { contest ->
+        LocalDateTime.parse(contest.start, formatter)
+    }
+}

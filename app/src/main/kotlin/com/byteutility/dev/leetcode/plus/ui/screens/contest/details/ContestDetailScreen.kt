@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.byteutility.dev.leetcode.plus.ui.common.AdBannerAdaptive
 import com.byteutility.dev.leetcode.plus.utils.formatContestDate
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -166,6 +167,9 @@ fun ContestDetailScreen(
                 onClick = {
                     viewModel.setInAppReminder(contestId, event, start, href)
                 }
+            )
+            AdBannerAdaptive(
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
