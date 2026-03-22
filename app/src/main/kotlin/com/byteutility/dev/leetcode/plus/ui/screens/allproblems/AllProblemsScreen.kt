@@ -2,6 +2,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.allproblems
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -57,6 +58,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -210,7 +212,7 @@ fun ProblemSelection(
                 .padding(start = 16.dp, end = 16.dp)
                 .weight(1.0f)
                 .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
         ) {
             items(displayedItems) { problem ->
@@ -267,13 +269,17 @@ fun ProblemItem(
                 .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(modifier = Modifier.fillMaxWidth(0.85f)) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = problem.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.basicMarquee(velocity = 45.dp)
                 )
                 Text(
+                    modifier = Modifier.padding(top = 4.dp),
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
                             append("Tag: ")
@@ -282,6 +288,7 @@ fun ProblemItem(
                     }, style = MaterialTheme.typography.bodySmall
                 )
                 Text(
+                    modifier = Modifier.padding(top = 2.dp),
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
                             append("Difficulty: ")
@@ -298,9 +305,9 @@ fun ProblemItem(
 @Composable
 fun getDifficultyColor(difficulty: String): Color {
     return when (difficulty.lowercase()) {
-        "easy" -> MaterialTheme.colorScheme.easyCategory
-        "medium" -> MaterialTheme.colorScheme.mediumCategory
-        "hard" -> MaterialTheme.colorScheme.hardCategory
+        "easy" -> MaterialTheme.colorScheme.easyCategory.copy(alpha = 0.4f)
+        "medium" -> MaterialTheme.colorScheme.mediumCategory.copy(alpha = 0.4f)
+        "hard" -> MaterialTheme.colorScheme.hardCategory.copy(alpha = 0.4f)
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 }

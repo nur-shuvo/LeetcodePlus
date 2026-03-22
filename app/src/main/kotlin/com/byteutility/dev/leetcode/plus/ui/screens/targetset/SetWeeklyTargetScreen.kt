@@ -2,6 +2,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.targetset
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -210,9 +213,9 @@ fun ProblemItem(
     onNavigateToProblemDetails: (String) -> Unit = {}
 ) {
     val backgroundColor: Color = when (problem.difficulty) {
-        "Easy" -> Color(0xFFE0F7FA)
-        "Medium" -> Color(0xFFFFF9C4)
-        "Hard" -> Color(0xFFFFCDD2)
+        "Easy" -> Color(0xFFE0F7FA).copy(alpha = 0.4f)
+        "Medium" -> Color(0xFFFFF9C4).copy(alpha = 0.4f)
+        "Hard" -> Color(0xFFFFCDD2).copy(alpha = 0.4f)
         else -> Color(0xFFE0F7FA)
     }
     Card(
@@ -226,13 +229,25 @@ fun ProblemItem(
                 }
                 .fillMaxWidth()
                 .background(backgroundColor)
-                .padding(16.dp),
+                .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.fillMaxWidth(0.85f)) {
-                Text(text = problem.title, style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Tag: ${problem.tag}", style = MaterialTheme.typography.bodySmall)
                 Text(
+                    text = problem.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.basicMarquee(velocity = 45.dp)
+                )
+                Text(
+                    modifier = Modifier.padding(top = 4.dp),
+                    text = "Tag: ${problem.tag}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    modifier = Modifier.padding(top = 2.dp),
                     text = "Difficulty: ${problem.difficulty}",
                     style = MaterialTheme.typography.bodySmall
                 )
