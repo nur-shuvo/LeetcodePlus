@@ -29,6 +29,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.ui.MainActivity
 import com.byteutility.dev.leetcode.plus.ui.codeEditSubmit.config.EditorLanguageHelper
@@ -41,6 +42,12 @@ import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSn
 import com.byteutility.dev.leetcode.plus.utils.getJsonExtra
 import com.byteutility.dev.leetcode.plus.utils.putExtraJson
 import com.byteutility.dev.leetcode.plus.utils.toTitleCase
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -64,6 +71,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
     private val resetBtn by lazy { findViewById<ImageView>(R.id.ivReset) }
 
     private var runProgressDialog: AlertDialog? = null
+    private var interstitialAd: InterstitialAd? = null
 
     private val viewModel: CodeEditorSubmitViewModel by viewModels()
 
@@ -78,6 +86,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         collectSubmissionResult()
         collectRunCodeResult()
         collectUiEvent()
+        loadInterstitialAd()
     }
 
     private fun getBundle() {
@@ -113,7 +122,22 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
 
     private fun setupKeyboardBar() {
         val keysContainer = findViewById<LinearLayout>(R.id.keysContainer)
-        val symbols = listOf("Undo", "Redo") + listOf("{", "}", "(", ")", "[", "]", ";", ",", ".", "<", ">", "/", "\"", ":")
+        val symbols = listOf("Undo", "Redo") + listOf(
+            "{",
+            "}",
+            "(",
+            ")",
+            "[",
+            "]",
+            ";",
+            ",",
+            ".",
+            "<",
+            ">",
+            "/",
+            "\"",
+            ":"
+        )
 
         symbols.forEach { symbol ->
             val textView = TextView(this).apply {
@@ -126,7 +150,12 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                     text = ""
                 } else {
                     text = symbol
-                    setCompoundDrawablesWithIntrinsicBounds(null, null, null, null) // Clear drawables for symbols
+                    setCompoundDrawablesWithIntrinsicBounds(
+                        null,
+                        null,
+                        null,
+                        null
+                    ) // Clear drawables for symbols
                 }
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
                 gravity = Gravity.CENTER
@@ -305,7 +334,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
                             .setTitle("Submission Result")
                             .setMessage(message)
                             .setPositiveButton("OK") { _, _ ->
-                                finish()
+                                showInterstitialAdThenFinish()
                             }
                             .show()
                     }
@@ -376,6 +405,41 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadInterstitialAd() {
+        InterstitialAd.load(
+            this,
+            BuildConfig.ADMOB_INTERSTITIAL_AD_UNIT_ID,
+            AdRequest.Builder().build(),
+            object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(ad: InterstitialAd) {
+                    interstitialAd = ad
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    interstitialAd = null
+                }
+            }
+        )
+    }
+
+    private fun showInterstitialAdThenFinish() {
+        val ad = interstitialAd
+        if (ad != null) {
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    finish()
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    finish()
+                }
+            }
+            ad.show(this)
+        } else {
+            finish()
+        }
+    }
+
     private fun configureEditorLanguage(lan: String?) {
         lan?.let { lang ->
             val success = EditorLanguageHelper.configureEditor(codeEditor, lang)
@@ -400,6 +464,7 @@ class CodeEditorSubmitActivity : AppCompatActivity() {
         super.onDestroy()
         runProgressDialog?.dismiss()
         runProgressDialog = null
+        interstitialAd = null
         codeEditor.release()
     }
 

@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.targetset
 
+import android.app.Activity
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -42,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,8 +51,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalSetDialog
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,11 +70,30 @@ fun SetWeeklyTargetScreen(
     val viewModel: SetWeeklyTargetViewModel = hiltViewModel()
     val problems by viewModel.problemsList.collectAsStateWithLifecycle()
     val selectedProblems by viewModel.selectedProblems.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    var interstitialAd by remember { mutableStateOf<InterstitialAd?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.popCurrentDestination.collect {
             onPopCurrent()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        InterstitialAd.load(
+            context,
+            BuildConfig.ADMOB_INTERSTITIAL_AD_UNIT_ID,
+            AdRequest.Builder().build(),
+            object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(ad: InterstitialAd) {
+                    interstitialAd = ad
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    interstitialAd = null
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -103,6 +131,20 @@ fun SetWeeklyTargetScreen(
         if (needToShowConfirmDialog) {
             WeeklyGoalSetDialog { period ->
                 viewModel.handleWeeklyGoalSet(selectedProblems, period)
+                val activity = context as? Activity
+                val ad = interstitialAd
+                if (ad != null && activity != null) {
+                    ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                        override fun onAdDismissedFullScreenContent() {
+                            interstitialAd = null
+                        }
+
+                        override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                            interstitialAd = null
+                        }
+                    }
+                    ad.show(activity)
+                }
             }
         }
     }
