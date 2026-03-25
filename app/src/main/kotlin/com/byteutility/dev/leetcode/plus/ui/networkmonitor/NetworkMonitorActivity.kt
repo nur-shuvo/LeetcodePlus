@@ -56,6 +56,7 @@ import com.byteutility.dev.leetcode.plus.network.model.NetworkLog
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -171,8 +172,13 @@ private fun NetworkLogItem(log: NetworkLog, onClick: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MethodBadge(method = log.method)
                 Spacer(modifier = Modifier.width(8.dp))
+                val uri = URI(log.url)
+                val resultUrl = buildString {
+                    append(uri.path.removePrefix("/"))
+                    uri.query?.let { append("?$it") }
+                }
                 Text(
-                    text = log.url.removePrefix("https://").removePrefix("http://"),
+                    text = resultUrl,
                     fontSize = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

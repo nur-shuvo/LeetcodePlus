@@ -4,6 +4,7 @@ import android.content.Context
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetCodeQuestionResponse
+import com.byteutility.dev.leetcode.plus.network.responseVo.OfficialSolutionResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.ProblemSetResponseVo
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -54,5 +55,10 @@ class ProblemsRepositoryImpl @Inject constructor(
     @Throws
     override suspend fun getSelectedRawQuestion(titleSlug: String): LeetCodeQuestionResponse {
         return restApiService.getRawSelectedQuestionDetails(titleSlug)
+    }
+
+    @Throws
+    override suspend fun getOfficialSolution(titleSlug: String): OfficialSolutionResponse {
+        return restApiService.getOfficialSolution(titleSlug)
     }
 }

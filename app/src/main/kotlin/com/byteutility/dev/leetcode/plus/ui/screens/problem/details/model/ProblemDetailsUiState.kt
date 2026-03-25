@@ -10,5 +10,9 @@ data class ProblemDetailsUiState(
     val isPremiumContent: Boolean = false,
     val isLoading: Boolean = true,
     val error: String? = null,
-    val exampleTestcases: String = ""
+    val exampleTestcases: String = "",
+    val editorialContent: String = "",
+    val isEditorialPaidOnly: Boolean = false,
+    val isEditorialLoading: Boolean = true,
+    val editorialError: String? = null
 )

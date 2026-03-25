@@ -64,7 +64,37 @@ class ProblemDetailsViewModel @Inject constructor(
         }
     }
 
+    private fun getEditorial(titleSlug: String) {
+        viewModelScope.launch {
+            try {
+                val result = repository.getOfficialSolution(titleSlug)
+                val solution = result.question?.solution
+                if (solution == null) {
+                    _uiState.update {
+                        it.copy(
+                            isEditorialLoading = false,
+                            editorialError = "No editorial available"
+                        )
+                    }
+                    return@launch
+                }
+                _uiState.update {
+                    it.copy(
+                        editorialContent = solution?.content ?: "",
+                        isEditorialPaidOnly = solution?.paidOnly ?: false,
+                        isEditorialLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(isEditorialLoading = false, editorialError = e.message)
+                }
+            }
+        }
+    }
+
     init {
         getQuestionDetails(route.titleSlug)
+        getEditorial(route.titleSlug)
     }
 }
