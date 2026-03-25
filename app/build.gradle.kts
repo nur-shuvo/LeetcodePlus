@@ -32,7 +32,7 @@ android {
 
     defaultConfig {
         applicationId = "com.byteutility.dev.leetcode.plus"
-        minSdk = 29
+        minSdk = 24
         targetSdk = 35
         versionCode = 17
         versionName = "1.1.6"
