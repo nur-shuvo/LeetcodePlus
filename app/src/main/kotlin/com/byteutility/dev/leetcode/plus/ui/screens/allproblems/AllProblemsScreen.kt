@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
+import com.byteutility.dev.leetcode.plus.domain.model.SetMetadata
 import com.byteutility.dev.leetcode.plus.ui.theme.easyCategory
 import com.byteutility.dev.leetcode.plus.ui.theme.hardCategory
 import com.byteutility.dev.leetcode.plus.ui.theme.mediumCategory
@@ -88,6 +89,8 @@ fun AllProblemsScreen(
     val selectedTags by viewModel.selectedTags.collectAsStateWithLifecycle()
     var showFilterBottomSheet by remember { mutableStateOf(false) }
     val activeFilterCount by viewModel.activeFilterCount.collectAsStateWithLifecycle()
+    val selectedStaticProblemSet by viewModel.selectedStaticProblemSet.collectAsStateWithLifecycle()
+    val predefinedProblemSet = viewModel.predefinedProblemSets
 
     Scaffold(
         topBar = {
@@ -131,6 +134,8 @@ fun AllProblemsScreen(
 
         if (showFilterBottomSheet) {
             FilterBottomSheet(
+                problemSets = predefinedProblemSet,
+                selectedStaticProblemSet = selectedStaticProblemSet,
                 selectedTags = selectedTags,
                 selectedDifficulties = selectedDifficulties,
                 tags = tags,
@@ -142,7 +147,8 @@ fun AllProblemsScreen(
                     viewModel.clearFilters()
                     showFilterBottomSheet = false
                 },
-                onDismiss = { showFilterBottomSheet = false }
+                onDismiss = { showFilterBottomSheet = false },
+                onProblemSetSelected = { viewModel.onProblemSetSelected(it) }
             )
         }
 
@@ -315,6 +321,7 @@ fun getDifficultyColor(difficulty: String): Color {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FilterBottomSheet(
+    problemSets: List<SetMetadata>,
     tags: List<String>,
     difficulties: List<String>,
     onTagSelected: (String) -> Unit,
@@ -322,8 +329,10 @@ fun FilterBottomSheet(
     onApply: () -> Unit,
     onClear: () -> Unit,
     onDismiss: () -> Unit,
+    onProblemSetSelected: (SetMetadata) -> Unit,
     selectedTags: List<String>,
-    selectedDifficulties: List<String>
+    selectedDifficulties: List<String>,
+    selectedStaticProblemSet: SetMetadata?
 ) {
     val scrollState = rememberScrollState()
     val modalBottomSheetState = rememberModalBottomSheetState()
@@ -359,6 +368,28 @@ fun FilterBottomSheet(
                             {
                                 Icon(Icons.Default.Check, contentDescription = "")
                             }
+                        } else {
+                            null
+                        }
+                    )
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            Text(text = "Problem Sets", style = MaterialTheme.typography.titleMedium)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                problemSets.forEach { set ->
+                    FilterChip(
+                        selected = if (selectedStaticProblemSet == null) false else set == selectedStaticProblemSet,
+                        onClick = { onProblemSetSelected(set) },
+                        label = { Text(set.name) },
+                        leadingIcon = if (selectedStaticProblemSet == set) {
+                            { Icon(Icons.Default.Check, contentDescription = null) }
                         } else {
                             null
                         }
@@ -428,7 +459,10 @@ fun PreviewFilterBottomSheet() {
         onClear = {},
         onDismiss = {},
         selectedTags = listOf("Array", "String"),
-        selectedDifficulties = listOf("Easy", "Medium")
+        selectedDifficulties = listOf("Easy", "Medium"),
+        problemSets = emptyList(),
+        onProblemSetSelected = {},
+        selectedStaticProblemSet = null
     )
 }
 
