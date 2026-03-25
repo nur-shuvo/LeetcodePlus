@@ -8,6 +8,7 @@ import com.byteutility.dev.leetcode.plus.network.requestVO.ProblemSubmitRequest
 import com.byteutility.dev.leetcode.plus.network.responseVo.DailyQuestionResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.InterpretSolutionResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetCodeQuestionResponse
+import com.byteutility.dev.leetcode.plus.network.responseVo.OfficialSolutionResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetcodeUpcomingContestsResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.ProblemSetResponseVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.RunCodeCheckResponse
@@ -73,6 +74,12 @@ interface RestApiService {
     suspend fun getRawSelectedQuestionDetails(
         @Query("titleSlug") titleSlug: String
     ): LeetCodeQuestionResponse
+
+    @ResponseFormat(Format.JSON)
+    @GET("/officialSolution")
+    suspend fun getOfficialSolution(
+        @Query("titleSlug") titleSlug: String
+    ): OfficialSolutionResponse
 
     @ResponseFormat(Format.JSON)
     @GET("https://clist.by/api/v4/contest/?host=leetcode.com&upcoming=true&format=json")

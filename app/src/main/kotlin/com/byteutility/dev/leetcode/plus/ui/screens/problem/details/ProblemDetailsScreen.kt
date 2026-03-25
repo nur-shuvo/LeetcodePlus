@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.ui.screens.problem.details
 import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -26,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -39,6 +43,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -48,6 +54,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +78,7 @@ import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.CodeSn
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.model.ProblemDetailsUiState
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import com.byteutility.dev.leetcode.plus.utils.ProgressDialogUtil
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,6 +91,9 @@ fun ProblemDetailsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
+    val tabs = listOf("Description", "Editorial")
+    val pagerState = rememberPagerState { tabs.size }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -114,29 +125,31 @@ fun ProblemDetailsScreen(
                 shadowElevation = 8.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Box(
-                    modifier = Modifier
-                        .navigationBarsPadding() // Ensures it doesn't overlap with Android nav pill
-                        .padding(16.dp)
-                ) {
-                    Button(
-                        {
-                            if (uiState.codeSnippets.isNotEmpty()) {
-                                showDialog = true
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = uiState.codeSnippets.isNotEmpty(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF498A5C)
-                        )
+                if (pagerState.currentPage == 0) {
+                    Box(
+                        modifier = Modifier
+                            .navigationBarsPadding()
+                            .padding(8.dp)
                     ) {
-                        Text(
-                            text = "Code and Submit",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = Bold
-                        )
+                        Button(
+                            {
+                                if (uiState.codeSnippets.isNotEmpty()) {
+                                    showDialog = true
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = uiState.codeSnippets.isNotEmpty(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF498A5C)
+                            )
+                        ) {
+                            Text(
+                                text = "Code and Submit",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = Bold
+                            )
+                        }
                     }
                 }
             }
@@ -166,36 +179,54 @@ fun ProblemDetailsScreen(
             )
         }
 
-        if (uiState.isLoading) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                ProgressDialogUtil.ShowGradientProgressDialog(
-                    message = "Loading",
-                    showDialog = true
-                )
+        Column(modifier = Modifier.padding(paddingValues)) {
+            TabRow(selectedTabIndex = pagerState.currentPage) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = pagerState.currentPage == index,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                        text = { Text(title) }
+                    )
+                }
             }
-        } else if (uiState.error != null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Error: ${uiState.error}")
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                beyondViewportPageCount = 1
+            ) { page ->
+                when (page) {
+                    0 -> {
+                        if (uiState.isLoading) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                ProgressDialogUtil.ShowGradientProgressDialog(
+                                    message = "Loading",
+                                    showDialog = true
+                                )
+                            }
+                        } else if (uiState.error != null) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(text = "Error: ${uiState.error}")
+                            }
+                        } else {
+                            ProblemDetailsContent(
+                                modifier = Modifier,
+                                uiState = uiState,
+                                onLeetcodeLoginVerify,
+                                onBack
+                            )
+                        }
+                    }
+                    1 -> EditorialContent(uiState = uiState)
+                }
             }
-        } else {
-            ProblemDetailsContent(
-                modifier = Modifier.padding(paddingValues),
-                uiState = uiState,
-                onLeetcodeLoginVerify,
-                onBack
-            )
         }
     }
 }
@@ -208,6 +239,8 @@ fun ProblemDetailsContent(
     onBack: () -> Unit
 ) {
     val textColor = MaterialTheme.colorScheme.onSurface
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -248,9 +281,7 @@ fun ProblemDetailsContent(
                 )
 
                 Button(
-                    onClick = {
-                        onBack()
-                    },
+                    onClick = { onBack() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
@@ -259,9 +290,15 @@ fun ProblemDetailsContent(
                 }
             }
         } else {
-            ProblemHeader(uiState)
-            ConnectionVerifyBanner { onLeetcodeLoginVerify() }
-            ProblemDescriptionWebView(uiState, textColor)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            ) {
+                ProblemHeader(uiState)
+                ConnectionVerifyBanner { onLeetcodeLoginVerify() }
+            }
+            ProblemDescriptionWebView(uiState, textColor, scrollState)
         }
     }
 }
@@ -269,19 +306,37 @@ fun ProblemDetailsContent(
 @Composable
 private fun ProblemDescriptionWebView(
     uiState: ProblemDetailsUiState,
-    textColor: Color
+    textColor: Color,
+    scrollState: ScrollState
 ) {
-    Column(
-        modifier = Modifier
-            .verticalScroll(rememberScrollState())
-    ) {
+    HtmlWebView(
+        html = uiState.content,
+        textColor = textColor,
+        scrollState = scrollState,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
+}
+
+@Composable
+private fun HtmlWebView(
+    html: String,
+    textColor: Color,
+    javaScriptEnabled: Boolean = false,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState()
+) {
+    Column(modifier = modifier.verticalScroll(scrollState)) {
         AndroidView(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             factory = { context ->
                 WebView(context).apply {
                     settings.apply {
-                        javaScriptEnabled = false
+                        this.javaScriptEnabled = javaScriptEnabled
+                        if (javaScriptEnabled) {
+                            domStorageEnabled = true
+                            @Suppress("DEPRECATION")
+                            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                        }
                         loadWithOverviewMode = true
                         useWideViewPort = true
                         layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
@@ -290,16 +345,87 @@ private fun ProblemDescriptionWebView(
                 }
             },
             update = { webView ->
-                val styledHtml = getStyledHtml(uiState.content, textColor)
-                webView.loadDataWithBaseURL(
-                    "https://leetcode.com",
-                    styledHtml,
-                    "text/html",
-                    "UTF-8",
-                    null
-                )
+                val styledHtml = getStyledHtml(html, textColor)
+                // Guard: only reload when content actually changes.
+                // update() runs on every recomposition; without this check
+                // it would reload the WebView on every scroll frame.
+                if (webView.tag != styledHtml) {
+                    webView.tag = styledHtml
+                    webView.loadDataWithBaseURL(
+                        "https://leetcode.com",
+                        styledHtml,
+                        "text/html",
+                        "UTF-8",
+                        null
+                    )
+                }
             }
         )
+    }
+}
+
+@Composable
+fun EditorialContent(uiState: ProblemDetailsUiState) {
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val brandGreen = Color(0xFF498A5C)
+
+    when {
+        uiState.isEditorialLoading -> {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ProgressDialogUtil.ShowGradientProgressDialog(
+                    message = "Loading editorial",
+                    showDialog = true
+                )
+            }
+        }
+        uiState.editorialError != null -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Could not load editorial: ${uiState.editorialError}")
+            }
+        }
+        uiState.isEditorialPaidOnly -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = brandGreen,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(bottom = 12.dp)
+                )
+                Text(
+                    text = "This editorial is only available to LeetCode Premium subscribers.",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        else -> {
+            HtmlWebView(
+                html = preprocessEditorialHtml(uiState.editorialContent),
+                textColor = textColor,
+                javaScriptEnabled = true,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 16.dp)
+            )
+        }
     }
 }
 
@@ -481,20 +607,54 @@ private fun getStyledHtml(content: String, textColor: Color): String {
     return """
         <html>
         <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <script>
+                window.MathJax = {
+                    tex: {
+                        inlineMath: [['$', '$'], ['\\(', '\\)']],
+                        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+                    },
+                    chtml: {
+                        scale: 1,
+                        displayAlign: "left"
+                    }
+                };
+            </script>
+
+            <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
             <style>
-                :root {
-                    color-scheme: light dark;
-                }
                 body {
                     color: $hexColor;
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                    font-size: 15px;
-                    line-height: 1.6;
+                    font-size: 14px;
+                    line-height: 1.4;
                     margin: 0;
-                    padding: 0px;
-                    background-color: transparent;
+                    padding: 0;
+                     background-color: transparent;
                 }
+
+                /* FIX MathJax */
+                mjx-container {
+                    display: inline !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    line-height: 1 !important;
+                }
+
+                mjx-container[display="false"] {
+                    display: inline !important;
+                }
+
+                mjx-container[display="true"] {
+                    display: block !important;
+                    margin: 12px 0 !important;
+                }
+
+                mjx-container mjx-math {
+                    vertical-align: middle !important;
+                }
+                
                 /* Style Code Blocks (LeetCode specific) */
                 pre, code {
                     background-color: rgba(0, 0, 0, 0.05);
@@ -502,18 +662,21 @@ private fun getStyledHtml(content: String, textColor: Color): String {
                     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
                     padding: 2px 4px;
                 }
-                pre {
+
+                  pre {
                     padding: 12px;
                     overflow-x: auto;
                     border: 1px solid rgba(0, 0, 0, 0.1);
                     margin: 16px 0;
                 }
+                
                 /* Handle Images to prevent overflow */
                 img {
                     max-width: 100%;
                     height: auto;
                     border-radius: 8px;
                 }
+                
                 /* Style Lists */
                 ul, ol {
                     padding-left: 20px;
@@ -540,11 +703,58 @@ private fun getStyledHtml(content: String, textColor: Color): String {
                 }
             </style>
         </head>
+
         <body>
             $content
         </body>
         </html>
     """.trimIndent()
+}
+
+private fun preprocessEditorialHtml(content: String): String {
+    return fixInlineDoubleDollarMath(content)
+
+        // Headings
+        .replace(
+            Regex("""^#### (.+)$""", RegexOption.MULTILINE)
+        ) { "<h4>${it.groupValues[1]}</h4>" }
+
+        .replace(
+            Regex("""^### (.+)$""", RegexOption.MULTILINE)
+        ) { "<h3>${it.groupValues[1]}</h3>" }
+
+        .replace(
+            Regex("""^## (.+)$""", RegexOption.MULTILINE)
+        ) { "<h2>${it.groupValues[1]}</h2>" }
+
+        .replace(
+            Regex("""^# (.+)$""", RegexOption.MULTILINE)
+        ) { "<h1>${it.groupValues[1]}</h1>" }
+
+        // Bold
+        .replace(
+            Regex("""\*\*(.+?)\*\*""")
+        ) { "<strong>${it.groupValues[1]}</strong>" }
+
+        // Horizontal rule
+        .replace(
+            Regex("""^---$""", RegexOption.MULTILINE),
+            "<hr>"
+        )
+
+        // Remove TOC
+        .replace("[TOC]", "")
+}
+
+/* --------------------------------------------------- */
+/* ---------------- MATH FIX -------------------------- */
+/* --------------------------------------------------- */
+
+private fun fixInlineDoubleDollarMath(content: String): String {
+    return Regex("""(?<!\n)\$\$(.+?)\$\$(?!\n)""")
+        .replace(content) { match ->
+            "$" + match.groupValues[1].trim() + "$"
+        }
 }
 
 private fun toHex(color: Color): String {
