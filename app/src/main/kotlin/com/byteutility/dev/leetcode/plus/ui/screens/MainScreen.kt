@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,9 @@ import com.byteutility.dev.leetcode.plus.ui.navigation.Settings
 import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.AllProblemsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.home.HomeScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.settings.SettingsScreen
+import com.byteutility.dev.leetcode.plus.ui.theme.navBarGradientEnd
+import com.byteutility.dev.leetcode.plus.ui.theme.navBarGradientMiddle
+import com.byteutility.dev.leetcode.plus.ui.theme.navBarGradientStart
 
 sealed class BottomNavScreen(val route: Any, val label: String, val icon: ImageVector) {
     object HomeWithLabel : BottomNavScreen(
@@ -81,9 +85,9 @@ fun MainScreen(mainNavController: NavHostController) {
                         .background(
                             Brush.horizontalGradient(
                                 colors = listOf(
-                                    Color(0xFFBECEC3),
-                                    Color(0xFF498A5C),
-                                    Color(0xFFBECEC3),
+                                    MaterialTheme.colorScheme.navBarGradientStart,
+                                    MaterialTheme.colorScheme.navBarGradientMiddle,
+                                    MaterialTheme.colorScheme.navBarGradientEnd,
                                 )
                             )
                         ),
