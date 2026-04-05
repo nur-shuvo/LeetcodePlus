@@ -54,6 +54,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalSetDialog
+import com.byteutility.dev.leetcode.plus.ui.theme.easyCategory
+import com.byteutility.dev.leetcode.plus.ui.theme.hardCategory
+import com.byteutility.dev.leetcode.plus.ui.theme.mediumCategory
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -108,9 +111,7 @@ fun SetWeeklyTargetScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFABDEF5).copy(
-                        alpha = 0.1f
-                    )
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
         },
@@ -173,7 +174,7 @@ fun ProblemSelection(
 
     Column(
         modifier = Modifier
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .fillMaxSize()
             .then(modifier)
     ) {
@@ -186,8 +187,8 @@ fun ProblemSelection(
                 .height(55.dp),
             singleLine = true,
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
             )
         )
 
@@ -255,10 +256,10 @@ fun ProblemItem(
     onNavigateToProblemDetails: (String) -> Unit = {}
 ) {
     val backgroundColor: Color = when (problem.difficulty) {
-        "Easy" -> Color(0xFFE0F7FA).copy(alpha = 0.4f)
-        "Medium" -> Color(0xFFFFF9C4).copy(alpha = 0.4f)
-        "Hard" -> Color(0xFFFFCDD2).copy(alpha = 0.4f)
-        else -> Color(0xFFE0F7FA)
+        "Easy" -> MaterialTheme.colorScheme.easyCategory.copy(alpha = 0.4f)
+        "Medium" -> MaterialTheme.colorScheme.mediumCategory.copy(alpha = 0.4f)
+        "Hard" -> MaterialTheme.colorScheme.hardCategory.copy(alpha = 0.4f)
+        else -> MaterialTheme.colorScheme.easyCategory
     }
     Card(
         shape = RoundedCornerShape(12.dp),
