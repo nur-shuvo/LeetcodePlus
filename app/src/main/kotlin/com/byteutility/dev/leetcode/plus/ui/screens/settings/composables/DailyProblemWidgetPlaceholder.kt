@@ -28,7 +28,7 @@ fun DailyProblemWidgetPlaceholder() {
         modifier = Modifier
             .padding(top = 16.dp)
             .fillMaxWidth()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.errorContainer)
             .clip(RoundedCornerShape(16.dp))

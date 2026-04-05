@@ -554,7 +554,7 @@ fun LanguageSelectionSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
-        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFF498A5C).copy(alpha = 0.4f)) }
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)) }
     ) {
         Column(
             modifier = Modifier
