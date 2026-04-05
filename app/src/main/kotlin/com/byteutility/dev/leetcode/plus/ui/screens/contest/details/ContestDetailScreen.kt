@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.ui.common.AdBannerAdaptive
+import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientEnd
+import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientStart
 import com.byteutility.dev.leetcode.plus.utils.formatContestDate
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -98,7 +100,7 @@ fun ContestDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFABDEF5).copy(alpha = 0.1f)
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
         }
@@ -178,7 +180,7 @@ fun ContestDetailScreen(
 @Composable
 fun ContestTitleCard(event: String) {
     val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color.LightGray)
+        colors = listOf(MaterialTheme.colorScheme.sectionGradientStart, MaterialTheme.colorScheme.sectionGradientEnd)
     )
 
     Card(
