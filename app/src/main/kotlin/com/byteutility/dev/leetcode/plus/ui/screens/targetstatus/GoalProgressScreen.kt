@@ -60,6 +60,14 @@ import com.byteutility.dev.leetcode.plus.ui.common.AdBannerAdaptive
 import com.byteutility.dev.leetcode.plus.ui.common.done
 import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalResetDialog
 import com.byteutility.dev.leetcode.plus.ui.model.ProgressUiState
+import com.byteutility.dev.leetcode.plus.ui.theme.goalCompletedBackground
+import com.byteutility.dev.leetcode.plus.ui.theme.goalCompletedText
+import com.byteutility.dev.leetcode.plus.ui.theme.goalDefaultBackground
+import com.byteutility.dev.leetcode.plus.ui.theme.goalDefaultText
+import com.byteutility.dev.leetcode.plus.ui.theme.goalInProgressBackground
+import com.byteutility.dev.leetcode.plus.ui.theme.goalInProgressText
+import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientEnd
+import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientStart
 
 @Composable
 fun GoalProgressScreen(
@@ -121,9 +129,7 @@ fun ProgressScreenContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFABDEF5).copy(
-                        alpha = 0.1f
-                    )
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
         },
@@ -181,13 +187,13 @@ fun ProgressScreenContent(
                             imageVector = Icons.Default.Assignment,
                             contentDescription = null,
                             modifier = Modifier.size(64.dp),
-                            tint = Color.LightGray
+                            tint = MaterialTheme.colorScheme.outlineVariant
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             "Set a goal to see your progress",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -204,15 +210,15 @@ fun ProblemCard(
     onNavigateToProblemDetails: (String) -> Unit
 ) {
     val backgroundColor = when (problemStatus.status) {
-        "Completed" -> Color(0xFFE8F5E9)
-        "In Progress" -> Color(0xFFFFF8E1)
-        else -> Color(0xFFF5F5F5)
+        "Completed" -> MaterialTheme.colorScheme.goalCompletedBackground
+        "In Progress" -> MaterialTheme.colorScheme.goalInProgressBackground
+        else -> MaterialTheme.colorScheme.goalDefaultBackground
     }
 
     val statusColor = when (problemStatus.status) {
-        "Completed" -> Color(0xFF4CAF50)
-        "In Progress" -> Color(0xFFFFA000)
-        else -> Color(0xFF757575)
+        "Completed" -> MaterialTheme.colorScheme.goalCompletedText
+        "In Progress" -> MaterialTheme.colorScheme.goalInProgressText
+        else -> MaterialTheme.colorScheme.goalDefaultText
     }
 
     Card(
@@ -263,7 +269,7 @@ fun ProblemCard(
                 Box(
                     modifier = Modifier
                         .size(28.dp)
-                        .background(Color(0xFF4CAF50), shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.goalCompletedText, shape = CircleShape)
                         .clip(CircleShape)
                 ) {
                     Image(
@@ -294,7 +300,7 @@ fun ProgressSectionCard(
     content: @Composable () -> Unit
 ) {
     val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color.LightGray)
+        colors = listOf(MaterialTheme.colorScheme.sectionGradientStart, MaterialTheme.colorScheme.sectionGradientEnd)
     )
 
     Card(
@@ -302,7 +308,7 @@ fun ProgressSectionCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
