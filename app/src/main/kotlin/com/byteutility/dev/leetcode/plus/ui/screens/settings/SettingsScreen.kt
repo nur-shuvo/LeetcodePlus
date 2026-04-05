@@ -60,6 +60,8 @@ import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurat
 import com.byteutility.dev.leetcode.plus.core.settings.model.IntervalOption
 import com.byteutility.dev.leetcode.plus.ui.common.AdBannerAdaptive
 import com.byteutility.dev.leetcode.plus.ui.screens.settings.composables.DailyProblemWidgetPlaceholder
+import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientEnd
+import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientStart
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -131,7 +133,7 @@ fun SettingsScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFABDEF5).copy(alpha = 0.1f)
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
         }
@@ -349,7 +351,7 @@ fun SettingsSectionCard(
     content: @Composable () -> Unit
 ) {
     val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color.LightGray)
+        colors = listOf(MaterialTheme.colorScheme.sectionGradientStart, MaterialTheme.colorScheme.sectionGradientEnd)
     )
 
     Card(
@@ -357,7 +359,7 @@ fun SettingsSectionCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
