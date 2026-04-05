@@ -22,9 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 
@@ -46,9 +46,7 @@ fun CommonWebViewScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFABDEF5).copy(
-                        alpha = 0.1f
-                    )
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
         },
