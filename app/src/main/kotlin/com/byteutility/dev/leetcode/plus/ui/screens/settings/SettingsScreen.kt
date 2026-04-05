@@ -15,6 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NotificationImportant
@@ -174,6 +176,52 @@ fun SettingsScreen(
                             iconTint = Color.Red,
                             onClick = { showLogoutDialog = true }
                         )
+                    }
+                }
+
+                // Appearance
+                SettingsSectionCard(
+                    title = "Appearance",
+                    icon = Icons.Default.DarkMode
+                ) {
+                    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+                    val options = listOf("light", "dark", "system")
+                    val labels = listOf("Light", "Dark", "System")
+                    options.forEachIndexed { index, mode ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { viewModel.updateThemeMode(mode) }
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = labels[index],
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (themeMode == mode) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
+                                fontWeight = if (themeMode == mode) {
+                                    FontWeight.Bold
+                                } else {
+                                    FontWeight.Normal
+                                }
+                            )
+                            if (themeMode == mode) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Selected",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                        if (index < options.lastIndex) {
+                            Divider(modifier = Modifier.padding(vertical = 4.dp))
+                        }
                     }
                 }
 

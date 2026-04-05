@@ -46,6 +46,9 @@ class SettingsViewModel @Inject constructor(
     private val _syncInterval = MutableStateFlow(30L)
     private val _notificationInterval = MutableStateFlow(180L)
 
+    private val _themeMode = MutableStateFlow("system")
+    val themeMode: StateFlow<String> = _themeMode.asStateFlow()
+
     val syncInterval: StateFlow<Long> = _syncInterval.asStateFlow()
     val notificationInterval: StateFlow<Long> = _notificationInterval.asStateFlow()
 
@@ -54,6 +57,7 @@ class SettingsViewModel @Inject constructor(
         loadLastSyncTime()
         loadSyncInterval()
         loadNotificationInterval()
+        loadThemeMode()
     }
 
     private fun loadUserInfo() {
@@ -144,6 +148,21 @@ class SettingsViewModel @Inject constructor(
             appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
         } else {
             Log.e("SettingsViewModel", "Pinning widget is not supported on this device")
+        }
+    }
+
+    private fun loadThemeMode() {
+        viewModelScope.launch {
+            userDatastore.getThemeMode().collect { mode ->
+                _themeMode.value = mode
+            }
+        }
+    }
+
+    fun updateThemeMode(mode: String) {
+        viewModelScope.launch {
+            userDatastore.saveThemeMode(mode)
+            _themeMode.value = mode
         }
     }
 
