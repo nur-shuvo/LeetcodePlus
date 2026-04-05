@@ -13,6 +13,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
@@ -34,7 +35,9 @@ import com.byteutility.dev.leetcode.plus.ui.networkmonitor.NetworkMonitorActivit
 import com.byteutility.dev.leetcode.plus.ui.networkmonitor.ShakeDetector
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -68,8 +71,11 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             val userLoggedIn =
                 userDatastore.getUserBasicInfo().first()?.userName?.isNotEmpty() == true
+            val themeMode = userDatastore.getThemeMode()
+                .stateIn(lifecycleScope, SharingStarted.Eagerly, "system")
             setContent {
-                LeetcodePlusTheme {
+                val currentThemeMode by themeMode.collectAsState()
+                LeetcodePlusTheme(themeMode = currentThemeMode) {
                     val navController = rememberNavController()
                     val context = LocalContext.current
 
