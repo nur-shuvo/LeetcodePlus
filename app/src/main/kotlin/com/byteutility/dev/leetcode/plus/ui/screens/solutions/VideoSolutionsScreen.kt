@@ -51,6 +51,8 @@ import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.byteutility.dev.leetcode.plus.ui.common.AdBannerAdaptive
+import com.byteutility.dev.leetcode.plus.ui.theme.searchFieldBackground
+import com.byteutility.dev.leetcode.plus.ui.theme.thumbnailPlaceholder
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.google.api.services.youtube.model.Video
 
@@ -74,7 +76,7 @@ fun VideoSolutionsScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFFABDEF5).copy(alpha = 0.1f)
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
                 OutlinedTextField(
@@ -86,8 +88,8 @@ fun VideoSolutionsScreen(
                     },
                     shape = RoundedCornerShape(16.dp),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFE3F2FD),
-                        unfocusedContainerColor = Color(0xFFE3F2FD),
+                        focusedContainerColor = MaterialTheme.colorScheme.searchFieldBackground,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.searchFieldBackground,
                         focusedIndicatorColor = Color.Blue,
                         unfocusedIndicatorColor = Color.Gray
                     ),
@@ -139,7 +141,7 @@ fun YouTubeVideoGrid(
                     modifier = Modifier
                         .wrapContentSize()
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color.Gray)
+                        .background(MaterialTheme.colorScheme.thumbnailPlaceholder)
                         .clickable {
                             val intent = Intent(
                                 Intent.ACTION_VIEW,
