@@ -109,6 +109,13 @@ import kotlinx.coroutines.launch
 import me.bytebeats.views.charts.pie.PieChart
 import me.bytebeats.views.charts.pie.PieChartData
 import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
+import com.byteutility.dev.leetcode.plus.ui.theme.allProblemsGradientEnd
+import com.byteutility.dev.leetcode.plus.ui.theme.allProblemsGradientStart
+import com.byteutility.dev.leetcode.plus.ui.theme.easyCategory
+import com.byteutility.dev.leetcode.plus.ui.theme.hardCategory
+import com.byteutility.dev.leetcode.plus.ui.theme.mediumCategory
+import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientEnd
+import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientStart
 import me.bytebeats.views.charts.simpleChartAnimation
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -242,9 +249,7 @@ fun HomeLayout(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFABDEF5).copy(
-                        alpha = 0.1f
-                    )
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
         }
@@ -303,7 +308,7 @@ fun HomeLayout(
                         modifier = Modifier
                             .background(
                                 brush = Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFF6dd5ed), Color(0xFF2193b0))
+                                    colors = listOf(MaterialTheme.colorScheme.allProblemsGradientStart, MaterialTheme.colorScheme.allProblemsGradientEnd)
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             )
@@ -481,9 +486,9 @@ fun UserPieChart(userProblemSolvedInfo: UserProblemSolvedInfo) {
     PieChart(
         pieChartData = PieChartData(
             slices = listOf(
-                PieChartData.Slice(userProblemSolvedInfo.getEasyPercentage(), Color(0xFFE0F7FA)),
-                PieChartData.Slice(userProblemSolvedInfo.getMediumPercentage(), Color(0xFFFFF9C4)),
-                PieChartData.Slice(userProblemSolvedInfo.getHardPercentage(), Color(0xFFFFCDD2))
+                PieChartData.Slice(userProblemSolvedInfo.getEasyPercentage(), MaterialTheme.colorScheme.easyCategory),
+                PieChartData.Slice(userProblemSolvedInfo.getMediumPercentage(), MaterialTheme.colorScheme.mediumCategory),
+                PieChartData.Slice(userProblemSolvedInfo.getHardPercentage(), MaterialTheme.colorScheme.hardCategory)
             )
         ),
         modifier = Modifier.size(200.dp),
@@ -526,7 +531,7 @@ fun UserProblemCategoryStats(
 @Composable
 fun UserProfileCard(user: UserBasicInfo) {
     val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color.LightGray)
+        colors = listOf(MaterialTheme.colorScheme.sectionGradientStart, MaterialTheme.colorScheme.sectionGradientEnd)
     )
 
     Card(
@@ -535,7 +540,7 @@ fun UserProfileCard(user: UserBasicInfo) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp)),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Box(
             modifier = Modifier
@@ -554,7 +559,7 @@ fun UserProfileCard(user: UserBasicInfo) {
                     modifier = Modifier
                         .size(64.dp)
                         .clip(CircleShape)
-                        .border(2.dp, Color.White, CircleShape)
+                        .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
                 )
 
                 Column(
