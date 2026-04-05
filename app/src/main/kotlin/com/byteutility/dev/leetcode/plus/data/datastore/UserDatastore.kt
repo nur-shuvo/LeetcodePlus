@@ -234,6 +234,22 @@ class UserDatastore @Inject constructor(
             ?: IntervalConfigurations.NOTIFICATION_DEFAULT_INTERVAL.minutes
     }
 
+    suspend fun saveThemeMode(mode: String) {
+        context.userPreferencesDataStore.edit { preferences ->
+            preferences[stringPreferencesKey("theme_mode")] = mode
+        }
+    }
+
+    fun getThemeMode(): Flow<String> {
+        return context.userPreferencesDataStore.data
+            .catch {
+                emit(emptyPreferences())
+            }
+            .map { preferences ->
+                preferences[stringPreferencesKey("theme_mode")] ?: "system"
+            }
+    }
+
     override suspend fun clearAllData() {
         context.userPreferencesDataStore.edit {
             it.clear()
