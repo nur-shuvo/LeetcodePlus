@@ -57,7 +57,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -102,13 +101,6 @@ import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListState
-import com.byteutility.dev.leetcode.plus.utils.formatContestDate
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import me.bytebeats.views.charts.pie.PieChart
-import me.bytebeats.views.charts.pie.PieChartData
-import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
 import com.byteutility.dev.leetcode.plus.ui.theme.allProblemsGradientEnd
 import com.byteutility.dev.leetcode.plus.ui.theme.allProblemsGradientStart
 import com.byteutility.dev.leetcode.plus.ui.theme.easyCategory
@@ -116,6 +108,13 @@ import com.byteutility.dev.leetcode.plus.ui.theme.hardCategory
 import com.byteutility.dev.leetcode.plus.ui.theme.mediumCategory
 import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientEnd
 import com.byteutility.dev.leetcode.plus.ui.theme.sectionGradientStart
+import com.byteutility.dev.leetcode.plus.utils.formatContestDate
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import me.bytebeats.views.charts.pie.PieChart
+import me.bytebeats.views.charts.pie.PieChartData
+import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
 import me.bytebeats.views.charts.simpleChartAnimation
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -248,9 +247,6 @@ fun HomeLayout(
                         modifier = Modifier.testTag("main_top_actions")
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
             )
         }
     ) { paddingValues ->

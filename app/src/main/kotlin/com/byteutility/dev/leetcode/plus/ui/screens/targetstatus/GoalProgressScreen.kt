@@ -128,9 +128,6 @@ fun ProgressScreenContent(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
             )
         },
     ) { paddingValues ->

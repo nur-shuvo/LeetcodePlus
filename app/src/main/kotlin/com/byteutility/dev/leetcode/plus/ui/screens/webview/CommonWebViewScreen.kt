@@ -45,9 +45,6 @@ fun CommonWebViewScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
             )
         },
     ) { innerPadding ->

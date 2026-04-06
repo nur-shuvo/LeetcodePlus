@@ -100,9 +100,6 @@ fun AllProblemsScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
                 actions = {
                     IconButton(onClick = {
                         showFilterBottomSheet = true
