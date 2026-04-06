@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.LeetcodePlus" parent="android:Theme.Material.DayNight.NoActionBar">
+    <style name="Theme.LeetcodePlus" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="postSplashScreenTheme">@style/Theme.LeetcodePlus</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/app_icon_playstore</item>
     </style>
