@@ -31,9 +31,9 @@ class UserDatastore @Inject constructor(
     private val gson: Gson = Gson()
 
     private val Context.userPreferencesDataStore:
-        DataStore<Preferences> by preferencesDataStore(
-            name = "user_preferences"
-        )
+            DataStore<Preferences> by preferencesDataStore(
+        name = "user_preferences"
+    )
 
     suspend fun saveUserBasicInfo(userBasicInfo: UserBasicInfo) {
         context.userPreferencesDataStore.edit { preferences ->
@@ -232,6 +232,18 @@ class UserDatastore @Inject constructor(
         val intervalString = preferences[stringPreferencesKey("notification_interval_minutes")]
         return intervalString?.toLongOrNull()
             ?: IntervalConfigurations.NOTIFICATION_DEFAULT_INTERVAL.minutes
+    }
+
+    suspend fun saveAllProblemFetchingInterval(timestamp: Long) {
+        context.userPreferencesDataStore.edit { preferences ->
+            preferences[stringPreferencesKey("last_sync_timestamp")] = timestamp.toString()
+        }
+    }
+
+    suspend fun getAllProblemFetchingInterval(): Long {
+        val preferences = context.userPreferencesDataStore.data.first()
+        val timeStamp = preferences[stringPreferencesKey("last_sync_timestamp")]
+        return timeStamp?.toLongOrNull() ?: 0L
     }
 
     override suspend fun clearAllData() {

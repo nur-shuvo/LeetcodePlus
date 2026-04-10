@@ -21,7 +21,7 @@ data class ProblemEntity(
     @ColumnInfo(name = "difficulty")
     val difficulty: String,
     @ColumnInfo(name = "acceptance")
-    val acceptance: Double,
+    val acceptance: String,
     @ColumnInfo(name = "isPaidOnly")
     val isPaidOnly: Boolean,
     @ColumnInfo(name = "has_solution")
@@ -29,13 +29,7 @@ data class ProblemEntity(
     @ColumnInfo(name = "has_video_solution")
     val hasVideoSolution: Boolean,
     @ColumnInfo(name = "topic_tags")
-    val topicTags: List<TopicTag>?
-)
-
-data class TopicTag(
-    val name: String,
-    val id: String,
-    val slug: String
+    val topicTags: List<String>?
 )
 
 

@@ -1,7 +1,9 @@
 package com.byteutility.dev.leetcode.plus.utils
 
 import android.content.Intent
+import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
+import com.byteutility.dev.leetcode.plus.data.model.ProblemsModel
 import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
@@ -94,4 +96,18 @@ fun String.toTitleCase(): String {
     return this.split(" ").joinToString(" ") { word ->
         word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
     }
+}
+
+fun ProblemsModel.toProblemEntity(): ProblemEntity {
+    return ProblemEntity(
+        problemId = this.id,
+        title = this.problemName,
+        titleSlug = this.problemNameSlug,
+        difficulty = this.difficulty,
+        acceptance = this.acceptRate,
+        isPaidOnly = this.isFree,
+        hasSolution = this.hasSolution,
+        hasVideoSolution = this.hasVideoSolution,
+        topicTags = this.topics?.split(",")?.map { it.trim() } ?: emptyList()
+    )
 }

@@ -1,6 +1,7 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.home
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,7 @@ import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.pagination.DefaultPaginator
+import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.data.worker.ContestReminderWorker
@@ -54,7 +56,8 @@ class HomeScreenViewModel @Inject constructor(
     private val goalRepository: WeeklyGoalRepository,
     private val notificationDataStore: NotificationDataStore,
     private val userDatastore: UserDatastore,
-    dailyProblemStatusMonitor: DailyProblemStatusMonitor
+    dailyProblemStatusMonitor: DailyProblemStatusMonitor,
+    private val problemsRepository: ProblemsRepository
 ) : ViewModel() {
 
     // Submissions
@@ -200,6 +203,8 @@ class HomeScreenViewModel @Inject constructor(
         scheduleBackgroundTasks()
 
         getWeeklyGoalStatus()
+
+        getRemoteProblems()
     }
 
     fun refreshUiState() {
@@ -361,4 +366,20 @@ class HomeScreenViewModel @Inject constructor(
                 workManager.getWorkInfosForUniqueWork("contest-reminder-${contest.id}").get()
             workInfos.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
         }
+
+    fun getRemoteProblems() = viewModelScope.launch {
+        val timeStamp = userDatastore.getAllProblemFetchingInterval()
+        if (shouldFetching(timeStamp)) {
+            problemsRepository.getRemoteProblems().onSuccess {
+                userDatastore.saveAllProblemFetchingInterval(System.currentTimeMillis())
+            }.onFailure {
+                Log.e("Error", "Unable to Fetch $it")
+            }
+        }
+    }
+
+    private fun shouldFetching(timeStamp: Long): Boolean {
+        return System.currentTimeMillis() - timeStamp >= (24 * 60 * 60 * 1000L)
+    }
+
 }

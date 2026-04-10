@@ -1,7 +1,6 @@
 package com.byteutility.dev.leetcode.plus.data.database.converter
 
 import androidx.room.TypeConverter
-import com.byteutility.dev.leetcode.plus.data.database.entity.TopicTag
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -13,12 +12,12 @@ import com.google.gson.reflect.TypeToken
 class Converters {
     private val gson = Gson()
     @TypeConverter
-    fun fromTopicTagList(tags: List<TopicTag>): String {
+    fun fromTopicTagList(tags: List<String>): String {
         return gson.toJson(tags)
     }
     @TypeConverter
-    fun toTopicTagList(json: String): List<TopicTag> {
-        val type = object : TypeToken<List<TopicTag>>() {}.type
+    fun toTopicTagList(json: String): List<String> {
+        val type = object : TypeToken<List<String>>() {}.type
         return gson.fromJson(json, type)
     }
 }
