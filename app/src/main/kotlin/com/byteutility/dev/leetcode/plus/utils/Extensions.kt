@@ -1,6 +1,11 @@
 package com.byteutility.dev.leetcode.plus.utils
 
 import android.content.Intent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.ProblemsModel
@@ -14,6 +19,9 @@ import com.byteutility.dev.leetcode.plus.network.responseVo.UserContestVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserProfileVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserSolvedVo
 import com.byteutility.dev.leetcode.plus.network.responseVo.UserSubmissionVo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
@@ -110,4 +118,30 @@ fun ProblemsModel.toProblemEntity(): ProblemEntity {
         hasVideoSolution = this.hasVideoSolution,
         topicTags = this.topics?.split(",")?.map { it.trim() } ?: emptyList()
     )
+}
+
+fun ProblemEntity.toLeetCodeProblem():LeetCodeProblem{
+    return LeetCodeProblem(
+        title = this.title,
+        difficulty = this.difficulty,
+        tag = this.topicTags?.firstOrNull() ?: "NO_TAG",
+        titleSlug = this.titleSlug?:""
+    )
+}
+
+@Composable
+fun <T> ObserveAsEvent(
+    events: Flow<T>,
+    key1: Any? = null,
+    key2: Any? = null,
+    onEvent: (T) -> Unit
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner.lifecycle, key1, key2) {
+        withContext(Dispatchers.Main.immediate) {
+            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                events.collect(onEvent)
+            }
+        }
+    }
 }

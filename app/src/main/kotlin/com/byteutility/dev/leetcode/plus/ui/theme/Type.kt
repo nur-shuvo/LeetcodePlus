@@ -8,11 +8,11 @@ import com.byteutility.dev.leetcode.plus.R
 
 
 val FiraCodeFontFamily = FontFamily(
-    Font(R.font.fira_code_light, FontWeight.Light),
-    Font(R.font.fira_code_regular, FontWeight.Normal),
-    Font(R.font.fira_code_medium, FontWeight.Medium),
-    Font(R.font.fira_code_semi_bold, FontWeight.SemiBold),
-    Font(R.font.fira_code_bold, FontWeight.Bold),
+    Font(R.font.google_san_light, FontWeight.Light),
+    Font(R.font.google_san_reguler, FontWeight.Normal),
+    Font(R.font.google_san_medium, FontWeight.Medium),
+    Font(R.font.google_san_semi_bold, FontWeight.SemiBold),
+    Font(R.font.google_san_bold, FontWeight.Bold),
 )
 
 val baseline = Typography()

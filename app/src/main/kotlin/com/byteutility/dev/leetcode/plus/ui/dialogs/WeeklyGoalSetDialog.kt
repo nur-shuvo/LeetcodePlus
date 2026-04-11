@@ -15,7 +15,8 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun WeeklyGoalSetDialog(
-    confirmed: (period: WeeklyGoalPeriod) -> Unit
+    confirmed: (period: WeeklyGoalPeriod) -> Unit,
+    onDismiss: (Boolean) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(true) }
     val today = LocalDate.now()
@@ -25,7 +26,10 @@ fun WeeklyGoalSetDialog(
 
     if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = {
+                showDialog = false
+                onDismiss(false)
+            },
             title = { Text(text = "Confirming Weekly Goal") },
             text = {
                 Text(

@@ -47,6 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -100,6 +101,21 @@ fun AllProblemsScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val activeFilterCount by viewModel.activeFilterCount.collectAsStateWithLifecycle()
     val problems = viewModel.problems.collectAsLazyPagingItems()
+    val showFilterSheet = remember { mutableStateOf(false) }
+
+    if (showFilterSheet.value) {
+        FilterBottomSheet(
+            tags = state.tags,
+            difficulties = state.difficulties,
+            selectedTags = state.selectedTag,
+            selectedDifficulties = state.selectedDifficulties,
+            onTagSelected = viewModel::onTagSelected,
+            onDifficultySelected = viewModel::onDifficultySelected,
+            onApply = { showFilterSheet.value = false },
+            onClear = viewModel::clearFilters,
+            onDismiss = { showFilterSheet.value = false }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -108,9 +124,7 @@ fun AllProblemsScreen(
     ) {
         ProblemsTopAppBar(
             activeFilterCount = activeFilterCount,
-            onFilterClick = {
-
-            }
+            onFilterClick = { showFilterSheet.value = true }
         )
         SearchBar(
             query = state.searchQuery,
@@ -445,7 +459,7 @@ private fun ProblemCard(
 
 
 @Composable
-private fun DifficultyChip(difficulty: String) {
+fun DifficultyChip(difficulty: String) {
     val (bg, text) = when (difficulty.lowercase()) {
         "easy" -> EasyBg to EasyText
         "medium" -> MediumBg to MediumText
@@ -468,7 +482,7 @@ private fun DifficultyChip(difficulty: String) {
 }
 
 @Composable
-private fun TopicTagChip(tag: String) {
+fun TopicTagChip(tag: String) {
     Surface(
         shape = RoundedCornerShape(6.dp),
         color = TagBackground
@@ -483,7 +497,7 @@ private fun TopicTagChip(tag: String) {
 }
 
 @Composable
-private fun OverflowTagChip(count: Int) {
+fun OverflowTagChip(count: Int) {
     Surface(
         shape = RoundedCornerShape(6.dp),
         color = OverflowTagBg,
