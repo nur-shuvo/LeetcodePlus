@@ -11,6 +11,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -72,8 +74,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -102,6 +108,9 @@ import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListState
+import com.byteutility.dev.leetcode.plus.ui.theme.EasyText
+import com.byteutility.dev.leetcode.plus.ui.theme.HardText
+import com.byteutility.dev.leetcode.plus.ui.theme.MediumText
 import com.byteutility.dev.leetcode.plus.utils.formatContestDate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -497,28 +506,13 @@ fun UserProblemCategoryStats(
     modifier: Modifier = Modifier,
     userProblemSolvedInfo: UserProblemSolvedInfo,
 ) {
-    Box(
-        modifier = modifier
-            .padding(8.dp)
-            .fillMaxWidth()
-    ) {
-        Card(
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    userProblemSolvedInfo?.let {
+        Box(
+            modifier = modifier
+                .padding(8.dp)
+                .fillMaxWidth()
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                UserPieChart(userProblemSolvedInfo)
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    ProblemCategoriesSolved(userProblemSolvedInfo)
-                }
-            }
+            CategoryStatsCard(userProblemSolvedInfo)
         }
     }
 }
@@ -720,21 +714,21 @@ fun ProblemCategoriesSolved(
     ProblemCategoryBox(
         category = "Easy",
         solved = userProblemSolvedInfo.easy,
-        total = 830,
+        total = 937,
         backgroundColor = Color(0xFFE0F7FA)
     )
 
     ProblemCategoryBox(
         category = "Medium",
         solved = userProblemSolvedInfo.medium,
-        total = 1742,
+        total = 2037,
         backgroundColor = Color(0xFFFFF9C4)
     )
 
     ProblemCategoryBox(
         category = "Hard",
         solved = userProblemSolvedInfo.hard,
-        total = 756,
+        total = 921,
         backgroundColor = Color(0xFFFFCDD2)
     )
 }
@@ -1261,6 +1255,134 @@ fun LogoutConfirmationDialog(
         }
     )
 }
+
+@Composable
+fun MultiRadialProgressChart(
+    userProblemSolvedInfo: UserProblemSolvedInfo?,
+    modifier: Modifier = Modifier
+) {
+    if (userProblemSolvedInfo == null) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
+            Text("No Data Available", style = MaterialTheme.typography.bodyMedium)
+        }
+        return
+    }
+
+    val rings = listOf(
+        RadialData("Easy", userProblemSolvedInfo.easy, 937, EasyText),
+        RadialData("Medium", userProblemSolvedInfo.medium, 2037, MediumText),
+        RadialData("Hard", userProblemSolvedInfo.hard, 921, HardText)
+    )
+
+    Canvas(modifier = modifier.padding(16.dp)) {
+        val strokeWidth = 12.dp.toPx()
+        val spacing = 10.dp.toPx()
+        rings.forEachIndexed { index, data ->
+            val sweepAngle = if (data.total > 0) {
+                (data.solved.toFloat() / data.total.toFloat()) * 360f
+            } else 0f
+
+            val inset = index * (strokeWidth + spacing)
+            val ringSize = Size(
+                width = size.width - inset * 2,
+                height = size.height - inset * 2
+            )
+
+            drawArc(
+                color = data.color.copy(alpha = 0.2f),
+                startAngle = 0f,
+                sweepAngle = 360f,
+                useCenter = false,
+                topLeft = Offset(inset, inset),
+                size = ringSize,
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+            )
+
+            drawArc(
+                color = data.color,
+                startAngle = -90f,
+                sweepAngle = sweepAngle,
+                useCenter = false,
+                topLeft = Offset(inset, inset),
+                size = ringSize,
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+            )
+        }
+    }
+}
+
+@Composable
+fun RadialLegend(userProblemSolvedInfo: UserProblemSolvedInfo) {
+    val items = listOf(
+        Triple("Easy", userProblemSolvedInfo.easy to 937, EasyText),
+        Triple("Medium", userProblemSolvedInfo.medium to 2037, MediumText),
+        Triple("Hard", userProblemSolvedInfo.hard to 921, HardText)
+    )
+
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        items.forEach { (label, stats, color) ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 40.dp, height = 20.dp)
+                        .background(color, RoundedCornerShape(4.dp))
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(text = label, fontWeight = FontWeight.Bold)
+                    val percentage = if (stats.second > 0) {
+                        (stats.first.toFloat() / stats.second.toFloat()) * 100
+                    } else 0f
+                    val formattedPercentage = "%.1f".format(percentage)
+                    Text(
+                        text = "$formattedPercentage%",
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text(
+                        text = "${stats.first} from ${stats.second}",
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?) {
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
+                if (userProblemSolvedInfo != null) {
+                    RadialLegend(userProblemSolvedInfo)
+                } else {
+                    Text("No Statistics")
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+            MultiRadialProgressChart(
+                userProblemSolvedInfo = userProblemSolvedInfo,
+                modifier = Modifier
+                    .size(140.dp)
+                    .aspectRatio(1f)
+            )
+        }
+    }
+}
+
+data class RadialData(val label: String, val solved: Int, val total: Int, val color: Color)
 
 private fun calculateRemainingTime(): String {
     val now = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
