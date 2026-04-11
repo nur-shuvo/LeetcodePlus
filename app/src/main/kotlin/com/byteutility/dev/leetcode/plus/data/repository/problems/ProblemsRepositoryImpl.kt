@@ -2,6 +2,7 @@ package com.byteutility.dev.leetcode.plus.data.repository.problems
 
 import androidx.paging.PagingSource
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.data.database.dao.ProblemsDao
 import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
 import com.byteutility.dev.leetcode.plus.data.model.ProblemsModel
@@ -71,11 +72,8 @@ class ProblemsRepositoryImpl @Inject constructor(
     override suspend fun getRemoteProblems(): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
-                val spreadsheetId = "1sRWp95wqo3a7lLBbtNd_3KkTyGjx_9sctTOL5JOb6pA"
-                val url =
-                    "https://docs.google.com/spreadsheets/d/$spreadsheetId/export?format=csv&gid=0"
                 val client = OkHttpClient()
-                val request = Request.Builder().url(url).build()
+                val request = Request.Builder().url(BuildConfig.ALL_PROBLEMS_SHEET).build()
                 val response = client.newCall(request).execute()
                 if (!response.isSuccessful) throw Exception("Failed: ${response.code}")
                 val body = response.body?.string() ?: throw Exception("Empty response")
