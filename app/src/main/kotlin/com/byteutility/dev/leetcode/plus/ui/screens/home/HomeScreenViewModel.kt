@@ -379,7 +379,7 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     private fun shouldFetching(timeStamp: Long): Boolean {
-        return System.currentTimeMillis() - timeStamp >= (24 * 60 * 60 * 1000L)
+        return System.currentTimeMillis() - timeStamp >= (7 * 24 * 60 * 60 * 1000L)
     }
 
 }
