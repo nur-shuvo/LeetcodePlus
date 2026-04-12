@@ -369,7 +369,7 @@ private fun ProblemCard(
                                 initialDelayMillis = 2000
                             )
                     )
-                    if (problem.isPaidOnly) {
+                    if (!problem.isFree) {
                         Icon(
                             imageVector = Icons.Filled.Lock,
                             contentDescription = "Premium",
@@ -525,7 +525,7 @@ private fun AllProblemPreview() {
             titleSlug = "reverse-linked-list-ii",
             difficulty = "Medium",
             acceptance = "51.2%",
-            isPaidOnly = true,
+            isFree = true,
             hasSolution = true,
             hasVideoSolution = true,
             topicTags = listOf("Linked List", "Recursion")
@@ -536,7 +536,7 @@ private fun AllProblemPreview() {
             titleSlug = "longest-palindromic-substring",
             difficulty = "Medium",
             acceptance = "52.4%",
-            isPaidOnly = true,
+            isFree = true,
             hasSolution = true,
             hasVideoSolution = true,
             topicTags = listOf("String", "Dynamic Programming", "Two Pointers", "Manacher's Algorithm")
@@ -547,7 +547,7 @@ private fun AllProblemPreview() {
             titleSlug = "two-sum",
             difficulty = "Easy",
             acceptance = "49.8%",
-            isPaidOnly = false,
+            isFree = false,
             hasSolution = true,
             hasVideoSolution = false,
             topicTags = listOf("Array", "Hash Table")
@@ -558,7 +558,7 @@ private fun AllProblemPreview() {
             titleSlug = "reverse-nodes-in-k-group",
             difficulty = "Hard",
             acceptance = "55.1%",
-            isPaidOnly = true,
+            isFree = true,
             hasSolution = true,
             hasVideoSolution = true,
             topicTags = listOf("Linked List", "Recursion")
@@ -569,7 +569,7 @@ private fun AllProblemPreview() {
             titleSlug = "lru-cache",
             difficulty = "Medium",
             acceptance = "41.2%",
-            isPaidOnly = true,
+            isFree = true,
             hasSolution = true,
             hasVideoSolution = false,
             topicTags = listOf("Hash Table", "Linked List", "Design", "Doubly-Linked List")

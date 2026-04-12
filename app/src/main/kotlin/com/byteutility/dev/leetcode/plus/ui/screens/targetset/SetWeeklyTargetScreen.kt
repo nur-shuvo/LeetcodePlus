@@ -334,7 +334,7 @@ private fun ProblemCard(
                                     initialDelayMillis = 2000
                                 )
                         )
-                        if (problem.isPaidOnly) {
+                        if (!problem.isFree) {
                             Icon(
                                 imageVector = Icons.Filled.Lock,
                                 contentDescription = "Premium",
@@ -637,7 +637,7 @@ private fun ProblemCardPreview() {
         titleSlug = "reverse-linked-list-ii",
         difficulty = "Easy",
         acceptance = "51.2%",
-        isPaidOnly = true,
+        isFree = true,
         hasSolution = true,
         hasVideoSolution = true,
         topicTags = listOf("Linked List", "Recursion")

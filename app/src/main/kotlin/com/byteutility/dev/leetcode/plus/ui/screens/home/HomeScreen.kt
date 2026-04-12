@@ -506,10 +506,9 @@ fun UserProblemCategoryStats(
     modifier: Modifier = Modifier,
     userProblemSolvedInfo: UserProblemSolvedInfo,
 ) {
-    userProblemSolvedInfo?.let {
+    userProblemSolvedInfo.let {
         Box(
             modifier = modifier
-                .padding(8.dp)
                 .fillMaxWidth()
         ) {
             CategoryStatsCard(userProblemSolvedInfo)
@@ -1361,7 +1360,7 @@ fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
+                .padding(16.dp)
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 if (userProblemSolvedInfo != null) {

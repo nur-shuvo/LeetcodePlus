@@ -31,7 +31,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
                 `title_slug` TEXT,
                 `difficulty` TEXT NOT NULL,
                 `acceptance` TEXT NOT NULL,
-                `isPaidOnly` INTEGER NOT NULL,
+                `is_free` INTEGER NOT NULL,
                 `has_solution` INTEGER NOT NULL,
                 `has_video_solution` INTEGER NOT NULL,
                 `topic_tags` TEXT
@@ -50,13 +50,13 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
                 `title_slug` TEXT,
                 `difficulty` TEXT NOT NULL,
                 `acceptance` TEXT NOT NULL,
-                `isPaidOnly` INTEGER NOT NULL,
+                `is_free` INTEGER NOT NULL,
                 `has_solution` INTEGER NOT NULL,
                 `has_video_solution` INTEGER NOT NULL,
                 `topic_tags` TEXT
             )
         """)
-        db.execSQL("INSERT INTO `all_problems_new` (`problem_id`, `title`, `title_slug`, `difficulty`, `acceptance`, `isPaidOnly`, `has_solution`, `has_video_solution`, `topic_tags`) SELECT `problem_id`, `title`, `title_slug`, `difficulty`, CAST(`acceptance` AS TEXT), `isPaidOnly`, `has_solution`, `has_video_solution`, `topic_tags` FROM `all_problems`")
+        db.execSQL("INSERT INTO `all_problems_new` (`problem_id`, `title`, `title_slug`, `difficulty`, `acceptance`, `is_free`, `has_solution`, `has_video_solution`, `topic_tags`) SELECT `problem_id`, `title`, `title_slug`, `difficulty`, CAST(`acceptance` AS TEXT), `isPaidOnly`, `has_solution`, `has_video_solution`, `topic_tags` FROM `all_problems`")
         db.execSQL("DROP TABLE `all_problems`")
         db.execSQL("ALTER TABLE `all_problems_new` RENAME TO `all_problems`")
     }

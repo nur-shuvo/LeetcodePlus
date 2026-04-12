@@ -22,8 +22,8 @@ data class ProblemEntity(
     val difficulty: String,
     @ColumnInfo(name = "acceptance")
     val acceptance: String,
-    @ColumnInfo(name = "isPaidOnly")
-    val isPaidOnly: Boolean,
+    @ColumnInfo(name = "is_free")
+    val isFree: Boolean,
     @ColumnInfo(name = "has_solution")
     val hasSolution: Boolean,
     @ColumnInfo(name = "has_video_solution")
