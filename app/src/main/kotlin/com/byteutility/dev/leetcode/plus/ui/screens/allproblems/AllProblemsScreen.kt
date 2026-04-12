@@ -230,7 +230,9 @@ private fun SearchBar(
     TextField(
         value = query,
         onValueChange = onQueryChange,
-        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)),
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp)),
         placeholder = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -417,9 +419,11 @@ private fun ProblemCard(
                     )
                     Text(
                         text = problem.acceptance,
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Monospace,
-                        color = TitleColor
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 12.sp,
+                            color = TitleColor,
+                            fontWeight = FontWeight.Normal
+                        )
                     )
                 }
 
@@ -438,7 +442,7 @@ private fun ProblemCard(
                             Icon(
                                 painter = painterResource(R.drawable.ic_video),
                                 contentDescription = "Video solution",
-                                modifier = Modifier.size(12.dp),
+                                modifier = Modifier.size(16.dp),
                                 tint = LabelColor
                             )
                         }
@@ -446,7 +450,7 @@ private fun ProblemCard(
                             Icon(
                                 painter = painterResource(R.drawable.ic_document),
                                 contentDescription = "Article solution",
-                                modifier = Modifier.size(12.dp),
+                                modifier = Modifier.size(16.dp),
                                 tint = LabelColor
                             )
                         }
@@ -607,5 +611,26 @@ private fun AllProblemPreview() {
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun ProblemCardPreview() {
+    val dummy = ProblemEntity(
+        problemId = 146,
+        title = "LRU Cache",
+        titleSlug = "lru-cache",
+        difficulty = "Medium",
+        acceptance = "41.2%",
+        isFree = true,
+        hasSolution = true,
+        hasVideoSolution = true,
+        topicTags = listOf("Hash Table", "Linked List", "Design", "Doubly-Linked List")
+    )
+    MaterialTheme {
+        ProblemCard(
+            problem = dummy
+        ) { }
     }
 }
