@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import com.byteutility.dev.leetcode.plus.data.database.LeetcodeDatabase
 import com.byteutility.dev.leetcode.plus.data.database.MIGRATION_1_2
-import com.byteutility.dev.leetcode.plus.data.database.MIGRATION_2_3
 import com.byteutility.dev.leetcode.plus.data.database.dao.WeeklyGoalDao
 import dagger.Module
 import dagger.Provides
@@ -26,7 +25,7 @@ LeetcodeDatabaseModule {
             LeetcodeDatabase::class.java,
             "leetcode_database"
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+            .addMigrations(MIGRATION_1_2)
             .build()
     }
 

@@ -113,7 +113,7 @@ fun ProblemsModel.toProblemEntity(): ProblemEntity {
         titleSlug = this.problemNameSlug,
         difficulty = this.difficulty,
         acceptance = this.acceptRate,
-        isPaidOnly = this.isFree,
+        isFree = this.isFree,
         hasSolution = this.hasSolution,
         hasVideoSolution = this.hasVideoSolution,
         topicTags = this.topics?.split(",")?.map { it.trim() } ?: emptyList()
