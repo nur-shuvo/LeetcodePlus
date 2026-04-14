@@ -10,5 +10,6 @@ data class AllProblemState(
     val selectedTag: List<String> = emptyList(),
     val selectedDifficulties: List<String> = emptyList(),
     val searchQuery: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isError: Boolean = false
 )

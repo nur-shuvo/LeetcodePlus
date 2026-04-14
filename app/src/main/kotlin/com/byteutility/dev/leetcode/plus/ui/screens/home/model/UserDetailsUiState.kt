@@ -19,7 +19,8 @@ data class UserDetailsUiState(
     val isWeeklyGoalSet: Boolean = false,
     val syncInterval: Long = IntervalConfigurations.DATA_SYNC_DEFAULT_INTERVAL.minutes,
     val videosByPlayListState: VideosByPlayListState = VideosByPlayListState(),
-    val leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState = LeetcodeUpcomingContestsState()
+    val leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState = LeetcodeUpcomingContestsState(),
+    val difficultyStat: DifficultyStatistics = DifficultyStatistics()
 )
 
 data class LeetcodeUpcomingContestsState(
@@ -41,4 +42,10 @@ data class VideosByPlayListState(
     val videos: List<Video> = mutableListOf(),
     val error: String? = null,
     val endReached: Boolean = false,
+)
+
+data class DifficultyStatistics(
+    val easyProblemCount: Int = 937,
+    val mediumProblemCount: Int = 2037,
+    val hardProblemCount: Int = 921
 )

@@ -236,13 +236,13 @@ class UserDatastore @Inject constructor(
 
     suspend fun saveAllProblemFetchingInterval(timestamp: Long) {
         context.userPreferencesDataStore.edit { preferences ->
-            preferences[stringPreferencesKey("last_sync_timestamp")] = timestamp.toString()
+            preferences[stringPreferencesKey("last_problems_sync_timestamp")] = timestamp.toString()
         }
     }
 
     suspend fun getAllProblemFetchingInterval(): Long {
         val preferences = context.userPreferencesDataStore.data.first()
-        val timeStamp = preferences[stringPreferencesKey("last_sync_timestamp")]
+        val timeStamp = preferences[stringPreferencesKey("last_problems_sync_timestamp")]
         return timeStamp?.toLongOrNull() ?: 0L
     }
 

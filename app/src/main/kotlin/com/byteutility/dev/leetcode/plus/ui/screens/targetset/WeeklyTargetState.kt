@@ -9,5 +9,6 @@ import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 data class WeeklyTargetState(
     val selectedProblem: List<LeetCodeProblem> = emptyList(),
     val searchQuery: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isError: Boolean = false
 )

@@ -106,6 +106,7 @@ import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.DifficultyStatistics
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListState
 import com.byteutility.dev.leetcode.plus.ui.theme.EasyText
@@ -438,7 +439,7 @@ fun UserProfileContent(
                     checkInAppContestReminderStatus = checkInAppContestReminderStatus,
                     onNavigateToContestDetail = onNavigateToContestDetail
                 )
-                UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo)
+                UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo, diffStat = uiState.difficultyStat)
 
                 if (uiState.userSubmissionState.submissions.isEmpty()) {
                     Text(
@@ -505,13 +506,14 @@ fun UserPieChart(userProblemSolvedInfo: UserProblemSolvedInfo) {
 fun UserProblemCategoryStats(
     modifier: Modifier = Modifier,
     userProblemSolvedInfo: UserProblemSolvedInfo,
+    diffStat: DifficultyStatistics
 ) {
     userProblemSolvedInfo.let {
         Box(
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            CategoryStatsCard(userProblemSolvedInfo)
+            CategoryStatsCard(userProblemSolvedInfo, diffStat = diffStat )
         }
     }
 }
@@ -1258,6 +1260,7 @@ fun LogoutConfirmationDialog(
 @Composable
 fun MultiRadialProgressChart(
     userProblemSolvedInfo: UserProblemSolvedInfo?,
+    diffStat: DifficultyStatistics,
     modifier: Modifier = Modifier
 ) {
     if (userProblemSolvedInfo == null) {
@@ -1311,7 +1314,7 @@ fun MultiRadialProgressChart(
 }
 
 @Composable
-fun RadialLegend(userProblemSolvedInfo: UserProblemSolvedInfo) {
+fun RadialLegend(userProblemSolvedInfo: UserProblemSolvedInfo,diffStat: DifficultyStatistics) {
     val items = listOf(
         Triple("Easy", userProblemSolvedInfo.easy to 937, EasyText),
         Triple("Medium", userProblemSolvedInfo.medium to 2037, MediumText),
@@ -1350,7 +1353,7 @@ fun RadialLegend(userProblemSolvedInfo: UserProblemSolvedInfo) {
 }
 
 @Composable
-fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?) {
+fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?,diffStat: DifficultyStatistics) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -1364,7 +1367,7 @@ fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?) {
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 if (userProblemSolvedInfo != null) {
-                    RadialLegend(userProblemSolvedInfo)
+                    RadialLegend(userProblemSolvedInfo, diffStat = diffStat )
                 } else {
                     Text("No Statistics")
                 }
@@ -1373,6 +1376,7 @@ fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?) {
             Spacer(modifier = Modifier.width(16.dp))
             MultiRadialProgressChart(
                 userProblemSolvedInfo = userProblemSolvedInfo,
+                diffStat = diffStat ,
                 modifier = Modifier
                     .size(140.dp)
                     .aspectRatio(1f)

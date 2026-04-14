@@ -7,10 +7,10 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.byteutility.dev.leetcode.plus.data.database.dao.ProblemsDao
 import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.data.model.WeeklyGoalPeriod
+import com.byteutility.dev.leetcode.plus.data.repository.problems.LocalProblemRepository
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.data.worker.ClearGoalWorker
@@ -38,8 +38,8 @@ import javax.inject.Inject
 class SetWeeklyTargetViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val problemsRepository: ProblemsRepository,
-    private val dao: ProblemsDao,
-    private val weeklyGoalRepository: WeeklyGoalRepository
+    private val weeklyGoalRepository: WeeklyGoalRepository,
+    private val localProblemRepository: LocalProblemRepository
 ) : ViewModel() {
 
     private val _popCurrentDestination = MutableSharedFlow<Unit>()
@@ -89,7 +89,7 @@ class SetWeeklyTargetViewModel @Inject constructor(
                     enablePlaceholders = false
                 ),
                 pagingSourceFactory = {
-                    problemsRepository.getProblems(
+                    localProblemRepository.getProblems(
                         query = search,
                         difficulty = emptyList(),
                         tags = emptyList()
@@ -104,21 +104,25 @@ class SetWeeklyTargetViewModel @Inject constructor(
         checkCache()
     }
 
+    fun retry() {
+        checkCache()
+    }
+
     private fun checkCache() = viewModelScope.launch(Dispatchers.IO) {
-        val problemCount = dao.getCount()
+        val problemCount = localProblemRepository.getCount()
         if (problemCount == 0) {
             _state.update {
-                it.copy(isLoading = true)
+                it.copy(isLoading = true, isError = false)
             }
             problemsRepository.getRemoteProblems()
                 .onSuccess {
                     _state.update {
-                        it.copy(isLoading = false)
+                        it.copy(isLoading = false, isError = false)
                     }
                 }
                 .onFailure {
                     _state.update {
-                        it.copy(isLoading = false)
+                        it.copy(isLoading = false, isError = true)
                     }
                 }
         }

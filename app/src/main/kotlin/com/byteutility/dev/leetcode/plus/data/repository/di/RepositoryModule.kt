@@ -2,6 +2,8 @@ package com.byteutility.dev.leetcode.plus.data.repository.di
 
 import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepository
 import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepositoryImpl
+import com.byteutility.dev.leetcode.plus.data.repository.problems.LocalProblemRepository
+import com.byteutility.dev.leetcode.plus.data.repository.problems.LocalProblemRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
@@ -39,4 +41,10 @@ abstract class RepositoryModule {
     abstract fun provideCodeEditorSubmitRepository(
         codeEditorSubmitRepository: CodeEditorSubmitRepositoryImpl
     ): CodeEditorSubmitRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideLocalProblemRepository(
+        localProblemRepositoryImpl: LocalProblemRepositoryImpl
+    ): LocalProblemRepository
 }

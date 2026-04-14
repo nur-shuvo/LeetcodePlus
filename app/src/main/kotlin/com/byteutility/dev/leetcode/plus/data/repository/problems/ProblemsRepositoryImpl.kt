@@ -1,10 +1,6 @@
 package com.byteutility.dev.leetcode.plus.data.repository.problems
 
-import androidx.paging.PagingSource
-import androidx.sqlite.db.SimpleSQLiteQuery
-import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.data.database.dao.ProblemsDao
-import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
 import com.byteutility.dev.leetcode.plus.data.model.ProblemsModel
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetCodeQuestionResponse
@@ -12,52 +8,12 @@ import com.byteutility.dev.leetcode.plus.network.responseVo.OfficialSolutionResp
 import com.byteutility.dev.leetcode.plus.utils.toProblemEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import javax.inject.Inject
 
 class ProblemsRepositoryImpl @Inject constructor(
     private val restApiService: RestApiService,
     private val dao: ProblemsDao
 ) : ProblemsRepository {
-    override fun getProblems(
-        query: String?,
-        difficulty: List<String>?,
-        tags: List<String>?
-    ): PagingSource<Int, ProblemEntity> {
-        val conditions = mutableListOf<String>()
-        val args = mutableListOf<Any>()
-        if (!query.isNullOrBlank()) {
-            conditions.add(
-                """
-                (title LIKE '%' || ? || '%' 
-                OR title_slug LIKE '%' || ? || '%' 
-                OR topic_tags LIKE '%' || ? || '%')
-            """.trimIndent()
-            )
-            args.add(query)
-            args.add(query)
-            args.add(query)
-        }
-        if (!difficulty.isNullOrEmpty()) {
-            val placeholders = difficulty.joinToString(",") { "?" }
-            conditions.add("difficulty IN ($placeholders)")
-            args.addAll(difficulty)
-        }
-        if (!tags.isNullOrEmpty()) {
-            val tagConditions = tags.map {
-                "topic_tags LIKE '%' || ? || '%'"
-            }
-            conditions.add("(${tagConditions.joinToString(" OR ")})")
-            args.addAll(tags)
-        }
-
-        val whereClause = if (conditions.isNotEmpty()) {
-            "WHERE " + conditions.joinToString(" AND ")
-        } else ""
-        val sql = "SELECT * FROM all_problems $whereClause ORDER BY problem_id ASC"
-        return dao.getProblems(SimpleSQLiteQuery(sql, args.toTypedArray()))
-    }
 
     @Throws
     override suspend fun getSelectedRawQuestion(titleSlug: String): LeetCodeQuestionResponse {
@@ -72,15 +28,12 @@ class ProblemsRepositoryImpl @Inject constructor(
     override suspend fun getRemoteProblems(): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
-                val client = OkHttpClient()
-                val request = Request.Builder().url(BuildConfig.ALL_PROBLEMS_SHEET).build()
-                val response = client.newCall(request).execute()
-                if (!response.isSuccessful) throw Exception("Failed: ${response.code}")
-                val body = response.body?.string() ?: throw Exception("Empty response")
+                val response = restApiService.syncRemoteProblems()
+                val body = response.string()
                 val data = parseCsv(body)
                 val problemSize = dao.getCount()
-                if (data.size > problemSize){
-                    if (data.isNotEmpty()){
+                if (data.size > problemSize) {
+                    if (data.isNotEmpty()) {
                         data.let {
                             dao.insertAll(data.map { it.toProblemEntity() })
                         }
@@ -91,14 +44,6 @@ class ProblemsRepositoryImpl @Inject constructor(
                 Result.failure(ex)
             }
         }
-    }
-
-    override suspend fun getAllTags(): List<String> {
-        return dao.getUniqueTags()
-    }
-
-    override suspend fun getDifficulty(): List<String> {
-        return dao.getUniqueDifficulties()
     }
 
     private fun parseCsv(csv: String): List<ProblemsModel> {

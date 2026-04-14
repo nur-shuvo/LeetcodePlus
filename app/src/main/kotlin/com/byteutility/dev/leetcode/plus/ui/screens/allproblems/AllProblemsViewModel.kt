@@ -6,8 +6,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.byteutility.dev.leetcode.plus.data.database.dao.ProblemsDao
 import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
+import com.byteutility.dev.leetcode.plus.data.repository.problems.LocalProblemRepository
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AllProblemsViewModel @Inject constructor(
     private val problemsRepository: ProblemsRepository,
-    private val dao: ProblemsDao
+    private val localProblemRepo: LocalProblemRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AllProblemState())
@@ -86,8 +86,8 @@ class AllProblemsViewModel @Inject constructor(
         )
 
     private fun updateFilterData() = viewModelScope.launch(Dispatchers.IO) {
-        val tags = problemsRepository.getAllTags()
-        val difficulty = problemsRepository.getDifficulty()
+        val tags = localProblemRepo.getAllTags()
+        val difficulty = localProblemRepo.getDifficulty()
         _state.update {
             it.copy(
                 tags = tags,
@@ -113,7 +113,7 @@ class AllProblemsViewModel @Inject constructor(
                     enablePlaceholders = false
                 ),
                 pagingSourceFactory = {
-                    problemsRepository.getProblems(search, diff, tags)
+                    localProblemRepo.getProblems(search, diff, tags)
                 }
             ).flow
         }.cachedIn(viewModelScope)
@@ -123,22 +123,26 @@ class AllProblemsViewModel @Inject constructor(
         checkCache()
     }
 
+    fun retry() {
+        checkCache()
+    }
+
     private fun checkCache() = viewModelScope.launch(Dispatchers.IO) {
-        val problemCount = dao.getCount()
+        val problemCount = localProblemRepo.getCount()
         if (problemCount == 0) {
             _state.update {
-                it.copy(isLoading = true)
+                it.copy(isLoading = true, isError = false)
             }
             problemsRepository.getRemoteProblems()
                 .onSuccess {
                     updateFilterData()
                     _state.update {
-                        it.copy(isLoading = false)
+                        it.copy(isLoading = false, isError = false)
                     }
                 }
                 .onFailure {
                     _state.update {
-                        it.copy(isLoading = false)
+                        it.copy(isLoading = false, isError = true)
                     }
                 }
         }else{

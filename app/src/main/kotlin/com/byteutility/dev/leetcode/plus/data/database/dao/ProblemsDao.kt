@@ -9,8 +9,6 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 
 /**
  * Created by Johny on 1/4/26.
@@ -35,16 +33,17 @@ interface ProblemsDao {
     @Query("SELECT DISTINCT topic_tags FROM all_problems WHERE topic_tags IS NOT NULL")
     suspend fun getAllTopicTagsRaw(): List<String>
 
-    suspend fun getUniqueTags(): List<String> {
-        val type = object : TypeToken<List<String>>() {}.type
-        val gson = Gson()
-        return getAllTopicTagsRaw()
-            .flatMap { json -> gson.fromJson<List<String>>(json, type) }
-            .distinct()
-    }
-
     @Query("SELECT DISTINCT difficulty FROM all_problems")
     suspend fun getUniqueDifficulties(): List<String>
+
+    @Query("SELECT COUNT(*) FROM all_problems WHERE difficulty = 'Easy'")
+    suspend fun getEasyCount(): Int
+
+    @Query("SELECT COUNT(*) FROM all_problems WHERE difficulty = 'Medium'")
+    suspend fun getMediumCount(): Int
+
+    @Query("SELECT COUNT(*) FROM all_problems WHERE difficulty = 'Hard'")
+    suspend fun getHardCount(): Int
 
     @RawQuery(observedEntities = [ProblemEntity::class])
     fun getProblems(query: SupportSQLiteQuery): PagingSource<Int, ProblemEntity>
