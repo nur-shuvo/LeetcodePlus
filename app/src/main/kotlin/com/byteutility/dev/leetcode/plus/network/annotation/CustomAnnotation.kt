@@ -4,7 +4,7 @@ import okhttp3.Request
 import retrofit2.Invocation
 
 enum class Format {
-    JSON, XML
+    JSON
 }
 
 @Target(AnnotationTarget.FUNCTION)

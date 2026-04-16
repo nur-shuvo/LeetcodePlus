@@ -1,6 +1,7 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.home
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,8 @@ import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.pagination.DefaultPaginator
+import com.byteutility.dev.leetcode.plus.data.repository.problems.LocalProblemRepository
+import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.userDetails.UserDetailsRepository
 import com.byteutility.dev.leetcode.plus.data.repository.weeklyGoal.WeeklyGoalRepository
 import com.byteutility.dev.leetcode.plus.data.worker.ContestReminderWorker
@@ -25,6 +28,7 @@ import com.byteutility.dev.leetcode.plus.data.worker.UserDetailsSyncWorker
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.byteutility.dev.leetcode.plus.network.responseVo.sortByStartTime
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.DifficultyStatistics
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.LeetcodeUpcomingContestsState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserSubmissionState
@@ -54,7 +58,9 @@ class HomeScreenViewModel @Inject constructor(
     private val goalRepository: WeeklyGoalRepository,
     private val notificationDataStore: NotificationDataStore,
     private val userDatastore: UserDatastore,
-    dailyProblemStatusMonitor: DailyProblemStatusMonitor
+    dailyProblemStatusMonitor: DailyProblemStatusMonitor,
+    private val problemsRepository: ProblemsRepository,
+    private val localProblemRepo: LocalProblemRepository
 ) : ViewModel() {
 
     // Submissions
@@ -87,6 +93,8 @@ class HomeScreenViewModel @Inject constructor(
         MutableStateFlow(LeetCodeProblem("", "", ""))
     val dailyProblem = _dailyProblem.asStateFlow()
 
+    private val diffStat = MutableStateFlow(DifficultyStatistics())
+
     val dailyProblemSolved = dailyProblemStatusMonitor.dailyProblemSolved.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -103,7 +111,8 @@ class HomeScreenViewModel @Inject constructor(
                 isWeeklyGoalSet,
                 videosByPlayListState,
                 _leetcodeUpcomingContestsState,
-                syncInterval
+                syncInterval,
+                diffStat
             )
         ) { values ->
             UserDetailsUiState(
@@ -114,7 +123,8 @@ class HomeScreenViewModel @Inject constructor(
                 isWeeklyGoalSet = values[4] as Boolean,
                 videosByPlayListState = values[5] as VideosByPlayListState,
                 leetcodeUpcomingContestsState = values[6] as LeetcodeUpcomingContestsState,
-                syncInterval = values[7] as Long
+                syncInterval = values[7] as Long,
+                difficultyStat = values[8] as DifficultyStatistics
             )
         }.stateIn(
             scope = viewModelScope,
@@ -200,6 +210,10 @@ class HomeScreenViewModel @Inject constructor(
         scheduleBackgroundTasks()
 
         getWeeklyGoalStatus()
+
+        getRemoteProblems()
+
+        getDifficultyStat()
     }
 
     fun refreshUiState() {
@@ -361,4 +375,31 @@ class HomeScreenViewModel @Inject constructor(
                 workManager.getWorkInfosForUniqueWork("contest-reminder-${contest.id}").get()
             workInfos.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
         }
+
+    fun getRemoteProblems() = viewModelScope.launch {
+        val timeStamp = userDatastore.getAllProblemFetchingInterval()
+        if (shouldFetching(timeStamp)) {
+            problemsRepository.getRemoteProblems().onSuccess {
+                userDatastore.saveAllProblemFetchingInterval(System.currentTimeMillis())
+            }.onFailure {
+                Log.e("Error", "Unable to Fetch $it")
+            }
+        }
+    }
+
+    private fun shouldFetching(timeStamp: Long): Boolean {
+        return System.currentTimeMillis() - timeStamp >= (7 * 24 * 60 * 60 * 1000L)
+    }
+
+
+    private fun getDifficultyStat() = viewModelScope.launch(Dispatchers.IO) {
+        val stat = localProblemRepo.difficultyStat()
+        if (stat.first != 0 && stat.second != 0 && stat.third != 0) {
+            diffStat.value = DifficultyStatistics(
+                easyProblemCount = stat.first,
+                mediumProblemCount = stat.second,
+                hardProblemCount = stat.third
+            )
+        }
+    }
 }

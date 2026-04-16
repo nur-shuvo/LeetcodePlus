@@ -1,77 +1,124 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.targetset
 
 import android.app.Activity
-import android.util.Log
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.byteutility.dev.leetcode.plus.BuildConfig
+import com.byteutility.dev.leetcode.plus.R
+import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalSetDialog
+import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.DifficultyChip
+import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.OverflowTagChip
+import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.TopicTagChip
+import com.byteutility.dev.leetcode.plus.ui.theme.CardBorderColor
+import com.byteutility.dev.leetcode.plus.ui.theme.EasyText
+import com.byteutility.dev.leetcode.plus.ui.theme.HardText
+import com.byteutility.dev.leetcode.plus.ui.theme.LabelColor
+import com.byteutility.dev.leetcode.plus.ui.theme.MediumText
+import com.byteutility.dev.leetcode.plus.ui.theme.ProblemNumberColor
+import com.byteutility.dev.leetcode.plus.ui.theme.ProblemsGreen
+import com.byteutility.dev.leetcode.plus.ui.theme.SearchBarBackground
+import com.byteutility.dev.leetcode.plus.ui.theme.SearchBarPlaceholder
+import com.byteutility.dev.leetcode.plus.ui.theme.TagText
+import com.byteutility.dev.leetcode.plus.ui.theme.TitleColor
+import com.byteutility.dev.leetcode.plus.ui.theme.TopBarBackground
+import com.byteutility.dev.leetcode.plus.ui.theme.premiumLockColor
+import com.byteutility.dev.leetcode.plus.utils.toLeetCodeProblem
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import kotlinx.coroutines.delay
+
+private const val MAX_VISIBLE_TAGS = 2
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetWeeklyTargetScreen(
     onPopCurrent: () -> Unit = {},
-    onNavigateToProblemDetails: (String) -> Unit = {}
+    onNavigateToProblemDetails: (String) -> Unit = {},
+    viewModel: SetWeeklyTargetViewModel = hiltViewModel()
 ) {
-    val viewModel: SetWeeklyTargetViewModel = hiltViewModel()
-    val problems by viewModel.problemsList.collectAsStateWithLifecycle()
-    val selectedProblems by viewModel.selectedProblems.collectAsStateWithLifecycle()
+    val problems = viewModel.problems.collectAsLazyPagingItems()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var interstitialAd by remember { mutableStateOf<InterstitialAd?>(null) }
+    val showDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.popCurrentDestination.collect {
@@ -96,243 +143,574 @@ fun SetWeeklyTargetScreen(
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Set Weekly Goals") },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { onPopCurrent() }
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFABDEF5).copy(
-                        alpha = 0.1f
-                    )
-                )
-            )
-        },
-    ) { innerPadding ->
-        var needToShowConfirmDialog by rememberSaveable { mutableStateOf(false) }
-        ProblemSelection(
-            selectedProblems = selectedProblems,
-            modifier = Modifier.padding(innerPadding),
-            problems = problems, {
-                Log.i("SetWeeklyTargetScreen", "Problems selected for week")
-                needToShowConfirmDialog = true
-            },
-            onNavigateToProblemDetails = onNavigateToProblemDetails,
-            onProblemSelected = { problem, selected ->
-                viewModel.onProblemSelected(problem, selected)
-            }
-        )
-        if (needToShowConfirmDialog) {
-            WeeklyGoalSetDialog { period ->
-                viewModel.handleWeeklyGoalSet(selectedProblems, period)
+    if (showDialog.value) {
+        WeeklyGoalSetDialog(
+            confirmed = { period ->
+                viewModel.handleWeeklyGoalSet(state.selectedProblem, period)
                 val activity = context as? Activity
-                val ad = interstitialAd
-                if (ad != null && activity != null) {
-                    ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                val add = interstitialAd
+                if (add != null && activity != null) {
+                    add.fullScreenContentCallback = object : FullScreenContentCallback() {
                         override fun onAdDismissedFullScreenContent() {
                             interstitialAd = null
                         }
 
-                        override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                        override fun onAdFailedToShowFullScreenContent(p0: AdError) {
                             interstitialAd = null
                         }
                     }
-                    ad.show(activity)
+                    add.show(activity)
                 }
+            },
+            onDismiss = {
+                showDialog.value = it
             }
-        }
+        )
     }
-}
-
-@Composable
-fun ProblemSelection(
-    selectedProblems: List<LeetCodeProblem>,
-    modifier: Modifier = Modifier,
-    problems: List<LeetCodeProblem>,
-    onConfirm: (List<LeetCodeProblem>) -> Unit,
-    onNavigateToProblemDetails: (String) -> Unit = {},
-    onProblemSelected: (LeetCodeProblem, Boolean) -> Unit
-) {
-    var currentPage by remember { mutableIntStateOf(0) }
-    var searchText by remember { mutableStateOf("") }
-
-    val itemsPerPage = 20
-    val filteredProblems = problems.filter {
-        it.title.contains(searchText, ignoreCase = true) ||
-                it.tag.contains(searchText, ignoreCase = true) ||
-                it.difficulty.contains(searchText, ignoreCase = true)
-    }
-    val totalPages = (filteredProblems.size + itemsPerPage - 1) / itemsPerPage
-    val displayedItems = filteredProblems.drop(currentPage * itemsPerPage).take(itemsPerPage)
 
     Column(
         modifier = Modifier
-            .background(Color.White)
             .fillMaxSize()
-            .then(modifier)
+            .safeContentPadding()
     ) {
-        TextField(
-            value = searchText,
-            onValueChange = { searchText = it },
-            placeholder = { Text("Search problems...", fontSize = 18.sp) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp),
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
-            )
+        ProblemsTopAppBar {
+            onPopCurrent()
+        }
+        SearchBar(
+            query = state.searchQuery,
+            onQueryChange = viewModel::updateSearchQuery,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
         )
 
-        LazyColumn(
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp)
-                .weight(1.0f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
-        ) {
-            items(displayedItems) { problem ->
-                ProblemItem(
-                    problem = problem,
-                    isSelected = selectedProblems.contains(problem),
-                    onProblemSelected = { selected ->
-                        onProblemSelected.invoke(problem, selected)
-                    },
-                    onNavigateToProblemDetails
+        when {
+            state.isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = ProblemsGreen)
+                }
+            }
+            state.isError -> {
+                ErrorCard(
+                    onRetry = viewModel::retry,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
-        }
-
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { if (currentPage > 0) currentPage-- },
-                enabled = currentPage > 0
-            ) {
-                Text("Previous")
-            }
-
-            Text("Page ${currentPage + 1} of $totalPages")
-
-            Button(
-                onClick = { if (currentPage < totalPages - 1) currentPage++ },
-                enabled = currentPage < totalPages - 1
-            ) {
-                Text("Next")
+            else -> {
+                ProblemList(
+                    problems = problems,
+                    selectedProblems = state.selectedProblem,
+                    onProblemClick = { problem ->
+                        problem.titleSlug?.let { onNavigateToProblemDetails(it) }
+                    },
+                    onProblemSelected = { problem ->
+                        viewModel.onProblemSelected(problem.toLeetCodeProblem())
+                    },
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 
         Button(
-            onClick = { onConfirm(selectedProblems) },
-            enabled = selectedProblems.size == 7,
+            onClick = {
+                showDialog.value = true
+            },
+            enabled = state.selectedProblem.size == 7,
             modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 20.dp)
+                .fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ProblemsGreen,
+                contentColor = Color.White,
+                disabledContainerColor = Color.Gray,
+                disabledContentColor = Color.Black
+            )
         ) {
-            Text("Confirm")
-        }
-    }
-}
-
-@Composable
-fun ProblemItem(
-    problem: LeetCodeProblem,
-    isSelected: Boolean,
-    onProblemSelected: (Boolean) -> Unit,
-    onNavigateToProblemDetails: (String) -> Unit = {}
-) {
-    val backgroundColor: Color = when (problem.difficulty) {
-        "Easy" -> Color(0xFFE0F7FA).copy(alpha = 0.4f)
-        "Medium" -> Color(0xFFFFF9C4).copy(alpha = 0.4f)
-        "Hard" -> Color(0xFFFFCDD2).copy(alpha = 0.4f)
-        else -> Color(0xFFE0F7FA)
-    }
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .clickable {
-                    onNavigateToProblemDetails.invoke(problem.titleSlug)
-                }
-                .fillMaxWidth()
-                .background(backgroundColor)
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.fillMaxWidth(0.85f)) {
-                Text(
-                    text = problem.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.basicMarquee(velocity = 45.dp)
+            Text(
+               text =  "Confirm",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontSize = 16.sp
                 )
-                Text(
-                    modifier = Modifier.padding(top = 4.dp),
-                    text = "Tag: ${problem.tag}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    modifier = Modifier.padding(top = 2.dp),
-                    text = "Difficulty: ${problem.difficulty}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Checkbox(
-                checked = isSelected,
-                onCheckedChange = { onProblemSelected(it) }
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-@Preview
-fun ProblemSelectionPreview() {
-    val problems = remember { getDummyProblems() }
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text(text = "Set Weekly Goals") })
+private fun ProblemList(
+    problems: LazyPagingItems<ProblemEntity>,
+    selectedProblems: List<LeetCodeProblem>,
+    onProblemClick: (ProblemEntity) -> Unit,
+    onProblemSelected: (ProblemEntity) -> Unit,
+    modifier: Modifier
+) {
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(
+            count = problems.itemCount,
+            key = { index -> problems[index]?.problemId ?: index }
+        ) { index ->
+            val problem = problems[index]
+            if (problem != null) {
+                val isSelected = selectedProblems.any { it.titleSlug == problem.titleSlug }
+                ProblemCard(
+                    problem = problem,
+                    isSelected = isSelected,
+                    onClick = { onProblemClick(problem) },
+                    onProblemSelected = { onProblemSelected(problem) }
+                )
+            }
+        }
+
+        if (problems.loadState.append is LoadState.Loading) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = ProblemsGreen,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ProblemCard(
+    problem: ProblemEntity,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    onProblemSelected: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, CardBorderColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Box(modifier = Modifier.height(IntrinsicSize.Min)) {
+            Column(
+                modifier = Modifier.padding(17.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${problem.problemId}.",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 14.sp,
+                                color = ProblemNumberColor
+                            )
+                        )
+                        Text(
+                            text = problem.title,
+                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = Bold,
+                                fontSize = 16.sp,
+                                color = TitleColor
+                            ),
+                            maxLines = 1,
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .basicMarquee(
+                                    iterations = Int.MAX_VALUE,
+                                    initialDelayMillis = 2000
+                                )
+                        )
+                        if (!problem.isFree) {
+                            Icon(
+                                imageVector = Icons.Filled.Lock,
+                                contentDescription = "Premium",
+                                modifier = Modifier.size(16.dp),
+                                tint = premiumLockColor
+                            )
+                        }
+                    }
+                    CircularCheckbox(
+                        checked = isSelected,
+                        onCheckedChange = {
+                            onProblemSelected()
+                        },
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp),
+                        color = when (problem.difficulty.lowercase()) {
+                            "easy" -> EasyText
+                            "medium" -> MediumText
+                            "hard" -> HardText
+                            else -> TagText
+                        }
+                    )
+                }
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    DifficultyChip(difficulty = problem.difficulty)
+
+                    val tags = problem.topicTags.orEmpty()
+                    val visibleTags = tags.take(MAX_VISIBLE_TAGS)
+                    val overflowCount = tags.size - MAX_VISIBLE_TAGS
+
+                    visibleTags.forEach { tag ->
+                        TopicTagChip(tag = tag)
+                    }
+
+                    if (overflowCount > 0) {
+                        OverflowTagChip(count = overflowCount)
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "ACCEPTANCE",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = LabelColor,
+                                letterSpacing = (-0.45).sp
+                            )
+                            Text(
+                                text = problem.acceptance,
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily.Monospace,
+                                color = TitleColor
+                            )
+                        }
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "SOLUTION",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = LabelColor,
+                                letterSpacing = (-0.45).sp
+                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                if (problem.hasVideoSolution) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_video),
+                                        contentDescription = "Video solution",
+                                        modifier = Modifier.size(12.dp),
+                                        tint = LabelColor
+                                    )
+                                }
+                                if (problem.hasSolution) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_document),
+                                        contentDescription = "Article solution",
+                                        modifier = Modifier.size(12.dp),
+                                        tint = LabelColor
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .width(4.dp)
+                        .fillMaxHeight()
+                        .background(
+                            when (problem.difficulty.lowercase()) {
+                                "easy" -> EasyText
+                                "medium" -> MediumText
+                                "hard" -> HardText
+                                else -> TagText
+                            }
+                        )
+                        .align(Alignment.CenterStart)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProblemsTopAppBar(
+    onBack: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(TopBarBackground.copy(alpha = 0.9f))
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+
+            IconButton(
+                onClick = {
+                    onBack()
+                }
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = ""
+                )
+            }
+
+            Text(
+                text = "Set Weekly Goals",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = Bold,
+                    fontSize = 20.sp,
+                    letterSpacing = (-0.5).sp
+                ),
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(start = 6.dp)
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val fullText = "Search problems..."
+    var displayedText by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            displayedText = ""
+            fullText.forEachIndexed { index, _ ->
+                displayedText = fullText.substring(0, index + 1)
+                delay(150)
+            }
+            delay(2000)
+        }
+    }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "cursor")
+    val cursorAlpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes { durationMillis = 500 },
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "cursorAlpha"
+    )
+
+    TextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp)),
+        placeholder = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = displayedText,
+                    fontSize = 14.sp,
+                    color = SearchBarPlaceholder
+                )
+                Box(
+                    modifier = Modifier
+                        .padding(start = 2.dp)
+                        .width(2.dp)
+                        .height(14.dp)
+                        .alpha(if (query.isEmpty()) cursorAlpha else 0f)
+                        .background(SearchBarPlaceholder)
+                )
+            }
         },
-    ) { innerPadding ->
-        ProblemSelection(
-            problems,
-            Modifier.padding(innerPadding),
-            problems = problems,
-            {},
-            onNavigateToProblemDetails = {},
-            onProblemSelected = { _, _ -> },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Filled.Search,
+                contentDescription = "Search",
+                modifier = Modifier.size(15.dp),
+                tint = SearchBarPlaceholder
+            )
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(4.dp),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = SearchBarBackground,
+            unfocusedContainerColor = SearchBarBackground,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        )
+    )
+}
+
+@Composable
+fun CircularCheckbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    color: Color = Color(0xFF4CAF50),
+    borderColor: Color = Color.Gray
+) {
+    val checkboxSize = 24.dp
+
+    Box(
+        modifier = modifier
+            .size(checkboxSize)
+            .clip(CircleShape)
+            .background(if (checked) color else Color.Transparent)
+            .border(
+                width = 2.dp,
+                color = if (checked) color else borderColor,
+                shape = CircleShape
+            )
+            .clickable(enabled = enabled) { onCheckedChange(!checked) },
+        contentAlignment = Alignment.Center
+    ) {
+        if (checked) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun ErrorCard(
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Error,
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+                tint = Color.Red
+            )
+            Text(
+                text = "Something went wrong",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = Bold,
+                    color = TitleColor
+                )
+            )
+            Text(
+                text = "Unable to fetch problems. Please try again!",
+                fontSize = 13.sp,
+                color = LabelColor,
+                textAlign = TextAlign.Center
+            )
+            Button(
+                onClick = onRetry,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ProblemsGreen,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = "Try Again",
+                    modifier = Modifier.padding(start = 8.dp),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ProblemsTopAppBarPreview() {
+    MaterialTheme {
+        ProblemsTopAppBar {
+
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun SearchBarPreview() {
+    MaterialTheme {
+        SearchBar(
+            query = "",
+            onQueryChange = {},
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
 
-fun getDummyProblems(): List<LeetCodeProblem> {
-    return listOf(
-        LeetCodeProblem("Two Sum", "Easy", "Array"),
-        LeetCodeProblem("Binary Tree Level Order Traversal", "Medium", "Tree"),
-        LeetCodeProblem("Longest Substring Without Repeating Characters", "Medium", "String"),
-        LeetCodeProblem("Median of Two Sorted Arrays", "Hard", "Array"),
-        LeetCodeProblem("Search in Rotated Sorted Array", "Medium", "Binary Search"),
-        LeetCodeProblem("Longest Palindromic Substring", "Medium", "String"),
-        LeetCodeProblem("Valid Parentheses", "Easy", "Stack"),
-        LeetCodeProblem("Merge Intervals", "Medium", "Sorting"),
-        LeetCodeProblem("Word Ladder", "Hard", "Graph")
+@Preview
+@Composable
+private fun ProblemCardPreview() {
+    val a = ProblemEntity(
+        problemId = 92,
+        title = "Reverse Linked List i just checking how it behave II",
+        titleSlug = "reverse-linked-list-ii",
+        difficulty = "Easy",
+        acceptance = "51.2%",
+        isFree = true,
+        hasSolution = true,
+        hasVideoSolution = true,
+        topicTags = listOf("Linked List", "Recursion")
     )
+    MaterialTheme {
+        ProblemCard(
+            problem = a,
+            isSelected = true,
+            onClick = {},
+            onProblemSelected = {},
+        )
+    }
 }

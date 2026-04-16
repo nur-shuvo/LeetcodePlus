@@ -3,6 +3,7 @@ package com.byteutility.dev.leetcode.plus.data.database.di
 import android.content.Context
 import androidx.room.Room
 import com.byteutility.dev.leetcode.plus.data.database.LeetcodeDatabase
+import com.byteutility.dev.leetcode.plus.data.database.MIGRATION_1_2
 import com.byteutility.dev.leetcode.plus.data.database.dao.WeeklyGoalDao
 import dagger.Module
 import dagger.Provides
@@ -13,7 +14,8 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object LeetcodeDatabaseModule {
+object
+LeetcodeDatabaseModule {
 
     @Singleton
     @Provides
@@ -22,7 +24,9 @@ object LeetcodeDatabaseModule {
             context.applicationContext,
             LeetcodeDatabase::class.java,
             "leetcode_database"
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2)
+            .build()
     }
 
     @Singleton
@@ -30,4 +34,9 @@ object LeetcodeDatabaseModule {
     fun provideWeeklyGoalDao(db: LeetcodeDatabase): WeeklyGoalDao {
         return db.weeklyGoalDao()
     }
+
+    @Singleton
+    @Provides
+    fun provideProblemDao(db: LeetcodeDatabase) = db.problemDao()
+
 }

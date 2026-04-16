@@ -1,56 +1,19 @@
 package com.byteutility.dev.leetcode.plus.data.repository.problems
 
-import android.content.Context
-import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
+import com.byteutility.dev.leetcode.plus.data.database.dao.ProblemsDao
+import com.byteutility.dev.leetcode.plus.data.model.ProblemsModel
 import com.byteutility.dev.leetcode.plus.network.RestApiService
 import com.byteutility.dev.leetcode.plus.network.responseVo.LeetCodeQuestionResponse
 import com.byteutility.dev.leetcode.plus.network.responseVo.OfficialSolutionResponse
-import com.byteutility.dev.leetcode.plus.network.responseVo.ProblemSetResponseVo
-import com.google.gson.Gson
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.byteutility.dev.leetcode.plus.utils.toProblemEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ProblemsRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val restApiService: RestApiService
+    private val restApiService: RestApiService,
+    private val dao: ProblemsDao
 ) : ProblemsRepository {
-
-    override suspend fun getProblems(
-        limit: Long
-    ): List<LeetCodeProblem> {
-        var leetCodeProblems: List<LeetCodeProblem> = mutableListOf()
-        withContext(Dispatchers.IO) {
-            val response: ProblemSetResponseVo = parseProblemsJson(context)
-            response.problemSetQuestionList.map {
-                LeetCodeProblem(
-                    title = it.title,
-                    difficulty = it.difficulty,
-                    tag = it.topicTags.firstOrNull()?.name ?: "NO_TAG",
-                    titleSlug = it.titleSlug,
-                )
-            }.run {
-                leetCodeProblems = this
-            }
-        }
-        return leetCodeProblems
-    }
-
-    private fun parseProblemsJson(
-        context: Context
-    ): ProblemSetResponseVo {
-        val jsonString = loadJsonFromAssets(context, "problems.json")
-        val gson = Gson()
-        return gson.fromJson(jsonString, ProblemSetResponseVo::class.java)
-    }
-
-    private fun loadJsonFromAssets(
-        context: Context,
-        fileName: String
-    ): String {
-        return context.assets.open(fileName).bufferedReader().use { it.readText() }
-    }
 
     @Throws
     override suspend fun getSelectedRawQuestion(titleSlug: String): LeetCodeQuestionResponse {
@@ -60,5 +23,85 @@ class ProblemsRepositoryImpl @Inject constructor(
     @Throws
     override suspend fun getOfficialSolution(titleSlug: String): OfficialSolutionResponse {
         return restApiService.getOfficialSolution(titleSlug)
+    }
+
+    override suspend fun getRemoteProblems(): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = restApiService.syncRemoteProblems()
+                val body = response.string()
+                val data = parseCsv(body)
+                val problemSize = dao.getCount()
+                if (data.size > problemSize) {
+                    if (data.isNotEmpty()) {
+                        data.let {
+                            dao.insertAll(data.map { it.toProblemEntity() })
+                        }
+                    }
+                }
+                Result.success(Unit)
+            } catch (ex: Exception) {
+                Result.failure(ex)
+            }
+        }
+    }
+
+    private fun parseCsv(csv: String): List<ProblemsModel> {
+        val lines = csv.lines().filter { it.isNotBlank() }
+        if (lines.size < 4) return emptyList()
+        return lines.drop(3).mapNotNull { line ->
+            val cols = parseCsvLine(line)
+            if (cols.size >= 14) {
+                ProblemsModel(
+                    id = cols[0].toInt(),
+                    problemName = cols[1],
+                    problemNameSlug = problemNameToSlug(cols[1]),
+                    likes = cols[2],
+                    dislikes = cols[3],
+                    likeRatio = cols[4],
+                    topics = cols[5],
+                    difficulty = cols[6],
+                    accepted = cols[7],
+                    submissions = cols[8],
+                    acceptRate = cols[9],
+                    isFree = cols[10].toSheetBoolean(),
+                    hasSolution = cols[11].toSheetBoolean(),
+                    hasVideoSolution = cols[12].toSheetBoolean(),
+                    category = cols[13]
+                )
+            } else null
+        }
+    }
+
+    private fun parseCsvLine(line: String): List<String> {
+        val result = mutableListOf<String>()
+        var current = StringBuilder()
+        var inQuotes = false
+
+        for (char in line) {
+            when {
+                char == '"' -> inQuotes = !inQuotes
+                char == ',' && !inQuotes -> {
+                    result.add(current.toString().trim())
+                    current = StringBuilder()
+                }
+
+                else -> current.append(char)
+            }
+        }
+        result.add(current.toString().trim())
+        return result
+    }
+
+    private fun String.toSheetBoolean(): Boolean {
+        return this.equals("Yes", ignoreCase = true)
+                || this.equals("true", ignoreCase = true)
+    }
+
+    private fun problemNameToSlug(name: String): String {
+        return name.lowercase()
+            .replace(Regex("[^a-z0-9\\s-]"), "")
+            .trim()
+            .replace(Regex("\\s+"), "-")
     }
 }

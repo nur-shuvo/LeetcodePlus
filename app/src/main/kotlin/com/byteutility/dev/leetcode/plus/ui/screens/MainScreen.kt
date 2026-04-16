@@ -162,9 +162,6 @@ fun MainScreen(mainNavController: NavHostController) {
             }
             composable<AllProblems> {
                 AllProblemsScreen(
-                    {
-                        navController.popBackStack()
-                    },
                     { titleSLug ->
                         navigationActions.navigateToProblemDetails(
                             ProblemDetails(titleSLug)

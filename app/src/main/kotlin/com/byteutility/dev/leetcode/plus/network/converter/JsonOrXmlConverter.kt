@@ -3,8 +3,6 @@ package com.byteutility.dev.leetcode.plus.network.converter
 import com.byteutility.dev.leetcode.plus.network.annotation.Format
 import com.byteutility.dev.leetcode.plus.network.annotation.RequestFormat
 import com.byteutility.dev.leetcode.plus.network.annotation.ResponseFormat
-import com.tickaroo.tikxml.TikXml
-import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Converter
@@ -16,11 +14,6 @@ import javax.inject.Inject
 class JsonOrXmlConverter @Inject constructor() : Converter.Factory() {
 
     private val jsonConverterFactory: Converter.Factory = GsonConverterFactory.create()
-    private val xmlConverterFactory: Converter.Factory = TikXmlConverterFactory.create(
-        TikXml.Builder()
-            .writeDefaultXmlDeclaration(true) // or false
-            .build()
-    )
 
     override fun responseBodyConverter(
         type: Type,
@@ -32,10 +25,6 @@ class JsonOrXmlConverter @Inject constructor() : Converter.Factory() {
                 return when (annotation.value) {
                     Format.JSON -> {
                         jsonConverterFactory.responseBodyConverter(type, annotations, retrofit)
-                    }
-
-                    Format.XML -> {
-                        xmlConverterFactory.responseBodyConverter(type, annotations, retrofit)
                     }
                 }
             }
@@ -54,15 +43,6 @@ class JsonOrXmlConverter @Inject constructor() : Converter.Factory() {
                 return when (annotation.value) {
                     Format.JSON -> {
                         jsonConverterFactory.requestBodyConverter(
-                            type,
-                            parameterAnnotations,
-                            methodAnnotations,
-                            retrofit
-                        )
-                    }
-
-                    Format.XML -> {
-                        xmlConverterFactory.requestBodyConverter(
                             type,
                             parameterAnnotations,
                             methodAnnotations,
