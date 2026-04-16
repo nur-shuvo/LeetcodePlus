@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
@@ -25,13 +24,16 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -58,7 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,10 +71,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.byteutility.dev.leetcode.plus.R
+import androidx.paging.compose.itemKey
 import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
 import com.byteutility.dev.leetcode.plus.ui.theme.BadgeRed
-import com.byteutility.dev.leetcode.plus.ui.theme.CardBorderColor
 import com.byteutility.dev.leetcode.plus.ui.theme.EasyBg
 import com.byteutility.dev.leetcode.plus.ui.theme.EasyText
 import com.byteutility.dev.leetcode.plus.ui.theme.HardBg
@@ -80,9 +81,6 @@ import com.byteutility.dev.leetcode.plus.ui.theme.HardText
 import com.byteutility.dev.leetcode.plus.ui.theme.LabelColor
 import com.byteutility.dev.leetcode.plus.ui.theme.MediumBg
 import com.byteutility.dev.leetcode.plus.ui.theme.MediumText
-import com.byteutility.dev.leetcode.plus.ui.theme.OverflowTagBg
-import com.byteutility.dev.leetcode.plus.ui.theme.OverflowTagBorder
-import com.byteutility.dev.leetcode.plus.ui.theme.ProblemNumberColor
 import com.byteutility.dev.leetcode.plus.ui.theme.ProblemsGreen
 import com.byteutility.dev.leetcode.plus.ui.theme.SearchBarBackground
 import com.byteutility.dev.leetcode.plus.ui.theme.SearchBarPlaceholder
@@ -90,11 +88,8 @@ import com.byteutility.dev.leetcode.plus.ui.theme.TagBackground
 import com.byteutility.dev.leetcode.plus.ui.theme.TagText
 import com.byteutility.dev.leetcode.plus.ui.theme.TitleColor
 import com.byteutility.dev.leetcode.plus.ui.theme.TopBarBackground
-import com.byteutility.dev.leetcode.plus.ui.theme.premiumLockColor
 import kotlinx.coroutines.delay
 
-
-private const val MAX_VISIBLE_TAGS = 2
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -287,21 +282,22 @@ private fun SearchBar(
 
 
 @Composable
-private fun ProblemList(
+fun ProblemList(
     problems: LazyPagingItems<ProblemEntity>,
     onProblemClick: (ProblemEntity) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF7F8FA)), // Subtle gray background for contrast
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(
             count = problems.itemCount,
-            key = { index -> problems[index]?.problemId ?: index }
+            key = problems.itemKey { it.problemId }
         ) { index ->
-            val problem = problems[index]
-            if (problem != null) {
+            problems[index]?.let { problem ->
                 ProblemCard(
                     problem = problem,
                     onClick = { onProblemClick(problem) }
@@ -309,24 +305,23 @@ private fun ProblemList(
             }
         }
 
+        // Loading Footer
         if (problems.loadState.append is LoadState.Loading) {
             item {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(24.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
                         color = ProblemsGreen,
-                        modifier = Modifier.size(24.dp)
+                        strokeWidth = 3.dp,
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }
         }
     }
 }
-
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -338,132 +333,103 @@ private fun ProblemCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, CardBorderColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
-            modifier = Modifier.padding(17.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Top Row: ID & Title
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "${problem.problemId}.",
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = LabelColor.copy(alpha = 0.6f)
+                    )
+                )
+                Text(
+                    text = problem.title,
+                    modifier = Modifier.weight(1f).basicMarquee(),
+                    style = TextStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        color = TitleColor
+                    ),
+                    maxLines = 1
+                )
+                if (!problem.isFree) {
+                    Icon(
+                        imageVector = Icons.Rounded.Lock,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = Color(0xFFFFA116) // Gold for Premium
+                    )
+                }
+            }
+
+            // Middle Row: Chips
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                DifficultyChip(difficulty = problem.difficulty)
+
+                val tags = problem.topicTags.orEmpty()
+                val visibleTags = tags.take(2)
+                val overflowCount = tags.size - 2
+                visibleTags.forEach { tag ->
+                    TopicTagChip(tag = tag)
+                }
+                if (overflowCount > 0) OverflowTagChip(count = overflowCount)
+            }
+
+            // Bottom Row: Stats & Solution types
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                // Acceptance Rate
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "${problem.problemId}.",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp,
-                            color = ProblemNumberColor
-                        )
-                    )
-                    Text(
-                        text = problem.title,
-                        fontSize = 16.sp,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = TitleColor
-                        ),
-                        maxLines = 1,
-                        modifier = Modifier
-                            .weight(1f, fill = false)
-                            .basicMarquee(
-                                iterations = Int.MAX_VALUE,
-                                initialDelayMillis = 2000
-                            )
-                    )
-                    if (!problem.isFree) {
-                        Icon(
-                            imageVector = Icons.Filled.Lock,
-                            contentDescription = "Premium",
-                            modifier = Modifier.size(16.dp),
-                            tint = premiumLockColor
-                        )
-                    }
-                }
-            }
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                DifficultyChip(difficulty = problem.difficulty)
-
-                val tags = problem.topicTags.orEmpty()
-                val visibleTags = tags.take(MAX_VISIBLE_TAGS)
-                val overflowCount = tags.size - MAX_VISIBLE_TAGS
-
-                visibleTags.forEach { tag ->
-                    TopicTagChip(tag = tag)
-                }
-
-                if (overflowCount > 0) {
-                    OverflowTagChip(count = overflowCount)
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "ACCEPTANCE",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = LabelColor,
-                        letterSpacing = (-0.45).sp
+                        text = "Acceptance ",
+                        style = TextStyle(fontSize = 12.sp, color = LabelColor)
                     )
                     Text(
                         text = problem.acceptance,
-                        style = MaterialTheme.typography.labelSmall.copy(
+                        style = TextStyle(
                             fontSize = 12.sp,
-                            color = TitleColor,
-                            fontWeight = FontWeight.Normal
+                            fontWeight = FontWeight.Bold,
+                            color = TitleColor
                         )
                     )
                 }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "SOLUTION",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = LabelColor,
-                        letterSpacing = (-0.45).sp
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (problem.hasVideoSolution) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_video),
-                                contentDescription = "Video solution",
-                                modifier = Modifier.size(16.dp),
-                                tint = LabelColor
-                            )
-                        }
-                        if (problem.hasSolution) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_document),
-                                contentDescription = "Article solution",
-                                modifier = Modifier.size(16.dp),
-                                tint = LabelColor
-                            )
-                        }
+                // Solutions icons
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (problem.hasVideoSolution) {
+                        Icon(
+                            imageVector = Icons.Rounded.PlayCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = ProblemsGreen
+                        )
+                    }
+                    if (problem.hasSolution) {
+                        Icon(
+                            imageVector = Icons.Rounded.Description,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = LabelColor
+                        )
                     }
                 }
             }
@@ -471,60 +437,42 @@ private fun ProblemCard(
     }
 }
 
-
 @Composable
 fun DifficultyChip(difficulty: String) {
-    val (bg, text) = when (difficulty.lowercase()) {
-        "easy" -> EasyBg to EasyText
-        "medium" -> MediumBg to MediumText
-        "hard" -> HardBg to HardText
-        else -> TagBackground to TagText
+    val (textColor, bgColor) = when (difficulty.lowercase()) {
+        "easy" -> EasyText to EasyBg
+        "medium" -> MediumText to MediumBg
+        "hard" -> HardText to HardBg
+        else -> TagText to TagBackground
     }
 
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = bg
-    ) {
+    Surface(shape = CircleShape, color = bgColor) {
         Text(
             text = difficulty,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            color = text
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+            style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold, color = textColor)
         )
     }
 }
 
 @Composable
 fun TopicTagChip(tag: String) {
-    Surface(
-        shape = RoundedCornerShape(6.dp),
-        color = TagBackground
-    ) {
+    Surface(shape = RoundedCornerShape(6.dp), color = TagBackground) {
         Text(
             text = tag,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-            fontSize = 12.sp,
-            color = TagText
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            style = TextStyle(fontSize = 11.sp, color = TagText, fontWeight = FontWeight.Medium)
         )
     }
 }
 
 @Composable
 fun OverflowTagChip(count: Int) {
-    Surface(
-        shape = RoundedCornerShape(6.dp),
-        color = OverflowTagBg,
-        border = BorderStroke(1.dp, OverflowTagBorder)
-    ) {
-        Text(
-            text = "+$count",
-            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            color = ProblemsGreen
-        )
-    }
+    Text(
+        text = "+$count more",
+        modifier = Modifier.padding(vertical = 4.dp),
+        style = TextStyle(fontSize = 11.sp, color = ProblemsGreen, fontWeight = FontWeight.SemiBold)
+    )
 }
 
 @Composable
@@ -608,7 +556,7 @@ private fun AllProblemPreview() {
             isFree = true,
             hasSolution = true,
             hasVideoSolution = true,
-            topicTags = listOf("String", "Dynamic Programming", "Two Pointers", "Manacher's Algorithm")
+            topicTags = listOf("String", "Dynamic Programming", "Two Pointers", "Manchester's Algorithm")
         ),
         ProblemEntity(
             problemId = 1,

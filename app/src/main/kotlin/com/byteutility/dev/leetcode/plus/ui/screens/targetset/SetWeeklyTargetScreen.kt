@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -33,17 +34,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -60,9 +64,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -76,26 +81,21 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.byteutility.dev.leetcode.plus.BuildConfig
-import com.byteutility.dev.leetcode.plus.R
 import com.byteutility.dev.leetcode.plus.data.database.entity.ProblemEntity
 import com.byteutility.dev.leetcode.plus.data.model.LeetCodeProblem
 import com.byteutility.dev.leetcode.plus.ui.dialogs.WeeklyGoalSetDialog
 import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.DifficultyChip
-import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.OverflowTagChip
 import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.TopicTagChip
 import com.byteutility.dev.leetcode.plus.ui.theme.CardBorderColor
 import com.byteutility.dev.leetcode.plus.ui.theme.EasyText
 import com.byteutility.dev.leetcode.plus.ui.theme.HardText
 import com.byteutility.dev.leetcode.plus.ui.theme.LabelColor
 import com.byteutility.dev.leetcode.plus.ui.theme.MediumText
-import com.byteutility.dev.leetcode.plus.ui.theme.ProblemNumberColor
 import com.byteutility.dev.leetcode.plus.ui.theme.ProblemsGreen
 import com.byteutility.dev.leetcode.plus.ui.theme.SearchBarBackground
 import com.byteutility.dev.leetcode.plus.ui.theme.SearchBarPlaceholder
-import com.byteutility.dev.leetcode.plus.ui.theme.TagText
 import com.byteutility.dev.leetcode.plus.ui.theme.TitleColor
 import com.byteutility.dev.leetcode.plus.ui.theme.TopBarBackground
-import com.byteutility.dev.leetcode.plus.ui.theme.premiumLockColor
 import com.byteutility.dev.leetcode.plus.utils.toLeetCodeProblem
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -105,7 +105,6 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import kotlinx.coroutines.delay
 
-private const val MAX_VISIBLE_TAGS = 2
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -294,174 +293,201 @@ private fun ProblemCard(
     onClick: () -> Unit,
     onProblemSelected: () -> Unit
 ) {
+    // Dynamic theme based on difficulty for selection state
+    val accentColor = when (problem.difficulty.lowercase()) {
+        "easy" -> EasyText
+        "medium" -> MediumText
+        "hard" -> HardText
+        else -> LabelColor
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, CardBorderColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) Color.White else Color.White
+        ),
+        // Glow effect when selected
+        border = BorderStroke(
+            width = if (isSelected) 2.dp else 1.dp,
+            color = if (isSelected) accentColor.copy(alpha = 0.5f) else CardBorderColor
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isSelected) 6.dp else 2.dp
+        )
     ) {
         Box(modifier = Modifier.height(IntrinsicSize.Min)) {
-            Column(
-                modifier = Modifier.padding(17.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "${problem.problemId}.",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 14.sp,
-                                color = ProblemNumberColor
-                            )
-                        )
-                        Text(
-                            text = problem.title,
-                            fontSize = 16.sp,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = Bold,
-                                fontSize = 16.sp,
-                                color = TitleColor
-                            ),
-                            maxLines = 1,
-                            modifier = Modifier
-                                .weight(1f, fill = false)
-                                .basicMarquee(
-                                    iterations = Int.MAX_VALUE,
-                                    initialDelayMillis = 2000
-                                )
-                        )
-                        if (!problem.isFree) {
-                            Icon(
-                                imageVector = Icons.Filled.Lock,
-                                contentDescription = "Premium",
-                                modifier = Modifier.size(16.dp),
-                                tint = premiumLockColor
-                            )
-                        }
-                    }
-                    CircularCheckbox(
-                        checked = isSelected,
-                        onCheckedChange = {
-                            onProblemSelected()
-                        },
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp),
-                        color = when (problem.difficulty.lowercase()) {
-                            "easy" -> EasyText
-                            "medium" -> MediumText
-                            "hard" -> HardText
-                            else -> TagText
-                        }
-                    )
-                }
-
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    DifficultyChip(difficulty = problem.difficulty)
-
-                    val tags = problem.topicTags.orEmpty()
-                    val visibleTags = tags.take(MAX_VISIBLE_TAGS)
-                    val overflowCount = tags.size - MAX_VISIBLE_TAGS
-
-                    visibleTags.forEach { tag ->
-                        TopicTagChip(tag = tag)
-                    }
-
-                    if (overflowCount > 0) {
-                        OverflowTagChip(count = overflowCount)
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "ACCEPTANCE",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = LabelColor,
-                                letterSpacing = (-0.45).sp
-                            )
-                            Text(
-                                text = problem.acceptance,
-                                fontSize = 12.sp,
-                                fontFamily = FontFamily.Monospace,
-                                color = TitleColor
-                            )
-                        }
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "SOLUTION",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = LabelColor,
-                                letterSpacing = (-0.45).sp
-                            )
-                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                if (problem.hasVideoSolution) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_video),
-                                        contentDescription = "Video solution",
-                                        modifier = Modifier.size(12.dp),
-                                        tint = LabelColor
-                                    )
-                                }
-                                if (problem.hasSolution) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_document),
-                                        contentDescription = "Article solution",
-                                        modifier = Modifier.size(12.dp),
-                                        tint = LabelColor
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
+            // Left Side Selection Indicator
             if (isSelected) {
                 Box(
                     modifier = Modifier
-                        .width(4.dp)
+                        .width(6.dp)
                         .fillMaxHeight()
-                        .background(
-                            when (problem.difficulty.lowercase()) {
-                                "easy" -> EasyText
-                                "medium" -> MediumText
-                                "hard" -> HardText
-                                else -> TagText
-                            }
-                        )
-                        .align(Alignment.CenterStart)
+                        .padding(vertical = 12.dp)
+                        .clip(RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp))
+                        .background(accentColor)
                 )
             }
+
+            Column(
+                modifier = Modifier.padding(start = if (isSelected) 22.dp else 16.dp,
+                    top = 16.dp, end = 16.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Header: ID, Title, and Checkbox
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "${problem.problemId}.",
+                        style = TextStyle(
+                            fontWeight = Bold,
+                            fontSize = 14.sp,
+                            color = LabelColor.copy(alpha = 0.5f)
+                        )
+                    )
+                    Text(
+                        text = problem.title,
+                        modifier = Modifier.weight(1f).basicMarquee(),
+                        style = TextStyle(
+                            fontWeight = Bold,
+                            fontSize = 16.sp,
+                            color = TitleColor
+                        ),
+                        maxLines = 1
+                    )
+
+                    if (!problem.isFree) {
+                        Icon(
+                            imageVector = Icons.Rounded.Lock,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = Color(0xFFFFA116)
+                        )
+                    }
+
+                    CircularCheckbox(
+                        checked = isSelected,
+                        onCheckedChange = { onProblemSelected() },
+                        color = accentColor
+                    )
+                }
+
+                // Tags
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    DifficultyChip(difficulty = problem.difficulty)
+                    val tags = problem.topicTags.orEmpty()
+                    val visibleTags = tags.take(2)
+                    val overflowCount = tags.size - 2
+                    visibleTags.forEach { tag ->
+                        TopicTagChip(tag = tag)
+                    }
+                    if (overflowCount > 0) OverflowTagChip(count = overflowCount)
+                }
+
+                HorizontalDivider(
+                    Modifier,
+                    thickness = 0.5.dp,
+                    color = CardBorderColor.copy(alpha = 0.4f)
+                )
+
+                // Footer: Acceptance & Solution types
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "ACCEPTANCE ",
+                            letterSpacing = 0.5.sp,
+                            style = TextStyle(
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Black,
+                                color = LabelColor
+                            )
+                        )
+                        Text(
+                            text = problem.acceptance,
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Medium,
+                                color = TitleColor
+                            )
+                        )
+                    }
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (problem.hasVideoSolution) {
+                            Icon(Icons.Rounded.PlayCircle, null, Modifier.size(16.dp), tint = accentColor)
+                        }
+                        if (problem.hasSolution) {
+                            Icon(Icons.Rounded.Description, null, Modifier.size(16.dp), tint = LabelColor)
+                        }
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun CircularCheckbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    color: Color = ProblemsGreen
+) {
+    val transition = updateTransition(targetState = checked, label = "checkboxTransition")
+    val scale by transition.animateFloat(label = "scale") { if (it) 1.1f else 1.0f }
+
+    Box(
+        modifier = modifier
+            .size(22.dp)
+            .scale(scale)
+            .clip(CircleShape)
+            .background(if (checked) color else Color.Transparent)
+            .border(
+                width = 2.dp,
+                color = if (checked) color else LabelColor.copy(alpha = 0.3f),
+                shape = CircleShape
+            )
+            .clickable { onCheckedChange(!checked) },
+        contentAlignment = Alignment.Center
+    ) {
+        if (checked) {
+            Icon(
+                imageVector = Icons.Rounded.Check,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(14.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun OverflowTagChip(count: Int) {
+    Box(
+        modifier = Modifier.padding(vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "+$count",
+            style = TextStyle(
+                fontSize = 11.sp,
+                fontWeight = Bold,
+                color = LabelColor.copy(alpha = 0.8f)
+            )
+        )
     }
 }
 
@@ -579,40 +605,7 @@ private fun SearchBar(
     )
 }
 
-@Composable
-fun CircularCheckbox(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    color: Color = Color(0xFF4CAF50),
-    borderColor: Color = Color.Gray
-) {
-    val checkboxSize = 24.dp
 
-    Box(
-        modifier = modifier
-            .size(checkboxSize)
-            .clip(CircleShape)
-            .background(if (checked) color else Color.Transparent)
-            .border(
-                width = 2.dp,
-                color = if (checked) color else borderColor,
-                shape = CircleShape
-            )
-            .clickable(enabled = enabled) { onCheckedChange(!checked) },
-        contentAlignment = Alignment.Center
-    ) {
-        if (checked) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(16.dp)
-            )
-        }
-    }
-}
 
 @Composable
 fun ErrorCard(

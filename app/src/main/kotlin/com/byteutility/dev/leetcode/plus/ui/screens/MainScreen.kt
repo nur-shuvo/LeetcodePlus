@@ -1,7 +1,12 @@
 package com.byteutility.dev.leetcode.plus.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -10,17 +15,21 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -37,6 +46,8 @@ import com.byteutility.dev.leetcode.plus.ui.navigation.Settings
 import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.AllProblemsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.home.HomeScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.settings.SettingsScreen
+import com.byteutility.dev.leetcode.plus.ui.theme.LabelColor
+import com.byteutility.dev.leetcode.plus.ui.theme.ProblemsGreen
 
 sealed class BottomNavScreen(val route: Any, val label: String, val icon: ImageVector) {
     object HomeWithLabel : BottomNavScreen(
@@ -72,30 +83,62 @@ fun MainScreen(mainNavController: NavHostController) {
     Scaffold(
         bottomBar = {
             Surface(
-                shadowElevation = 14.dp,
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                modifier = Modifier
+                    .graphicsLayer {
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                        clip = true
+                    },
+                shadowElevation = 8.dp,
+                color = Color.White
             ) {
                 NavigationBar(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                        .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(
-                                    Color(0xFFBECEC3),
-                                    Color(0xFF498A5C),
-                                    Color(0xFFBECEC3),
-                                )
-                            )
-                        ),
-                    containerColor = Color.Transparent
+                    modifier = Modifier.height(72.dp),
+                    containerColor = Color.White,
+                    tonalElevation = 0.dp
                 ) {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
+
                     bottomNavItems.forEach { screen ->
+                        val isSelected = currentDestination?.hierarchy?.any {
+                            it.route == screen.route::class.qualifiedName
+                        } == true
+
                         NavigationBarItem(
-                            icon = { Icon(screen.icon, contentDescription = null) },
-                            label = { Text(screen.label) },
-                            selected = currentDestination?.hierarchy?.any { it.route == screen.route::class.qualifiedName } == true,
+                            icon = {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = screen.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(if (isSelected) 26.dp else 24.dp)
+                                    )
+                                    if (isSelected) {
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(top = 4.dp)
+                                                .size(4.dp)
+                                                .background(ProblemsGreen, CircleShape)
+                                        )
+                                    }
+                                }
+                            },
+                            label = {
+                                Text(
+                                    text = screen.label,
+                                    style = TextStyle(
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                )
+                            },
+                            selected = isSelected,
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = ProblemsGreen,
+                                selectedTextColor = ProblemsGreen,
+                                unselectedIconColor = LabelColor.copy(alpha = 0.6f),
+                                unselectedTextColor = LabelColor.copy(alpha = 0.6f),
+                                indicatorColor = Color.Transparent
+                            ),
                             onClick = {
                                 navController.navigate(screen.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
@@ -104,7 +147,7 @@ fun MainScreen(mainNavController: NavHostController) {
                                     launchSingleTop = true
                                     restoreState = true
                                 }
-                            },
+                            }
                         )
                     }
                 }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,13 +24,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,25 +40,28 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.AutoGraph
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -71,6 +76,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
@@ -80,19 +86,21 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -116,15 +124,11 @@ import com.byteutility.dev.leetcode.plus.utils.formatContestDate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import me.bytebeats.views.charts.pie.PieChart
-import me.bytebeats.views.charts.pie.PieChartData
-import me.bytebeats.views.charts.pie.render.SimpleSliceDrawer
-import me.bytebeats.views.charts.simpleChartAnimation
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.util.Calendar
+import java.util.Locale
 import java.util.TimeZone
-import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -290,43 +294,66 @@ fun HomeLayout(
                         repeatMode = RepeatMode.Reverse
                     ), label = "fab_scale"
                 )
-
                 Column(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 16.dp)
+                        .scale(scale),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    FloatingActionButton(
-                        onClick = {
-                            onNavigateToAllProblems.invoke()
-                        },
-                        modifier = Modifier
-                            .size(74.dp)
-                            .scale(scale)
-                            .padding(16.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_problems),
-                            contentDescription = "All Problems",
+                    Box(contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .background(Color(0xFF2193b0).copy(alpha = 0.3f), CircleShape)
+                                .blur(20.dp)
                         )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFF6dd5ed), Color(0xFF2193b0))
-                                ),
-                                shape = RoundedCornerShape(8.dp)
+
+                        FloatingActionButton(
+                            onClick = onNavigateToAllProblems,
+                            containerColor = Color(0xFF2193b0),
+                            contentColor = Color.White,
+                            shape = CircleShape,
+                            modifier = Modifier
+                                .size(64.dp)
+                                .shadow(12.dp, CircleShape, ambientColor = Color(0xFF2193b0))
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_problems),
+                                contentDescription = null,
+                                modifier = Modifier.size(28.dp)
                             )
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                        }
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        shadowElevation = 10.dp,
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { onNavigateToAllProblems() }
                     ) {
-                        Text(
-                            text = "All Problems",
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            modifier = Modifier.clickable {
-                                onNavigateToAllProblems.invoke()
-                            },
-                        )
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(Color(0xFF6dd5ed), Color(0xFF2193b0))
+                                    )
+                                )
+                                .padding(horizontal = 10.dp, vertical = 5.dp)
+                        ) {
+                            Text(
+                                text = "ALL PROBLEMS",
+                                style = MaterialTheme.typography.labelLarge.copy(
+                                    fontWeight = FontWeight.Black,
+                                    letterSpacing = .5.sp
+                                ),
+                                color = Color.White,
+                                fontSize = 10.sp
+                            )
+                        }
                     }
                 }
             }
@@ -343,24 +370,61 @@ fun MainTopActions(
     onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(modifier = modifier) {
-        OutlinedButton(
-            onClick = {
-                if (isWeeklyGoalSet) onGoalStatus() else onSetGoal()
-            },
+    Row(
+        modifier = modifier.wrapContentWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End
+    ) {
+        Button(
+            onClick = { if (isWeeklyGoalSet) onGoalStatus() else onSetGoal() },
             modifier = Modifier
+                .height(42.dp)
                 .padding(end = 12.dp)
                 .testTag("goal_action_button"),
-            border = BorderStroke(1.dp, Color.Gray),
-            shape = RoundedCornerShape(8.dp)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isWeeklyGoalSet)
+                    Color(0xFFE3F2FD) else Color(0xFF4CAF50),
+                contentColor = if (isWeeklyGoalSet)
+                    Color(0xFF1976D2) else Color.White
+            ),
+            shape = RoundedCornerShape(12.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
+            Icon(
+                imageVector = if (isWeeklyGoalSet)
+                    Icons.Default.CheckCircle else Icons.Default.AddCircleOutline,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(8.dp))
             Text(
-                text = if (isWeeklyGoalSet) "See Goal Status" else "Set Goal",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
+                text = if (isWeeklyGoalSet) "Goal Status" else "Set Weekly Goal",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.ExtraBold
+                )
             )
         }
-        LogoutButton(onLogoutClick, avatarUrl)
+
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .clickable { onLogoutClick() }
+                .border(1.dp, Color.LightGray.copy(alpha = 0.5f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = "Profile",
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(id = R.drawable.profile_placeholder)
+            )
+        }
     }
 }
 
@@ -380,7 +444,6 @@ fun UserProfileContent(
 ) {
     LazyColumn(
         modifier = modifier
-            .padding(start = 16.dp, end = 16.dp)
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -431,7 +494,7 @@ fun UserProfileContent(
                 Text(
                     text = "Upcoming contests",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 16.dp)
                 )
                 AutoScrollingContestList(
                     contests = uiState.leetcodeUpcomingContestsState.contests,
@@ -487,111 +550,125 @@ fun UserProfileContent(
 }
 
 @Composable
-fun UserPieChart(userProblemSolvedInfo: UserProblemSolvedInfo) {
-    PieChart(
-        pieChartData = PieChartData(
-            slices = listOf(
-                PieChartData.Slice(userProblemSolvedInfo.getEasyPercentage(), Color(0xFFE0F7FA)),
-                PieChartData.Slice(userProblemSolvedInfo.getMediumPercentage(), Color(0xFFFFF9C4)),
-                PieChartData.Slice(userProblemSolvedInfo.getHardPercentage(), Color(0xFFFFCDD2))
-            )
-        ),
-        modifier = Modifier.size(200.dp),
-        animation = simpleChartAnimation(),
-        sliceDrawer = SimpleSliceDrawer(50F),
-    )
-}
-
-@Composable
 fun UserProblemCategoryStats(
     modifier: Modifier = Modifier,
     userProblemSolvedInfo: UserProblemSolvedInfo,
     diffStat: DifficultyStatistics
 ) {
-    userProblemSolvedInfo.let {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-        ) {
-            CategoryStatsCard(userProblemSolvedInfo, diffStat = diffStat )
-        }
+    Box(
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth()
+    ) {
+        CategoryStatsCard(userProblemSolvedInfo, diffStat = diffStat )
     }
 }
 
 @Composable
 fun UserProfileCard(user: UserBasicInfo) {
-    val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color.LightGray)
+    val premiumGradient = Brush.linearGradient(
+        colors = listOf(Color(0xFF1e3c72), Color(0xFF2a5298))
     )
 
     Card(
         modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+            .padding(12.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(gradientBrush)
-                .padding(16.dp)
+                .background(premiumGradient)
+                .padding(20.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                AsyncImage(
-                    model = user.avatar,
-                    placeholder = painterResource(R.drawable.profile_placeholder),
-                    contentDescription = "User avatar",
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, Color.White, CircleShape)
-                )
+            Box(
+                modifier = Modifier
+                    .size(150.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = 40.dp, y = (-40).dp)
+                    .background(Color.White.copy(alpha = 0.05f), CircleShape)
+            )
 
-                Column(
-                    modifier = Modifier.fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Surface(
+                        shape = CircleShape,
+                        color = Color.White.copy(alpha = 0.2f),
+                        modifier = Modifier.size(82.dp)
+                    ) {}
+                    AsyncImage(
+                        model = user.avatar,
+                        placeholder = painterResource(R.drawable.profile_placeholder),
+                        contentDescription = "User avatar",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(CircleShape)
+                            .border(2.dp, Color.White, CircleShape)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(20.dp))
+
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = user.name,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            letterSpacing = 0.5.sp
+                        ),
                         color = Color.White,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
+
+                    // Country Tag
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier
+                            .background(Color.Black.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Public,
-                            contentDescription = "Country",
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
+                            contentDescription = null,
+                            tint = Color(0xFF4FC3F7),
+                            modifier = Modifier.size(14.dp)
                         )
+                        Spacer(Modifier.width(6.dp))
                         Text(
-                            text = "Country: ${user.country}",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                            text = user.country.uppercase(),
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            ),
+                            color = Color.White.copy(alpha = 0.9f)
                         )
                     }
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    Spacer(Modifier.height(4.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Ranking",
-                            tint = Color.Yellow,
-                            modifier = Modifier.size(20.dp)
+                            imageVector = Icons.Default.AutoGraph,
+                            contentDescription = null,
+                            tint = Color(0xFFFFD700),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = "Global Rank ",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.6f)
                         )
                         Text(
-                            text = "Ranking: ${user.ranking}",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                            text = "#${user.ranking}",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                            color = Color.White
                         )
                     }
                 }
@@ -630,77 +707,87 @@ fun LogoutButton(
 
 @Composable
 fun UserStatisticsCard(user: UserContestInfo) {
-    val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color.LightGray)
+    val mainGradient = Brush.linearGradient(
+        colors = listOf(Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364))
     )
 
     Card(
         modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp)),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            .padding(12.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
     ) {
         Box(
             modifier = Modifier
-                .background(gradientBrush)
-                .padding(16.dp)
+                .background(mainGradient)
+                .padding(20.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            Column {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Rating",
-                        tint = Color.Yellow,
-                        modifier = Modifier.size(20.dp)
+                    Text(
+                        text = "Contest Stats",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        ),
+                        color = Color.White.copy(alpha = 0.7f)
+                    )
+                    Surface(
+                        color = Color(0xFF4CAF50).copy(alpha = 0.2f),
+                        shape = CircleShape,
+                        border = BorderStroke(1.dp, Color(0xFF4CAF50))
+                    ) {
+                        Text(
+                            text = "ACTIVE",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF4CAF50)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        text = String.format(Locale.US,"%.0f", user.rating),
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            fontWeight = FontWeight.Black
+                        ),
+                        color = Color.White
                     )
                     Text(
-                        text = "Contest Rating: ${String.format("%.3f", user.rating)}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White
+                        text = ".${String.format(Locale.US,"%03d", ((user.rating % 1) * 1000).toInt())}",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(bottom = 8.dp, start = 2.dp)
                     )
                 }
-                Divider(color = Color.White.copy(alpha = 0.5f), thickness = 1.dp)
+
+                Spacer(modifier = Modifier.height(20.dp))
+
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Leaderboard,
-                        contentDescription = "Global Ranking",
-                        tint = Color.Cyan,
-                        modifier = Modifier.size(20.dp)
+                    StatTile(
+                        label = "Global Rank",
+                        value = "#${user.globalRanking}",
+                        icon = Icons.Default.Leaderboard,
+                        iconColor = Color(0xFF00D2FF),
+                        modifier = Modifier.weight(1f)
                     )
-                    Text(
-                        text = "Global Ranking: ${user.globalRanking}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White
-                    )
-                }
-                Divider(color = Color.White.copy(alpha = 0.5f), thickness = 1.dp)
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.CalendarToday,
-                        contentDescription = "Attend Days",
-                        tint = Color.Magenta,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = "Attend: ${user.attend} days",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White
+                    StatTile(
+                        label = "Days Attended",
+                        value = "${user.attend}",
+                        icon = Icons.Default.CalendarToday,
+                        iconColor = Color(0xFF9D50BB),
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
@@ -709,51 +796,37 @@ fun UserStatisticsCard(user: UserContestInfo) {
 }
 
 @Composable
-fun ProblemCategoriesSolved(
-    userProblemSolvedInfo: UserProblemSolvedInfo,
+fun StatTile(
+    label: String,
+    value: String,
+    icon: ImageVector,
+    iconColor: Color,
+    modifier: Modifier = Modifier
 ) {
-    ProblemCategoryBox(
-        category = "Easy",
-        solved = userProblemSolvedInfo.easy,
-        total = 937,
-        backgroundColor = Color(0xFFE0F7FA)
-    )
-
-    ProblemCategoryBox(
-        category = "Medium",
-        solved = userProblemSolvedInfo.medium,
-        total = 2037,
-        backgroundColor = Color(0xFFFFF9C4)
-    )
-
-    ProblemCategoryBox(
-        category = "Hard",
-        solved = userProblemSolvedInfo.hard,
-        total = 921,
-        backgroundColor = Color(0xFFFFCDD2)
-    )
-}
-
-@Composable
-fun ProblemCategoryBox(category: String, solved: Int, total: Int, backgroundColor: Color) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = backgroundColor,
-        ),
-        modifier = Modifier
-            .size(width = 100.dp, height = 70.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    Surface(
+        modifier = modifier,
+        color = Color.White.copy(alpha = 0.08f), // Glass effect
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
-        Column(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = category)
+        Column(modifier = Modifier.padding(12.dp)) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(20.dp)
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "$solved/$total")
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color.White
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.White.copy(alpha = 0.5f)
+            )
         }
     }
 }
@@ -808,169 +881,192 @@ fun DailyProblemCard(
     difficulty: String,
     onNavigateToProblemDetails: (String) -> Unit
 ) {
-    var animatedContent by remember { mutableStateOf(true) }
+    var isShowingLogo by remember { mutableStateOf(true) }
+    var remainingTime by remember { mutableStateOf(calculateRemainingTime()) }
 
+    // Logic for toggling views
     LaunchedEffect(Unit) {
         while (isActive) {
-            animatedContent = true
-            delay(1.seconds.inWholeMilliseconds)
-            animatedContent = false
-            delay(15.seconds.inWholeMilliseconds)
+            delay(5000L) // Show logo/intro for 5s
+            isShowingLogo = false
+            delay(15000L) // Show details for 15s
+            isShowingLogo = true
         }
     }
 
-    Crossfade(
-        targetState = animatedContent,
-        modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth()
-            .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface)
-    ) { state ->
-        var remainingTime by remember { mutableStateOf(calculateRemainingTime()) }
-
-        LaunchedEffect(Unit) {
-            while (true) {
-                delay(1000L)
-                remainingTime = calculateRemainingTime()
-            }
+    // Logic for the timer
+    LaunchedEffect(Unit) {
+        while (isActive) {
+            remainingTime = calculateRemainingTime()
+            delay(1000L)
         }
-        when (state) {
-            true -> ProblemTextPlaceholder(
-                remainingTime = remainingTime
+    }
+
+    // Main Container with a fixed glassmorphic style
+    Card(
+        modifier = Modifier
+            .padding(12.dp)
+            .fillMaxWidth()
+            .height(110.dp), // Fixed height prevents "jumping" during Crossfade
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Background Glow (Subtle accent based on difficulty)
+            val accentColor = getDifficultyColor(difficulty)
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = 20.dp, y = (-20).dp)
+                    .background(accentColor.copy(alpha = 0.15f), CircleShape)
+                    .blur(30.dp)
             )
 
-            false -> ProblemDetailsCard(
-                title = title,
-                titleSlug = titleSlug,
-                remainingTime = remainingTime,
-                difficulty = difficulty,
-                verdict = verdict,
-            ) {
-                onNavigateToProblemDetails(it)
+            Crossfade(
+                targetState = isShowingLogo,
+                animationSpec = tween(800),
+                modifier = Modifier.padding(16.dp)
+            ) { showLogo ->
+                if (showLogo) {
+                    ProblemHeroIntro(remainingTime, accentColor)
+                } else {
+                    ProblemActiveDetails(
+                        title = title,
+                        verdict = verdict,
+                        difficulty = difficulty,
+                        remainingTime = remainingTime,
+                        accentColor = accentColor,
+                        onClick = { onNavigateToProblemDetails(titleSlug) }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun ProblemTextPlaceholder(remainingTime: String) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .fillMaxWidth()
-            .testTag("problem_placeholder")
+fun ProblemHeroIntro(remainingTime: String, accentColor: Color) {
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        // Icon / Logo Branding
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = accentColor.copy(alpha = 0.1f),
+            modifier = Modifier.size(56.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "LeetCode Daily Problem",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "Solve today for a streak!",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Text(
-                text = remainingTime,
-                style = MaterialTheme.typography.bodyLarge
+            Icon(
+                imageVector = Icons.Default.Bolt,
+                contentDescription = null,
+                tint = accentColor,
+                modifier = Modifier.padding(12.dp)
             )
         }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "DAILY CHALLENGE",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.5.sp
+                ),
+                color = accentColor
+            )
+            Text(
+                text = "Solve to keep your streak!",
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        TimerBadge(remainingTime)
+    }
+}
+
+@Composable
+fun ProblemActiveDetails(
+    title: String,
+    verdict: String,
+    difficulty: String,
+    remainingTime: String,
+    accentColor: Color,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null // Clean click
+            ) { onClick() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            // Difficulty Tag
+            Surface(
+                shape = CircleShape,
+                color = accentColor.copy(alpha = 0.1f),
+                modifier = Modifier.padding(bottom = 4.dp)
+            ) {
+                Text(
+                    text = difficulty,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = accentColor
+                )
+            }
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            // Verdict status
+            val verdictColor = when(verdict) {
+                "Completed" -> Color(0xFF4CAF50)
+                "Pending" -> MaterialTheme.colorScheme.error
+                else -> MaterialTheme.colorScheme.onSurfaceVariant
+            }
+            Text(
+                text = verdict,
+                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                color = verdictColor
+            )
+        }
+
+        TimerBadge(remainingTime)
+    }
+}
+
+@Composable
+fun TimerBadge(time: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = time,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold
+            ),
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = "LEFT",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+        )
     }
 }
 
 val DifficultyColorKey = SemanticsPropertyKey<Color>("DifficultyColor")
 var SemanticsPropertyReceiver.difficultyColor by DifficultyColorKey
-
-@Composable
-fun ProblemDetailsCard(
-    title: String,
-    titleSlug: String,
-    verdict: String,
-    difficulty: String,
-    remainingTime: String,
-    onNavigateToProblemDetails: (String) -> Unit
-) {
-    val backgroundColor = when (verdict) {
-        "Completed" -> MaterialTheme.colorScheme.secondaryContainer
-        "Pending" -> MaterialTheme.colorScheme.errorContainer
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
-    val textColor = when (verdict) {
-        "Completed" -> MaterialTheme.colorScheme.onSecondaryContainer
-        "Pending" -> MaterialTheme.colorScheme.onErrorContainer
-        else -> MaterialTheme.colorScheme.onSurface
-    }
-
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        modifier = Modifier
-            .clickable {
-                onNavigateToProblemDetails.invoke(titleSlug)
-            }
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .fillMaxWidth()
-            .testTag("problem_details_card")
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = verdict,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = textColor
-                )
-            }
-            Column(
-                modifier = Modifier.fillMaxWidth(0.25f),
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                val diffColor = getDifficultyColor(difficulty)
-                Text(
-                    text = difficulty,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.fillMaxWidth()
-                        .semantics { difficultyColor = diffColor }
-                        .testTag("difficulty_text"),
-                    color = diffColor
-                )
-                Text(
-                    text = remainingTime,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        }
-    }
-}
 
 fun getDifficultyColor(difficulty: String): Color = when (difficulty) {
     "Easy" -> Color(0xFF4CAF50)
@@ -1021,7 +1117,7 @@ fun YouTubeVideoRow(
                     .clickable {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("https://www.youtube.com/watch?v=${video.videoId}")
+                            "https://www.youtube.com/watch?v=${video.videoId}".toUri()
                         )
                         context.startActivity(intent)
                     }
@@ -1402,7 +1498,7 @@ private fun calculateRemainingTime(): String {
     val minutes = (diffMillis / (1000 * 60)) % 60
     val seconds = (diffMillis / 1000) % 60
 
-    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    return String.format(Locale.US,"%02d:%02d:%02d", hours, minutes, seconds)
 }
 
 @Preview(showBackground = true)
@@ -1488,17 +1584,6 @@ fun PreviewUserDetails() {
     )
 }
 
-@Preview
-@Composable
-fun PreviewProblemDetailsCard() {
-    ProblemDetailsCard(
-        title = "Two Sum of Integers of all the time very long",
-        titleSlug = "",
-        verdict = "Pending",
-        difficulty = "Easy",
-        "05:19:09"
-    ) { }
-}
 
 @Preview
 @Composable
