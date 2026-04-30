@@ -145,7 +145,7 @@ class AllProblemsViewModel @Inject constructor(
                         it.copy(isLoading = false, isError = true)
                     }
                 }
-        }else{
+        } else {
             updateFilterData()
         }
     }

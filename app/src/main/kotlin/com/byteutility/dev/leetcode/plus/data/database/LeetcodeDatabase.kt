@@ -21,10 +21,11 @@ abstract class LeetcodeDatabase : RoomDatabase() {
     abstract fun problemDao(): ProblemsDao
 }
 
-//Migration policy
+// Migration policy
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("""
+        db.execSQL(
+            """
             CREATE TABLE IF NOT EXISTS `all_problems` (
                 `problem_id` INTEGER NOT NULL PRIMARY KEY,
                 `title` TEXT NOT NULL,
@@ -36,6 +37,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
                 `has_video_solution` INTEGER NOT NULL,
                 `topic_tags` TEXT
             )
-        """)
+        """
+        )
     }
 }

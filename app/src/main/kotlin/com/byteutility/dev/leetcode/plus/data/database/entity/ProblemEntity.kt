@@ -31,5 +31,3 @@ data class ProblemEntity(
     @ColumnInfo(name = "topic_tags")
     val topicTags: List<String>?
 )
-
-

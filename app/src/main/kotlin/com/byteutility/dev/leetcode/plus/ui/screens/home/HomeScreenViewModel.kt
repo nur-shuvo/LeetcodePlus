@@ -391,7 +391,6 @@ class HomeScreenViewModel @Inject constructor(
         return System.currentTimeMillis() - timeStamp >= (7 * 24 * 60 * 60 * 1000L)
     }
 
-
     private fun getDifficultyStat() = viewModelScope.launch(Dispatchers.IO) {
         val stat = localProblemRepo.difficultyStat()
         if (stat.first != 0 && stat.second != 0 && stat.third != 0) {

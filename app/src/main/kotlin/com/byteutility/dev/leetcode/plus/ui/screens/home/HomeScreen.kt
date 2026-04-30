@@ -513,7 +513,7 @@ fun UserProblemCategoryStats(
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            CategoryStatsCard(userProblemSolvedInfo, diffStat = diffStat )
+            CategoryStatsCard(userProblemSolvedInfo, diffStat = diffStat)
         }
     }
 }
@@ -1282,7 +1282,9 @@ fun MultiRadialProgressChart(
         rings.forEachIndexed { index, data ->
             val sweepAngle = if (data.total > 0) {
                 (data.solved.toFloat() / data.total.toFloat()) * 360f
-            } else 0f
+            } else {
+                0f
+            }
 
             val inset = index * (strokeWidth + spacing)
             val ringSize = Size(
@@ -1314,7 +1316,7 @@ fun MultiRadialProgressChart(
 }
 
 @Composable
-fun RadialLegend(userProblemSolvedInfo: UserProblemSolvedInfo,diffStat: DifficultyStatistics) {
+fun RadialLegend(userProblemSolvedInfo: UserProblemSolvedInfo, diffStat: DifficultyStatistics) {
     val items = listOf(
         Triple("Easy", userProblemSolvedInfo.easy to 937, EasyText),
         Triple("Medium", userProblemSolvedInfo.medium to 2037, MediumText),
@@ -1334,7 +1336,9 @@ fun RadialLegend(userProblemSolvedInfo: UserProblemSolvedInfo,diffStat: Difficul
                     Text(text = label, fontWeight = FontWeight.Bold)
                     val percentage = if (stats.second > 0) {
                         (stats.first.toFloat() / stats.second.toFloat()) * 100
-                    } else 0f
+                    } else {
+                        0f
+                    }
                     val formattedPercentage = "%.1f".format(percentage)
                     Text(
                         text = "$formattedPercentage%",
@@ -1353,7 +1357,7 @@ fun RadialLegend(userProblemSolvedInfo: UserProblemSolvedInfo,diffStat: Difficul
 }
 
 @Composable
-fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?,diffStat: DifficultyStatistics) {
+fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?, diffStat: DifficultyStatistics) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -1367,7 +1371,7 @@ fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?,diffStat: Di
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 if (userProblemSolvedInfo != null) {
-                    RadialLegend(userProblemSolvedInfo, diffStat = diffStat )
+                    RadialLegend(userProblemSolvedInfo, diffStat = diffStat)
                 } else {
                     Text("No Statistics")
                 }
@@ -1376,7 +1380,7 @@ fun CategoryStatsCard(userProblemSolvedInfo: UserProblemSolvedInfo?,diffStat: Di
             Spacer(modifier = Modifier.width(16.dp))
             MultiRadialProgressChart(
                 userProblemSolvedInfo = userProblemSolvedInfo,
-                diffStat = diffStat ,
+                diffStat = diffStat,
                 modifier = Modifier
                     .size(140.dp)
                     .aspectRatio(1f)

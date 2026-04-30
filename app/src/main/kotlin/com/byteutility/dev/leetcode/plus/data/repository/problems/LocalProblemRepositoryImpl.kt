@@ -14,8 +14,12 @@ import javax.inject.Inject
  */
 class LocalProblemRepositoryImpl @Inject constructor(
     private val dao: ProblemsDao
-): LocalProblemRepository {
-    override fun getProblems(query: String?, difficulty: List<String>?, tags: List<String>?): PagingSource<Int, ProblemEntity> {
+) : LocalProblemRepository {
+    override fun getProblems(
+        query: String?,
+        difficulty: List<String>?,
+        tags: List<String>?
+    ): PagingSource<Int, ProblemEntity> {
         val conditions = mutableListOf<String>()
         val args = mutableListOf<Any>()
         if (!query.isNullOrBlank()) {
@@ -45,16 +49,18 @@ class LocalProblemRepositoryImpl @Inject constructor(
 
         val whereClause = if (conditions.isNotEmpty()) {
             "WHERE " + conditions.joinToString(" AND ")
-        } else ""
+        } else {
+            ""
+        }
         val sql = "SELECT * FROM all_problems $whereClause ORDER BY problem_id ASC"
         return dao.getProblems(SimpleSQLiteQuery(sql, args.toTypedArray()))
     }
 
     override suspend fun getAllTags(): List<String> {
-        val type = object : TypeToken<List<String>>(){}.type
+        val type = object : TypeToken<List<String>>() {}.type
         val gson = Gson()
         return dao.getAllTopicTagsRaw()
-            .flatMap { json -> gson.fromJson<List<String>>(json,type) }
+            .flatMap { json -> gson.fromJson<List<String>>(json, type) }
             .distinct()
     }
 

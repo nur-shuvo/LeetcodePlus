@@ -228,7 +228,7 @@ fun SetWeeklyTargetScreen(
             )
         ) {
             Text(
-               text =  "Confirm",
+               text = "Confirm",
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontSize = 16.sp
                 )
@@ -236,7 +236,6 @@ fun SetWeeklyTargetScreen(
         }
     }
 }
-
 
 @Composable
 private fun ProblemList(
@@ -284,7 +283,6 @@ private fun ProblemList(
         }
     }
 }
-
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -479,7 +477,6 @@ private fun ProblemsTopAppBar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-
             IconButton(
                 onClick = {
                     onBack()
@@ -504,7 +501,6 @@ private fun ProblemsTopAppBar(
         }
     }
 }
-
 
 @Composable
 private fun SearchBar(
@@ -674,7 +670,6 @@ fun ErrorCard(
 private fun ProblemsTopAppBarPreview() {
     MaterialTheme {
         ProblemsTopAppBar {
-
         }
     }
 }

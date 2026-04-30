@@ -38,5 +38,4 @@ LeetcodeDatabaseModule {
     @Singleton
     @Provides
     fun provideProblemDao(db: LeetcodeDatabase) = db.problemDao()
-
 }
