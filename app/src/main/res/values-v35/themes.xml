@@ -3,11 +3,13 @@
 
     <style name="Theme.LeetcodePlus" parent="android:Theme.Material.Light.NoActionBar">
         <item name="postSplashScreenTheme">@style/Theme.LeetcodePlus</item>
+        <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/app_icon_playstore</item>
         <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
-    <style name="LeetcodePlus.Transparent" parent="Theme.AppCompat.NoActionBar">
+    <style name="LeetcodePlus.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>

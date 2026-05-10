@@ -3,6 +3,7 @@
 
     <style name="Theme.LeetcodePlus" parent="android:Theme.Material.Light.NoActionBar">
         <item name="postSplashScreenTheme">@style/Theme.LeetcodePlus</item>
+        <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/app_icon_playstore</item>
     </style>
 </resources>
