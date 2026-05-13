@@ -1,16 +1,19 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.sorting
 
-import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithm
+import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithmInfo
 import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingStep
 
 class BubbleSortVisualizationStrategy : SortingVisualizationStrategy {
-    override val algorithm = SortingAlgorithm.BUBBLE_SORT
-
-    override val code = listOf(
-        "for i in 0..n-2:",
-        "  for j in 0..n-i-2:",
-        "    if list[j] > list[j+1]:",
-        "      swap(list[j], list[j+1])"
+    override val info = SortingAlgorithmInfo(
+        id = "bubble_sort",
+        displayName = "Bubble Sort",
+        description = "Repeatedly compares adjacent values and moves the largest unsorted value to the end after each pass.",
+        code = listOf(
+            "for i in 0..n-2:",
+            "  for j in 0..n-i-2:",
+            "    if list[j] > list[j+1]:",
+            "      swap(list[j], list[j+1])"
+        )
     )
 
     override fun generateSteps(initialNumbers: List<Int>): List<SortingStep> {
@@ -41,4 +44,3 @@ class BubbleSortVisualizationStrategy : SortingVisualizationStrategy {
         return recorder.steps()
     }
 }
-

@@ -1,18 +1,21 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.sorting
 
-import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithm
+import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithmInfo
 import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingStep
 
 class SelectionSortVisualizationStrategy : SortingVisualizationStrategy {
-    override val algorithm = SortingAlgorithm.SELECTION_SORT
-
-    override val code = listOf(
-        "for i in 0..n-1:",
-        "  minIdx = i",
-        "  for j in i+1..n-1:",
-        "    if list[j] < list[minIdx]:",
-        "      minIdx = j",
-        "  swap(list[i], list[minIdx])"
+    override val info = SortingAlgorithmInfo(
+        id = "selection_sort",
+        displayName = "Selection Sort",
+        description = "Finds the minimum value from the unsorted part and places it at the next sorted position.",
+        code = listOf(
+            "for i in 0..n-1:",
+            "  minIdx = i",
+            "  for j in i+1..n-1:",
+            "    if list[j] < list[minIdx]:",
+            "      minIdx = j",
+            "  swap(list[i], list[minIdx])"
+        )
     )
 
     override fun generateSteps(initialNumbers: List<Int>): List<SortingStep> {
@@ -46,4 +49,3 @@ class SelectionSortVisualizationStrategy : SortingVisualizationStrategy {
         return recorder.steps()
     }
 }
-

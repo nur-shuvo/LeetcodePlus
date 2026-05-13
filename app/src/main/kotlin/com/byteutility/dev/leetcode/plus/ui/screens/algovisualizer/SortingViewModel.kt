@@ -11,14 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class SortingAlgorithm(val displayName: String) {
-    BUBBLE_SORT("Bubble Sort"),
-    INSERTION_SORT("Insertion Sort"),
-    SELECTION_SORT("Selection Sort"),
-    QUICK_SORT("Quick Sort"),
-    MERGE_SORT("Merge Sort"),
-}
-
 data class SortingStep(
     val numbers: List<Int>,
     val currentlyComparing: List<Int>,
@@ -34,6 +26,8 @@ data class VisualizerState(
     val totalSteps: Int = 0,
     val isPlaying: Boolean = false,
     val isSorting: Boolean = false,
+    val availableAlgorithms: List<SortingAlgorithmInfo> = emptyList(),
+    val selectedAlgorithm: SortingAlgorithmInfo? = null,
     val algorithmCode: List<String> = emptyList(),
     val activeLineIndex: Int? = null
 )
@@ -43,7 +37,8 @@ class SortingViewModel(
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         VisualizerState(
-            numbers = List(10) { (1..100).random() }
+            numbers = List(10) { (1..100).random() },
+            availableAlgorithms = algorithmRegistry.algorithms
         ))
     val state = _state.asStateFlow()
 
@@ -54,15 +49,16 @@ class SortingViewModel(
         stopPlayback()
         _state.update {
             VisualizerState(
-                numbers = List(10) { (1..100).random() }
+                numbers = List(10) { (1..100).random() },
+                availableAlgorithms = algorithmRegistry.algorithms
             )
         }
         allSteps = emptyList()
     }
 
-    fun onAlgorithmSelected(algo: SortingAlgorithm) {
+    fun onAlgorithmSelected(algorithmId: String) {
         stopPlayback()
-        val strategy = algorithmRegistry.getStrategy(algo)
+        val strategy = algorithmRegistry.getStrategy(algorithmId)
         val initialNumbers = _state.value.numbers.shuffled()
         allSteps = strategy.generateSteps(initialNumbers)
         
@@ -71,7 +67,8 @@ class SortingViewModel(
                 currentStepIndex = 0,
                 totalSteps = allSteps.size,
                 isSorting = true,
-                algorithmCode = strategy.code
+                selectedAlgorithm = strategy.info,
+                algorithmCode = strategy.info.code
             )
         }
         updateStateToStep(0)

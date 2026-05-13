@@ -1,20 +1,23 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.sorting
 
-import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithm
+import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithmInfo
 import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingStep
 
 class QuickSortVisualizationStrategy : SortingVisualizationStrategy {
-    override val algorithm = SortingAlgorithm.QUICK_SORT
-
-    override val code = listOf(
-        "partition(low, high):",
-        "  pivot = list[high]",
-        "  i = low - 1",
-        "  for j in low..high-1:",
-        "    if list[j] < pivot:",
-        "      i++; swap(list[i], list[j])",
-        "  swap(list[i+1], list[high])",
-        "  return i + 1"
+    override val info = SortingAlgorithmInfo(
+        id = "quick_sort",
+        displayName = "Quick Sort",
+        description = "Partitions around a pivot so smaller values move left, larger values move right, then repeats recursively.",
+        code = listOf(
+            "partition(low, high):",
+            "  pivot = list[high]",
+            "  i = low - 1",
+            "  for j in low..high-1:",
+            "    if list[j] < pivot:",
+            "      i++; swap(list[i], list[j])",
+            "  swap(list[i+1], list[high])",
+            "  return i + 1"
+        )
     )
 
     override fun generateSteps(initialNumbers: List<Int>): List<SortingStep> {
@@ -73,4 +76,3 @@ class QuickSortVisualizationStrategy : SortingVisualizationStrategy {
         return recorder.steps()
     }
 }
-

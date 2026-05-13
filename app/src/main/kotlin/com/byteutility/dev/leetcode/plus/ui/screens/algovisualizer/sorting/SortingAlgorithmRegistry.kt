@@ -1,15 +1,17 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.sorting
 
-import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithm
+import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithmInfo
 
 class SortingAlgorithmRegistry(
     strategies: List<SortingVisualizationStrategy>
 ) {
-    private val strategyByAlgorithm = strategies.associateBy { it.algorithm }
+    val algorithms: List<SortingAlgorithmInfo> = strategies.map { it.info }
 
-    fun getStrategy(algorithm: SortingAlgorithm): SortingVisualizationStrategy {
-        return requireNotNull(strategyByAlgorithm[algorithm]) {
-            "No sorting visualization strategy registered for $algorithm"
+    private val strategyById = strategies.associateBy { it.info.id }
+
+    fun getStrategy(algorithmId: String): SortingVisualizationStrategy {
+        return requireNotNull(strategyById[algorithmId]) {
+            "No sorting visualization strategy registered for $algorithmId"
         }
     }
 
@@ -27,4 +29,3 @@ class SortingAlgorithmRegistry(
         }
     }
 }
-

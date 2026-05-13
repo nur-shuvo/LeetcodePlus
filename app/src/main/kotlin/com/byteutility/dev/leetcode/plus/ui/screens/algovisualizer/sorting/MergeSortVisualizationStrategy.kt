@@ -1,18 +1,21 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.sorting
 
-import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithm
+import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithmInfo
 import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingStep
 
 class MergeSortVisualizationStrategy : SortingVisualizationStrategy {
-    override val algorithm = SortingAlgorithm.MERGE_SORT
-
-    override val code = listOf(
-        "mergeSort(left, right):",
-        "  if left < right:",
-        "    mid = (left + right) / 2",
-        "    mergeSort(left, mid)",
-        "    mergeSort(mid + 1, right)",
-        "    merge(left, mid, right)"
+    override val info = SortingAlgorithmInfo(
+        id = "merge_sort",
+        displayName = "Merge Sort",
+        description = "Splits the list into smaller ranges, sorts each range, then merges those ranges back together.",
+        code = listOf(
+            "mergeSort(left, right):",
+            "  if left < right:",
+            "    mid = (left + right) / 2",
+            "    mergeSort(left, mid)",
+            "    mergeSort(mid + 1, right)",
+            "    merge(left, mid, right)"
+        )
     )
 
     override fun generateSteps(initialNumbers: List<Int>): List<SortingStep> {
@@ -83,4 +86,3 @@ class MergeSortVisualizationStrategy : SortingVisualizationStrategy {
         return recorder.steps()
     }
 }
-

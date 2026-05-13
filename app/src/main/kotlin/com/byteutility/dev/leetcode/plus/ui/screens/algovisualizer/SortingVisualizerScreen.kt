@@ -40,9 +40,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,10 +61,9 @@ import com.byteutility.dev.leetcode.plus.ui.theme.ProblemsGreen
 @Composable
 fun SortingVisualizerScreen(viewModel: SortingViewModel = viewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var selectedAlgorithm by remember { mutableStateOf<SortingAlgorithm?>(SortingAlgorithm.BUBBLE_SORT) }
 
     LaunchedEffect(Unit) {
-        viewModel.onAlgorithmSelected(SortingAlgorithm.BUBBLE_SORT)
+        viewModel.onAlgorithmSelected("bubble_sort")
     }
     
     Scaffold(
@@ -85,11 +81,11 @@ fun SortingVisualizerScreen(viewModel: SortingViewModel = viewModel()) {
                 })
                 AlgorithmSelector(
                     onAlgoClick = {
-                        selectedAlgorithm = it
-                        viewModel.onAlgorithmSelected(it)
+                        viewModel.onAlgorithmSelected(it.id)
                     },
                     enabled = !state.isPlaying,
-                    selectedAlgorithm = selectedAlgorithm
+                    algorithms = state.availableAlgorithms,
+                    selectedAlgorithm = state.selectedAlgorithm
                 )
             }
         }
@@ -100,7 +96,7 @@ fun SortingVisualizerScreen(viewModel: SortingViewModel = viewModel()) {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            selectedAlgorithm?.let {
+            state.selectedAlgorithm?.let {
                 AlgorithmDescription(
                     algorithm = it,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -145,17 +141,9 @@ fun SortingVisualizerScreen(viewModel: SortingViewModel = viewModel()) {
 
 @Composable
 fun AlgorithmDescription(
-    algorithm: SortingAlgorithm,
+    algorithm: SortingAlgorithmInfo,
     modifier: Modifier = Modifier
 ) {
-    val description = when (algorithm) {
-        SortingAlgorithm.BUBBLE_SORT -> "Repeatedly compares adjacent values and moves the largest unsorted value to the end after each pass."
-        SortingAlgorithm.INSERTION_SORT -> "Builds a sorted prefix by taking one value at a time and inserting it into the correct position."
-        SortingAlgorithm.SELECTION_SORT -> "Finds the minimum value from the unsorted part and places it at the next sorted position."
-        SortingAlgorithm.QUICK_SORT -> "Partitions around a pivot so smaller values move left, larger values move right, then repeats recursively."
-        SortingAlgorithm.MERGE_SORT -> "Splits the list into smaller ranges, sorts each range, then merges those ranges back together."
-    }
-
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -170,7 +158,7 @@ fun AlgorithmDescription(
                 color = ProblemsGreen
             )
             Text(
-                text = description,
+                text = algorithm.description,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -279,8 +267,9 @@ fun PlaybackControls(
 
 @Composable
 fun AlgorithmSelector(
-    selectedAlgorithm: SortingAlgorithm?,
-    onAlgoClick: (SortingAlgorithm) -> Unit,
+    algorithms: List<SortingAlgorithmInfo>,
+    selectedAlgorithm: SortingAlgorithmInfo?,
+    onAlgoClick: (SortingAlgorithmInfo) -> Unit,
     enabled: Boolean
 ) {
     LazyRow(
@@ -289,9 +278,9 @@ fun AlgorithmSelector(
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(SortingAlgorithm.entries) { algo ->
+        items(algorithms) { algo ->
             FilterChip(
-                selected = algo == selectedAlgorithm,
+                selected = algo.id == selectedAlgorithm?.id,
                 onClick = { onAlgoClick(algo) },
                 label = { Text(algo.displayName) },
                 enabled = enabled

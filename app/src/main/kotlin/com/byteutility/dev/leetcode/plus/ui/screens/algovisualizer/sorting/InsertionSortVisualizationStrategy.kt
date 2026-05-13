@@ -1,19 +1,22 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.sorting
 
-import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithm
+import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingAlgorithmInfo
 import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingStep
 
 class InsertionSortVisualizationStrategy : SortingVisualizationStrategy {
-    override val algorithm = SortingAlgorithm.INSERTION_SORT
-
-    override val code = listOf(
-        "for i in 1..n-1:",
-        "  key = list[i]",
-        "  j = i - 1",
-        "  while j >= 0 and list[j] > key:",
-        "    list[j+1] = list[j]",
-        "    j--",
-        "  list[j+1] = key"
+    override val info = SortingAlgorithmInfo(
+        id = "insertion_sort",
+        displayName = "Insertion Sort",
+        description = "Builds a sorted prefix by taking one value at a time and inserting it into the correct position.",
+        code = listOf(
+            "for i in 1..n-1:",
+            "  key = list[i]",
+            "  j = i - 1",
+            "  while j >= 0 and list[j] > key:",
+            "    list[j+1] = list[j]",
+            "    j--",
+            "  list[j+1] = key"
+        )
     )
 
     override fun generateSteps(initialNumbers: List<Int>): List<SortingStep> {
@@ -48,4 +51,3 @@ class InsertionSortVisualizationStrategy : SortingVisualizationStrategy {
         return recorder.steps()
     }
 }
-
