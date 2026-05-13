@@ -18,230 +18,340 @@ enum class SortingAlgorithm(val displayName: String) {
     MERGE_SORT("Merge Sort"),
 }
 
+data class SortingStep(
+    val numbers: List<Int>,
+    val currentlyComparing: List<Int>,
+    val sortedIndexes: List<Int>,
+    val activeLineIndex: Int? = null
+)
+
 data class VisualizerState(
     val numbers: List<Int> = emptyList(),
     val currentlyComparing: List<Int> = emptyList(),
     val sortedIndexes: List<Int> = emptyList(),
-    val isSorting: Boolean = false
+    val currentStepIndex: Int = 0,
+    val totalSteps: Int = 0,
+    val isPlaying: Boolean = false,
+    val isSorting: Boolean = false,
+    val algorithmCode: List<String> = emptyList(),
+    val activeLineIndex: Int? = null
 )
 
 class SortingViewModel : ViewModel() {
     private val _state = MutableStateFlow(
         VisualizerState(
-            numbers = List(50) { (1..100).random() }
+            numbers = List(10) { (1..100).random() }
         ))
     val state = _state.asStateFlow()
 
-    private var sortingJob: Job? = null
+    private var playbackJob: Job? = null
+    private var allSteps: List<SortingStep> = emptyList()
+
+    private val algorithmCodes = mapOf(
+        SortingAlgorithm.BUBBLE_SORT to listOf(
+            "for i in 0..n-2:",
+            "  for j in 0..n-i-2:",
+            "    if list[j] > list[j+1]:",
+            "      swap(list[j], list[j+1])"
+        ),
+        SortingAlgorithm.INSERTION_SORT to listOf(
+            "for i in 1..n-1:",
+            "  key = list[i]",
+            "  j = i - 1",
+            "  while j >= 0 and list[j] > key:",
+            "    list[j+1] = list[j]",
+            "    j--",
+            "  list[j+1] = key"
+        ),
+        SortingAlgorithm.SELECTION_SORT to listOf(
+            "for i in 0..n-1:",
+            "  minIdx = i",
+            "  for j in i+1..n-1:",
+            "    if list[j] < list[minIdx]:",
+            "      minIdx = j",
+            "  swap(list[i], list[minIdx])"
+        ),
+        SortingAlgorithm.QUICK_SORT to listOf(
+            "partition(low, high):",
+            "  pivot = list[high]",
+            "  i = low - 1",
+            "  for j in low..high-1:",
+            "    if list[j] < pivot:",
+            "      i++; swap(list[i], list[j])",
+            "  swap(list[i+1], list[high])",
+            "  return i + 1"
+        ),
+        SortingAlgorithm.MERGE_SORT to listOf(
+            "mergeSort(left, right):",
+            "  if left < right:",
+            "    mid = (left + right) / 2",
+            "    mergeSort(left, mid)",
+            "    mergeSort(mid + 1, right)",
+            "    merge(left, mid, right)"
+        )
+    )
 
     fun onReset() {
-        stopSorting()
+        stopPlayback()
+        _state.update {
+            VisualizerState(
+                numbers = List(10) { (1..100).random() }
+            )
+        }
+        allSteps = emptyList()
     }
 
     fun onAlgorithmSelected(algo: SortingAlgorithm) {
-        stopSorting()
+        stopPlayback()
+        val initialNumbers = _state.value.numbers.shuffled()
+        allSteps = generateSteps(algo, initialNumbers)
+        
+        _state.update {
+            it.copy(
+                currentStepIndex = 0,
+                totalSteps = allSteps.size,
+                isSorting = true,
+                algorithmCode = algorithmCodes[algo] ?: emptyList()
+            )
+        }
+        updateStateToStep(0)
+    }
 
-        sortingJob = when (algo) {
-            SortingAlgorithm.BUBBLE_SORT -> startBubbleSort()
-            SortingAlgorithm.INSERTION_SORT -> startInsertionSort()
-            SortingAlgorithm.SELECTION_SORT -> startSelectionSort()
-            SortingAlgorithm.QUICK_SORT -> startQuickSort()
-            SortingAlgorithm.MERGE_SORT -> startMergeSort()
+    private fun generateSteps(algo: SortingAlgorithm, initialNumbers: List<Int>): List<SortingStep> {
+        val steps = mutableListOf<SortingStep>()
+        val list = initialNumbers.toMutableList()
+        val sortedIndexes = mutableSetOf<Int>()
+
+        fun record(comparing: List<Int> = emptyList(), lineIdx: Int? = null) {
+            steps.add(SortingStep(list.toList(), comparing, sortedIndexes.toList(), lineIdx))
+        }
+
+        record() // Initial state
+
+        when (algo) {
+            SortingAlgorithm.BUBBLE_SORT -> {
+                for (i in 0 until list.size - 1) {
+                    record(lineIdx = 0)
+                    for (j in 0 until list.size - i - 1) {
+                        record(lineIdx = 1)
+                        record(listOf(j, j + 1), 2)
+                        if (list[j] > list[j + 1]) {
+                            val temp = list[j]
+                            list[j] = list[j + 1]
+                            list[j + 1] = temp
+                            record(listOf(j, j + 1), 3)
+                        }
+                    }
+                    sortedIndexes.add(list.size - 1 - i)
+                }
+                // Finally everything is sorted
+                list.indices.forEach { sortedIndexes.add(it) }
+            }
+            SortingAlgorithm.INSERTION_SORT -> {
+                for (i in 1 until list.size) {
+                    record(lineIdx = 0)
+                    val key = list[i]
+                    record(listOf(i), 1)
+                    var j = i - 1
+                    record(lineIdx = 2)
+                    while (j >= 0 && list[j] > key) {
+                        record(listOf(j, j + 1), 3)
+                        list[j + 1] = list[j]
+                        record(listOf(j, j + 1), 4)
+                        j--
+                        record(lineIdx = 5)
+                    }
+                    list[j + 1] = key
+                    record(listOf(j + 1), 6)
+                }
+                list.indices.forEach { sortedIndexes.add(it) }
+            }
+            SortingAlgorithm.SELECTION_SORT -> {
+                for (i in list.indices) {
+                    record(lineIdx = 0)
+                    var minIdx = i
+                    record(listOf(i), 1)
+                    for (j in i + 1 until list.size) {
+                        record(lineIdx = 2)
+                        record(listOf(minIdx, j), 3)
+                        if (list[j] < list[minIdx]) {
+                            minIdx = j
+                            record(listOf(minIdx), 4)
+                        }
+                    }
+                    val temp = list[minIdx]
+                    list[minIdx] = list[i]
+                    list[i] = temp
+                    sortedIndexes.add(i)
+                    record(listOf(i, minIdx), 5)
+                }
+            }
+            SortingAlgorithm.QUICK_SORT -> {
+                fun partition(low: Int, high: Int): Int {
+                    record(lineIdx = 0)
+                    val pivot = list[high]
+                    record(listOf(high), 1)
+                    var i = low - 1
+                    record(lineIdx = 2)
+                    for (j in low until high) {
+                        record(lineIdx = 3)
+                        record(listOf(j, high), 4)
+                        if (list[j] < pivot) {
+                            i++
+                            val temp = list[i]
+                            list[i] = list[j]
+                            list[j] = temp
+                            record(listOf(i, j), 5)
+                        }
+                    }
+                    val temp = list[i + 1]
+                    list[i + 1] = list[high]
+                    list[high] = temp
+                    record(listOf(i + 1, high), 6)
+                    record(lineIdx = 7)
+                    sortedIndexes.add(i + 1)
+                    return i + 1
+                }
+
+                fun sort(low: Int, high: Int) {
+                    record(lineIdx = 1)
+                    if (low < high) {
+                        record(lineIdx = 2)
+                        val pIdx = partition(low, high)
+                        record(lineIdx = 3)
+                        sort(low, pIdx - 1)
+                        record(lineIdx = 4)
+                        sort(pIdx + 1, high)
+                        record(lineIdx = 5)
+                    } else if (low == high) {
+                        sortedIndexes.add(low)
+                        record()
+                    }
+                }
+                sort(0, list.size - 1)
+                list.indices.forEach { sortedIndexes.add(it) }
+            }
+            SortingAlgorithm.MERGE_SORT -> {
+                fun merge(left: Int, mid: Int, right: Int) {
+                    val leftList = list.subList(left, mid + 1).toList()
+                    val rightList = list.subList(mid + 1, right + 1).toList()
+                    var i = 0
+                    var j = 0
+                    var k = left
+                    while (i < leftList.size && j < rightList.size) {
+                        record(listOf(left + i, mid + 1 + j), 5)
+                        if (leftList[i] <= rightList[j]) {
+                            list[k] = leftList[i]
+                            i++
+                        } else {
+                            list[k] = rightList[j]
+                            j++
+                        }
+                        record(listOf(k), 5)
+                        k++
+                    }
+                    while (i < leftList.size) {
+                        list[k] = leftList[i]
+                        record(listOf(k), 5)
+                        i++; k++
+                    }
+                    while (j < rightList.size) {
+                        list[k] = rightList[j]
+                        record(listOf(k), 5)
+                        j++; k++
+                    }
+                    // In merge sort, we only know parts are sorted relative to each other, 
+                    // but for visualizer we can show the range being merged as "processed"
+                    if (left == 0 && right == list.size - 1) {
+                         list.indices.forEach { sortedIndexes.add(it) }
+                    }
+                }
+
+                fun sort(left: Int, right: Int) {
+                    record(lineIdx = 1)
+                    if (left < right) {
+                        record(lineIdx = 2)
+                        val mid = left + (right - left) / 2
+                        record(lineIdx = 3)
+                        sort(left, mid)
+                        record(lineIdx = 4)
+                        sort(mid + 1, right)
+                        record(lineIdx = 5)
+                        merge(left, mid, right)
+                    }
+                }
+                sort(0, list.size - 1)
+                list.indices.forEach { sortedIndexes.add(it) }
+            }
+        }
+        
+        record()
+        return steps
+    }
+
+    fun togglePlayback() {
+        if (_state.value.isPlaying) {
+            pausePlayback()
+        } else {
+            playPlayback()
         }
     }
 
-    fun stopSorting() {
-        sortingJob?.cancel()
+    private fun playPlayback() {
+        if (allSteps.isEmpty()) return
+        
+        _state.update { it.copy(isPlaying = true) }
+        playbackJob = viewModelScope.launch(Dispatchers.Default) {
+            while (_state.value.currentStepIndex < allSteps.size - 1) {
+                delay(100)
+                stepForward()
+                if (!_state.value.isPlaying) break
+            }
+            _state.update { it.copy(isPlaying = false) }
+        }
+    }
+
+    private fun pausePlayback() {
+        playbackJob?.cancel()
+        _state.update { it.copy(isPlaying = false) }
+    }
+
+    fun stepForward() {
+        val nextIndex = _state.value.currentStepIndex + 1
+        if (nextIndex < allSteps.size) {
+            updateStateToStep(nextIndex)
+        } else {
+            pausePlayback()
+        }
+    }
+
+    fun stepBackward() {
+        val prevIndex = _state.value.currentStepIndex - 1
+        if (prevIndex >= 0) {
+            updateStateToStep(prevIndex)
+        }
+    }
+
+    fun seekTo(index: Int) {
+        if (index in allSteps.indices) {
+            updateStateToStep(index)
+        }
+    }
+
+    private fun updateStateToStep(index: Int) {
+        val step = allSteps[index]
         _state.update {
             it.copy(
-                isSorting = false,
-                currentlyComparing = emptyList(),
-                sortedIndexes = emptyList()
+                numbers = step.numbers,
+                currentlyComparing = step.currentlyComparing,
+                sortedIndexes = step.sortedIndexes,
+                activeLineIndex = step.activeLineIndex,
+                currentStepIndex = index
             )
         }
     }
 
-    fun startBubbleSort(): Job {
-        return viewModelScope.launch(Dispatchers.Default) {
-            val list = _state.value.numbers.shuffled().toMutableList()
-            _state.update { it.copy(isSorting = true) }
-
-            for (i in 0 until list.size - 1) {
-                for (j in 0 until list.size - i - 1) {
-                    _state.update { it.copy(currentlyComparing = listOf(j, j + 1)) }
-                    delay(50) // The "Visualization" speed
-
-                    if (list[j] > list[j + 1]) {
-                        val temp = list[j]
-                        list[j] = list[j + 1]
-                        list[j + 1] = temp
-
-                        _state.update { it.copy(numbers = list.toList()) }
-                    }
-                }
-
-                _state.update { it.copy(sortedIndexes = it.sortedIndexes + (list.size - 1 - i)) }
-            }
-            _state.update { it.copy(isSorting = false, currentlyComparing = emptyList()) }
-        }
-    }
-
-    fun startInsertionSort(): Job {
-        return viewModelScope.launch(Dispatchers.Default) {
-            val list = _state.value.numbers.shuffled().toMutableList()
-            _state.update { it.copy(isSorting = true) }
-
-            for (i in 1 until list.size) {
-                val key = list[i]
-                var j = i - 1
-
-                _state.update { it.copy(currentlyComparing = listOf(i)) }
-
-                while (j >= 0 && list[j] > key) {
-                    list[j + 1] = list[j]
-
-                    // Show the shifting process
-                    _state.update {
-                        it.copy(
-                            numbers = list.toList(),
-                            currentlyComparing = listOf(j, j + 1)
-                        )
-                    }
-                    delay(50)
-                    j--
-                }
-                list[j + 1] = key
-                _state.update { it.copy(numbers = list.toList()) }
-            }
-            _state.update { it.copy(isSorting = false, currentlyComparing = emptyList()) }
-        }
-    }
-
-    fun startSelectionSort(): Job {
-        return viewModelScope.launch(Dispatchers.Default) {
-            val list = _state.value.numbers.shuffled().toMutableList()
-            _state.update { it.copy(isSorting = true) }
-
-            for (i in list.indices) {
-                var minIdx = i
-                for (j in i + 1 until list.size) {
-                    _state.update { it.copy(currentlyComparing = listOf(minIdx, j)) }
-                    delay(50)
-
-                    if (list[j] < list[minIdx]) {
-                        minIdx = j
-                    }
-                }
-                val temp = list[minIdx]
-                list[minIdx] = list[i]
-                list[i] = temp
-
-                _state.update {
-                    it.copy(
-                        numbers = list.toList(),
-                        sortedIndexes = it.sortedIndexes + i
-                    )
-                }
-            }
-            _state.update { it.copy(isSorting = false, currentlyComparing = emptyList()) }
-        }
-    }
-
-    fun startQuickSort(): Job {
-        return viewModelScope.launch(Dispatchers.Default) {
-            val list = _state.value.numbers.shuffled().toMutableList()
-            _state.update { it.copy(isSorting = true) }
-
-            quickSort(list, 0, list.size - 1)
-
-            _state.update { it.copy(isSorting = false, currentlyComparing = emptyList()) }
-        }
-    }
-
-    private suspend fun quickSort(list: MutableList<Int>, low: Int, high: Int) {
-        if (low < high) {
-            val pIdx = partition(list, low, high)
-            quickSort(list, low, pIdx - 1)
-            quickSort(list, pIdx + 1, high)
-        }
-    }
-
-    private suspend fun partition(list: MutableList<Int>, low: Int, high: Int): Int {
-        val pivot = list[high]
-        var i = low - 1
-        for (j in low until high) {
-            _state.update { it.copy(currentlyComparing = listOf(j, high)) }
-            delay(50)
-            if (list[j] < pivot) {
-                i++
-                val temp = list[i]
-                list[i] = list[j]
-                list[j] = temp
-                _state.update { it.copy(numbers = list.toList()) }
-            }
-        }
-        val temp = list[i + 1]
-        list[i + 1] = list[high]
-        list[high] = temp
-        _state.update { it.copy(numbers = list.toList()) }
-        return i + 1
-    }
-
-    fun startMergeSort(): Job {
-        return viewModelScope.launch(Dispatchers.Default) {
-            val list = _state.value.numbers.shuffled().toMutableList()
-            _state.update { it.copy(isSorting = true) }
-            mergeSort(list, 0, list.size - 1)
-            _state.update { it.copy(isSorting = false) }
-        }
-    }
-
-    private suspend fun mergeSort(list: MutableList<Int>, left: Int, right: Int) {
-        if (left < right) {
-            val mid = left + (right - left) / 2
-            mergeSort(list, left, mid)
-            mergeSort(list, mid + 1, right)
-            merge(list, left, mid, right)
-        }
-    }
-
-    private suspend fun merge(list: MutableList<Int>, left: Int, mid: Int, right: Int) {
-        val leftSize = mid - left + 1
-        val rightSize = right - mid
-
-        val leftList = list.subList(left, mid + 1).toList()
-        val rightList = list.subList(mid + 1, right + 1).toList()
-
-        var i = 0
-        var j = 0
-        var k = left
-
-        while (i < leftSize && j < rightSize) {
-            _state.update { it.copy(currentlyComparing = listOf(left + i, mid + 1 + j)) }
-            delay(50)
-            if (leftList[i] <= rightList[j]) {
-                list[k] = leftList[i]
-                i++
-            } else {
-                list[k] = rightList[j]
-                j++
-            }
-            _state.update { it.copy(numbers = list.toList()) }
-            k++
-        }
-
-        while (i < leftSize) {
-            list[k] = leftList[i]
-            _state.update { it.copy(numbers = list.toList()) }
-            i++; k++
-            delay(30)
-        }
-
-        while (j < rightSize) {
-            list[k] = rightList[j]
-            _state.update { it.copy(numbers = list.toList()) }
-            j++; k++
-            delay(30)
-        }
+    fun stopPlayback() {
+        pausePlayback()
     }
 }
