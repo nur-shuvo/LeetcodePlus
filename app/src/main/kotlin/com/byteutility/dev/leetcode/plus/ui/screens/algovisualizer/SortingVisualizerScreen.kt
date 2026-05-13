@@ -1,13 +1,18 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer
 
+import android.graphics.Paint
+import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,9 +46,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -90,9 +98,26 @@ fun SortingVisualizerScreen(viewModel: SortingViewModel = viewModel()) {
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
-            Box(modifier = Modifier.weight(0.6f)) {
-                SortingVisualizer(state = state)
+            selectedAlgorithm?.let {
+                AlgorithmDescription(
+                    algorithm = it,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    SortingVisualizer(state = state)
+                }
+                SortingLegend(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                )
             }
             
             if (state.algorithmCode.isNotEmpty()) {
@@ -100,7 +125,7 @@ fun SortingVisualizerScreen(viewModel: SortingViewModel = viewModel()) {
                     code = state.algorithmCode,
                     activeLineIndex = state.activeLineIndex,
                     modifier = Modifier
-                        .weight(0.4f)
+                        .height(220.dp)
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
             }
@@ -114,6 +139,41 @@ fun SortingVisualizerScreen(viewModel: SortingViewModel = viewModel()) {
                     onSeek = viewModel::seekTo
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun AlgorithmDescription(
+    algorithm: SortingAlgorithm,
+    modifier: Modifier = Modifier
+) {
+    val description = when (algorithm) {
+        SortingAlgorithm.BUBBLE_SORT -> "Repeatedly compares adjacent values and moves the largest unsorted value to the end after each pass."
+        SortingAlgorithm.INSERTION_SORT -> "Builds a sorted prefix by taking one value at a time and inserting it into the correct position."
+        SortingAlgorithm.SELECTION_SORT -> "Finds the minimum value from the unsorted part and places it at the next sorted position."
+        SortingAlgorithm.QUICK_SORT -> "Partitions around a pivot so smaller values move left, larger values move right, then repeats recursively."
+        SortingAlgorithm.MERGE_SORT -> "Splits the list into smaller ranges, sorts each range, then merges those ranges back together."
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
+            .padding(12.dp)
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                text = algorithm.displayName,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = ProblemsGreen
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -241,7 +301,45 @@ fun AlgorithmSelector(
 }
 
 @Composable
+fun SortingLegend(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        LegendItem(color = Color.Red, label = "Comparing")
+        LegendItem(color = ProblemsGreen, label = "Sorted / processed")
+        LegendItem(color = ProblemsGreen.copy(alpha = 0.4f), label = "Unsorted")
+    }
+}
+
+@Composable
+fun LegendItem(
+    color: Color,
+    label: String
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(color)
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
 fun SortingVisualizer(state: VisualizerState) {
+    val labelColor = MaterialTheme.colorScheme.onSurface.toArgb()
+
     Canvas(
         modifier = Modifier
             .fillMaxSize()
@@ -251,9 +349,19 @@ fun SortingVisualizer(state: VisualizerState) {
         val canvasHeight = size.height
         val barWidth = canvasWidth / state.numbers.size
         val maxVal = state.numbers.maxOrNull() ?: 1
+        val showLabels = state.numbers.size <= 20
+        val labelAreaHeight = if (showLabels) 20.sp.toPx() else 0f
+        val availableBarHeight = (canvasHeight - labelAreaHeight).coerceAtLeast(1f)
+        val labelPaint = Paint().apply {
+            color = labelColor
+            textAlign = Paint.Align.CENTER
+            textSize = 12.sp.toPx()
+            typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+            isAntiAlias = true
+        }
 
         state.numbers.forEachIndexed { index, value ->
-            val barHeight = (value.toFloat() / maxVal) * canvasHeight
+            val barHeight = (value.toFloat() / maxVal) * availableBarHeight
 
             // Pick color based on state
             val color = when {
@@ -261,12 +369,25 @@ fun SortingVisualizer(state: VisualizerState) {
                 index in state.sortedIndexes -> ProblemsGreen
                 else -> ProblemsGreen.copy(alpha = 0.4f)
             }
+            val barLeft = index * barWidth
+            val barTop = labelAreaHeight + availableBarHeight - barHeight
+            val visibleBarWidth = (barWidth - 4f).coerceAtLeast(2f)
 
-            drawRect(
+            drawRoundRect(
                 color = color,
-                topLeft = Offset(x = index * barWidth, y = canvasHeight - barHeight),
-                size = Size(width = barWidth - 2f, height = barHeight)
+                topLeft = Offset(x = barLeft + 2f, y = barTop),
+                size = Size(width = visibleBarWidth, height = barHeight),
+                cornerRadius = CornerRadius(8f, 8f)
             )
+
+            if (showLabels) {
+                drawContext.canvas.nativeCanvas.drawText(
+                    value.toString(),
+                    barLeft + barWidth / 2,
+                    labelAreaHeight - 6f,
+                    labelPaint
+                )
+            }
         }
     }
 }
