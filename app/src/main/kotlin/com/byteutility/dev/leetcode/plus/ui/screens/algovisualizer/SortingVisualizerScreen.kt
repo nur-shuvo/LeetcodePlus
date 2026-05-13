@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
@@ -49,12 +48,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import com.byteutility.dev.leetcode.plus.ui.theme.ProblemsGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -377,6 +378,179 @@ fun SortingVisualizer(state: VisualizerState) {
                     labelPaint
                 )
             }
+        }
+    }
+}
+
+private val previewBubbleSortInfo = SortingAlgorithmInfo(
+    id = "bubble_sort",
+    displayName = "Bubble Sort",
+    description = "Repeatedly compares adjacent values and moves the largest unsorted value to the end after each pass.",
+    code = listOf(
+        "for i in 0..n-2:",
+        "  for j in 0..n-i-2:",
+        "    if list[j] > list[j+1]:",
+        "      swap(list[j], list[j+1])"
+    )
+)
+
+private val previewInsertionSortInfo = SortingAlgorithmInfo(
+    id = "insertion_sort",
+    displayName = "Insertion Sort",
+    description = "Builds a sorted prefix by taking one value at a time and inserting it into the correct position.",
+    code = listOf(
+        "for i in 1..n-1:",
+        "  key = list[i]",
+        "  j = i - 1",
+        "  while j >= 0 and list[j] > key:",
+        "    list[j+1] = list[j]",
+        "    j--",
+        "  list[j+1] = key"
+    )
+)
+
+private val previewSelectionSortInfo = SortingAlgorithmInfo(
+    id = "selection_sort",
+    displayName = "Selection Sort",
+    description = "Finds the minimum value from the unsorted part and places it at the next sorted position.",
+    code = listOf(
+        "for i in 0..n-1:",
+        "  minIdx = i",
+        "  for j in i+1..n-1:",
+        "    if list[j] < list[minIdx]:",
+        "      minIdx = j",
+        "  swap(list[i], list[minIdx])"
+    )
+)
+
+private val previewAlgorithms = listOf(
+    previewBubbleSortInfo,
+    previewInsertionSortInfo,
+    previewSelectionSortInfo
+)
+
+private val previewVisualizerState = VisualizerState(
+    numbers = listOf(72, 18, 95, 41, 63, 29, 84, 55, 10, 37),
+    currentlyComparing = listOf(3, 4),
+    sortedIndexes = listOf(7, 8, 9),
+    currentStepIndex = 18,
+    totalSteps = 64,
+    isPlaying = false,
+    isSorting = true,
+    availableAlgorithms = previewAlgorithms,
+    selectedAlgorithm = previewBubbleSortInfo,
+    algorithmCode = previewBubbleSortInfo.code,
+    activeLineIndex = 2
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun AlgorithmSelectorPreview() {
+    LeetcodePlusTheme {
+        AlgorithmSelector(
+            algorithms = previewAlgorithms,
+            selectedAlgorithm = previewBubbleSortInfo,
+            onAlgoClick = {},
+            enabled = true
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AlgorithmDescriptionPreview() {
+    LeetcodePlusTheme {
+        AlgorithmDescription(
+            algorithm = previewBubbleSortInfo,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true, heightDp = 300)
+@Composable
+private fun SortingVisualizerPreview() {
+    LeetcodePlusTheme {
+        SortingVisualizer(state = previewVisualizerState)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SortingLegendPreview() {
+    LeetcodePlusTheme {
+        SortingLegend(modifier = Modifier.padding(16.dp))
+    }
+}
+
+@Preview(showBackground = true, heightDp = 220)
+@Composable
+private fun CodeVisualizerPreview() {
+    LeetcodePlusTheme {
+        CodeVisualizer(
+            code = previewBubbleSortInfo.code,
+            activeLineIndex = 2,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PlaybackControlsPreview() {
+    LeetcodePlusTheme {
+        PlaybackControls(
+            state = previewVisualizerState,
+            onTogglePlay = {},
+            onStepForward = {},
+            onStepBackward = {},
+            onSeek = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, heightDp = 760)
+@Composable
+private fun SortingVisualizerContentPreview() {
+    LeetcodePlusTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            AlgorithmDescription(
+                algorithm = previewBubbleSortInfo,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    SortingVisualizer(state = previewVisualizerState)
+                }
+                SortingLegend(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                )
+            }
+
+            CodeVisualizer(
+                code = previewBubbleSortInfo.code,
+                activeLineIndex = 2,
+                modifier = Modifier
+                    .height(220.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            PlaybackControls(
+                state = previewVisualizerState,
+                onTogglePlay = {},
+                onStepForward = {},
+                onStepBackward = {},
+                onSeek = {}
+            )
         }
     }
 }
