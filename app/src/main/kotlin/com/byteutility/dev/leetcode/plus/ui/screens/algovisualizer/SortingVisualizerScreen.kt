@@ -33,6 +33,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +56,11 @@ import com.byteutility.dev.leetcode.plus.ui.theme.ProblemsGreen
 @Composable
 fun SortingVisualizerScreen(viewModel: SortingViewModel = viewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var selectedAlgorithm by remember { mutableStateOf<SortingAlgorithm?>(null) }
+    var selectedAlgorithm by remember { mutableStateOf<SortingAlgorithm?>(SortingAlgorithm.BUBBLE_SORT) }
+
+    LaunchedEffect(Unit) {
+        viewModel.onAlgorithmSelected(SortingAlgorithm.BUBBLE_SORT)
+    }
     
     Scaffold(
         topBar = {

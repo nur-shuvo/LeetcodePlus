@@ -162,6 +162,8 @@ class SortingViewModel : ViewModel() {
                         record(lineIdx = 5)
                     }
                     list[j + 1] = key
+                    sortedIndexes.clear()
+                    sortedIndexes.addAll(0..i)
                     record(listOf(j + 1), 6)
                 }
                 list.indices.forEach { sortedIndexes.add(it) }
@@ -265,6 +267,10 @@ class SortingViewModel : ViewModel() {
                     if (left == 0 && right == list.size - 1) {
                          list.indices.forEach { sortedIndexes.add(it) }
                     }
+                    for (idx in left..right) {
+                        sortedIndexes.add(idx)
+                    }
+                    record((left..right).toList(), 5)
                 }
 
                 fun sort(left: Int, right: Int) {
@@ -303,7 +309,7 @@ class SortingViewModel : ViewModel() {
         _state.update { it.copy(isPlaying = true) }
         playbackJob = viewModelScope.launch(Dispatchers.Default) {
             while (_state.value.currentStepIndex < allSteps.size - 1) {
-                delay(100)
+                delay(300)
                 stepForward()
                 if (!_state.value.isPlaying) break
             }
