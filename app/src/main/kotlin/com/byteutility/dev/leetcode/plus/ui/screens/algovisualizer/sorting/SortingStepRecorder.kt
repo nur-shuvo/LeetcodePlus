@@ -24,4 +24,3 @@ class SortingStepRecorder(initialNumbers: List<Int>) {
 
     fun steps(): List<SortingStep> = steps
 }
-

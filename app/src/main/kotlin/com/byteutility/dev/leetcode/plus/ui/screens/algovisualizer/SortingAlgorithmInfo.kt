@@ -6,4 +6,3 @@ data class SortingAlgorithmInfo(
     val description: String,
     val code: List<String>
 )
-

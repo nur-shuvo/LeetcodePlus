@@ -61,7 +61,7 @@ class SortingViewModel(
         val strategy = algorithmRegistry.getStrategy(algorithmId)
         val initialNumbers = _state.value.numbers.shuffled()
         allSteps = strategy.generateSteps(initialNumbers)
-        
+
         _state.update {
             it.copy(
                 currentStepIndex = 0,
@@ -84,7 +84,7 @@ class SortingViewModel(
 
     private fun playPlayback() {
         if (allSteps.isEmpty()) return
-        
+
         _state.update { it.copy(isPlaying = true) }
         playbackJob = viewModelScope.launch(Dispatchers.Default) {
             while (_state.value.currentStepIndex < allSteps.size - 1) {
