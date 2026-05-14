@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class SortingStep(
     val numbers: List<Int>,
@@ -43,10 +44,12 @@ class SortingViewModel(
     val state = _state.asStateFlow()
 
     private var playbackJob: Job? = null
+    private var stepGenerationJob: Job? = null
     private var allSteps: List<SortingStep> = emptyList()
 
     fun onReset() {
         stopPlayback()
+        stepGenerationJob?.cancel()
         _state.update {
             VisualizerState(
                 numbers = List(10) { (1..100).random() },
@@ -58,20 +61,42 @@ class SortingViewModel(
 
     fun onAlgorithmSelected(algorithmId: String) {
         stopPlayback()
+        stepGenerationJob?.cancel()
         val strategy = algorithmRegistry.getStrategy(algorithmId)
         val initialNumbers = _state.value.numbers.shuffled()
-        allSteps = strategy.generateSteps(initialNumbers)
+        allSteps = emptyList()
 
         _state.update {
             it.copy(
+                numbers = initialNumbers,
+                currentlyComparing = emptyList(),
+                sortedIndexes = emptyList(),
                 currentStepIndex = 0,
-                totalSteps = allSteps.size,
-                isSorting = true,
+                totalSteps = 0,
+                isSorting = false,
                 selectedAlgorithm = strategy.info,
-                algorithmCode = strategy.info.code
+                algorithmCode = strategy.info.code,
+                activeLineIndex = null
             )
         }
-        updateStateToStep(0)
+
+        stepGenerationJob = viewModelScope.launch {
+            val generatedSteps = withContext(Dispatchers.Default) {
+                strategy.generateSteps(initialNumbers)
+            }
+
+            allSteps = generatedSteps
+            _state.update {
+                it.copy(
+                    totalSteps = generatedSteps.size,
+                    isSorting = true
+                )
+            }
+
+            if (generatedSteps.isNotEmpty()) {
+                updateStateToStep(0)
+            }
+        }
     }
 
     fun togglePlayback() {
@@ -138,5 +163,10 @@ class SortingViewModel(
 
     fun stopPlayback() {
         pausePlayback()
+    }
+
+    override fun onCleared() {
+        stepGenerationJob?.cancel()
+        super.onCleared()
     }
 }
