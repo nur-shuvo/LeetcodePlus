@@ -713,35 +713,28 @@ private fun getStyledHtml(content: String, textColor: Color): String {
 
 private fun preprocessEditorialHtml(content: String): String {
     return fixInlineDoubleDollarMath(content)
-
         // Headings
         .replace(
             Regex("""^#### (.+)$""", RegexOption.MULTILINE)
         ) { "<h4>${it.groupValues[1]}</h4>" }
-
         .replace(
             Regex("""^### (.+)$""", RegexOption.MULTILINE)
         ) { "<h3>${it.groupValues[1]}</h3>" }
-
         .replace(
             Regex("""^## (.+)$""", RegexOption.MULTILINE)
         ) { "<h2>${it.groupValues[1]}</h2>" }
-
         .replace(
             Regex("""^# (.+)$""", RegexOption.MULTILINE)
         ) { "<h1>${it.groupValues[1]}</h1>" }
-
         // Bold
         .replace(
             Regex("""\*\*(.+?)\*\*""")
         ) { "<strong>${it.groupValues[1]}</strong>" }
-
         // Horizontal rule
         .replace(
             Regex("""^---$""", RegexOption.MULTILINE),
             "<hr>"
         )
-
         // Remove TOC
         .replace("[TOC]", "")
 }

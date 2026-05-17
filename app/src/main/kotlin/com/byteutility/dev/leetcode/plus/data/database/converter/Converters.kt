@@ -11,10 +11,12 @@ import com.google.gson.reflect.TypeToken
 
 class Converters {
     private val gson = Gson()
+
     @TypeConverter
     fun fromTopicTagList(tags: List<String>): String {
         return gson.toJson(tags)
     }
+
     @TypeConverter
     fun toTopicTagList(json: String): List<String> {
         val type = object : TypeToken<List<String>>() {}.type

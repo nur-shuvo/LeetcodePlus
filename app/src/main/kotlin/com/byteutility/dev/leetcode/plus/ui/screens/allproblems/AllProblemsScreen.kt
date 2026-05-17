@@ -93,7 +93,6 @@ import com.byteutility.dev.leetcode.plus.ui.theme.TopBarBackground
 import com.byteutility.dev.leetcode.plus.ui.theme.premiumLockColor
 import kotlinx.coroutines.delay
 
-
 private const val MAX_VISIBLE_TAGS = 2
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -163,7 +162,6 @@ fun AllProblemsScreen(
     }
 }
 
-
 @Composable
 private fun ProblemsTopAppBar(
     activeFilterCount: Int,
@@ -179,7 +177,6 @@ private fun ProblemsTopAppBar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-
             Text(
                 text = "Problems",
                 style = MaterialTheme.typography.titleLarge.copy(
@@ -220,7 +217,6 @@ private fun ProblemsTopAppBar(
         }
     }
 }
-
 
 @Composable
 private fun SearchBar(
@@ -285,7 +281,6 @@ private fun SearchBar(
     )
 }
 
-
 @Composable
 private fun ProblemList(
     problems: LazyPagingItems<ProblemEntity>,
@@ -326,7 +321,6 @@ private fun ProblemList(
         }
     }
 }
-
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -416,7 +410,6 @@ private fun ProblemCard(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.Top
             ) {
-
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -470,7 +463,6 @@ private fun ProblemCard(
         }
     }
 }
-
 
 @Composable
 fun DifficultyChip(difficulty: String) {
@@ -581,7 +573,6 @@ private fun ErrorCard(
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -706,7 +697,6 @@ private fun ErrorCardPreview() {
     MaterialTheme {
         ErrorCard(
             onRetry = {
-
             },
             modifier = Modifier.fillMaxSize()
         )

@@ -120,12 +120,12 @@ fun ProblemsModel.toProblemEntity(): ProblemEntity {
     )
 }
 
-fun ProblemEntity.toLeetCodeProblem():LeetCodeProblem{
+fun ProblemEntity.toLeetCodeProblem(): LeetCodeProblem {
     return LeetCodeProblem(
         title = this.title,
         difficulty = this.difficulty,
         tag = this.topicTags?.firstOrNull() ?: "NO_TAG",
-        titleSlug = this.titleSlug?:""
+        titleSlug = this.titleSlug ?: ""
     )
 }
 

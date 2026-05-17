@@ -6,5 +6,5 @@ import com.byteutility.dev.leetcode.plus.network.responseVo.OfficialSolutionResp
 interface ProblemsRepository {
     suspend fun getSelectedRawQuestion(titleSlug: String): LeetCodeQuestionResponse
     suspend fun getOfficialSolution(titleSlug: String): OfficialSolutionResponse
-    suspend fun getRemoteProblems():Result<Unit>
+    suspend fun getRemoteProblems(): Result<Unit>
 }

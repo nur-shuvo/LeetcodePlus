@@ -69,7 +69,9 @@ class ProblemsRepositoryImpl @Inject constructor(
                     hasVideoSolution = cols[12].toSheetBoolean(),
                     category = cols[13]
                 )
-            } else null
+            } else {
+                null
+            }
         }
     }
 
@@ -94,8 +96,8 @@ class ProblemsRepositoryImpl @Inject constructor(
     }
 
     private fun String.toSheetBoolean(): Boolean {
-        return this.equals("Yes", ignoreCase = true)
-                || this.equals("true", ignoreCase = true)
+        return this.equals("Yes", ignoreCase = true) ||
+                this.equals("true", ignoreCase = true)
     }
 
     private fun problemNameToSlug(name: String): String {

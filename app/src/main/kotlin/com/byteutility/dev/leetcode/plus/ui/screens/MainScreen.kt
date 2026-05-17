@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -28,12 +29,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.byteutility.dev.leetcode.plus.ui.navigation.AlgoVisualizer
 import com.byteutility.dev.leetcode.plus.ui.navigation.AllProblems
 import com.byteutility.dev.leetcode.plus.ui.navigation.ContestDetail
 import com.byteutility.dev.leetcode.plus.ui.navigation.Home
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavigation
 import com.byteutility.dev.leetcode.plus.ui.navigation.ProblemDetails
 import com.byteutility.dev.leetcode.plus.ui.navigation.Settings
+import com.byteutility.dev.leetcode.plus.ui.screens.algovisualizer.SortingVisualizerScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.allproblems.AllProblemsScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.home.HomeScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.settings.SettingsScreen
@@ -51,6 +54,12 @@ sealed class BottomNavScreen(val route: Any, val label: String, val icon: ImageV
         icon = Icons.AutoMirrored.Filled.List
     )
 
+    object AlgoVisualizerWithLabel : BottomNavScreen(
+        route = AlgoVisualizer,
+        label = "Algo",
+        icon = Icons.Default.BarChart
+    )
+
     object SettingsWithLabel : BottomNavScreen(
         route = Settings,
         label = "Settings",
@@ -61,6 +70,7 @@ sealed class BottomNavScreen(val route: Any, val label: String, val icon: ImageV
 val bottomNavItems = listOf(
     BottomNavScreen.HomeWithLabel,
     BottomNavScreen.AllProblemsWithLabel,
+    BottomNavScreen.AlgoVisualizerWithLabel,
     BottomNavScreen.SettingsWithLabel
 )
 
@@ -175,6 +185,10 @@ fun MainScreen(mainNavController: NavHostController) {
                         navigationActions.navigateToLogin()
                     }
                 )
+            }
+
+            composable<AlgoVisualizer> {
+                SortingVisualizerScreen()
             }
         }
     }

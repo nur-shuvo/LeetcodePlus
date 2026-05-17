@@ -16,6 +16,9 @@ object AllProblems
 object Settings
 
 @Serializable
+object AlgoVisualizer
+
+@Serializable
 object Goal
 
 @Serializable
