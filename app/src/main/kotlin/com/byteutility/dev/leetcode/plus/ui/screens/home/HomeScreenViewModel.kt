@@ -30,7 +30,6 @@ import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.byteutility.dev.leetcode.plus.network.responseVo.sortByStartTime
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.DifficultyStatistics
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.LeetcodeUpcomingContestsState
-import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserSubmissionState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,7 +39,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -64,73 +62,51 @@ class HomeScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Submissions
-    private val userSubmissionState =
+    private val _userSubmissionState =
         MutableStateFlow(UserSubmissionState())
+    val userSubmissionState = _userSubmissionState.asStateFlow()
     private val userSubmissionPagination = getUserSubmissionPaginator()
 
     // Videos
-    private val videosByPlayListState = MutableStateFlow(VideosByPlayListState())
+    private val _videosByPlayListState = MutableStateFlow(VideosByPlayListState())
+    val videosByPlayListState = _videosByPlayListState.asStateFlow()
     private var pageTokenForPlayList: String? = null
     private val videosByPlayListPagination = getVideosPaginator()
 
     private val _leetcodeUpcomingContestsState = MutableStateFlow(LeetcodeUpcomingContestsState())
+    val leetcodeUpcomingContestsState = _leetcodeUpcomingContestsState.asStateFlow()
 
-    private val userBasicInfo =
+    private val _userBasicInfo =
         MutableStateFlow(UserBasicInfo())
+    val userBasicInfo = _userBasicInfo.asStateFlow()
 
-    private val syncInterval =
+    private val _syncInterval =
         MutableStateFlow<Long>(IntervalConfigurations.DATA_SYNC_DEFAULT_INTERVAL.minutes)
+    val syncInterval = _syncInterval.asStateFlow()
 
-    private val userContestInfo =
+    private val _userContestInfo =
         MutableStateFlow(UserContestInfo())
+    val userContestInfo = _userContestInfo.asStateFlow()
 
-    private val userProblemSolvedInfo =
+    private val _userProblemSolvedInfo =
         MutableStateFlow(UserProblemSolvedInfo())
+    val userProblemSolvedInfo = _userProblemSolvedInfo.asStateFlow()
 
-    private val isWeeklyGoalSet = MutableStateFlow(false)
+    private val _isWeeklyGoalSet = MutableStateFlow(false)
+    val isWeeklyGoalSet = _isWeeklyGoalSet.asStateFlow()
 
     private val _dailyProblem =
         MutableStateFlow(LeetCodeProblem("", "", ""))
     val dailyProblem = _dailyProblem.asStateFlow()
 
-    private val diffStat = MutableStateFlow(DifficultyStatistics())
+    private val _difficultyStat = MutableStateFlow(DifficultyStatistics())
+    val difficultyStat = _difficultyStat.asStateFlow()
 
     val dailyProblemSolved = dailyProblemStatusMonitor.dailyProblemSolved.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = false
     )
-
-    val uiState: StateFlow<UserDetailsUiState> =
-        combine(
-            listOf(
-                userBasicInfo,
-                userContestInfo,
-                userProblemSolvedInfo,
-                userSubmissionState,
-                isWeeklyGoalSet,
-                videosByPlayListState,
-                _leetcodeUpcomingContestsState,
-                syncInterval,
-                diffStat
-            )
-        ) { values ->
-            UserDetailsUiState(
-                userBasicInfo = values[0] as UserBasicInfo,
-                userContestInfo = values[1] as UserContestInfo,
-                userProblemSolvedInfo = values[2] as UserProblemSolvedInfo,
-                userSubmissionState = values[3] as UserSubmissionState,
-                isWeeklyGoalSet = values[4] as Boolean,
-                videosByPlayListState = values[5] as VideosByPlayListState,
-                leetcodeUpcomingContestsState = values[6] as LeetcodeUpcomingContestsState,
-                syncInterval = values[7] as Long,
-                difficultyStat = values[8] as DifficultyStatistics
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = UserDetailsUiState()
-        )
 
     init {
         loadNextAcSubmissions()
@@ -140,13 +116,13 @@ class HomeScreenViewModel @Inject constructor(
                 .getUserBasicInfo()
                 .collect {
                     if (it != null) {
-                        userBasicInfo.value = it
+                        _userBasicInfo.value = it
                     }
                 }
         }
 
         viewModelScope.launch {
-            syncInterval.value = userDatastore.getSyncInterval()
+            _syncInterval.value = userDatastore.getSyncInterval()
         }
 
         viewModelScope.launch {
@@ -154,7 +130,7 @@ class HomeScreenViewModel @Inject constructor(
                 .getUserContestInfo()
                 .collect {
                     if (it != null) {
-                        userContestInfo.value = it
+                        _userContestInfo.value = it
                     }
                 }
         }
@@ -164,7 +140,7 @@ class HomeScreenViewModel @Inject constructor(
                 .getUserProblemSolvedInfo()
                 .collect {
                     if (it != null) {
-                        userProblemSolvedInfo.value = it
+                        _userProblemSolvedInfo.value = it
                     }
                 }
         }
@@ -224,15 +200,15 @@ class HomeScreenViewModel @Inject constructor(
     private fun getWeeklyGoalStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             goalRepository.weeklyGoal.collect {
-                isWeeklyGoalSet.value = (it != null)
+                _isWeeklyGoalSet.value = (it != null)
             }
         }
     }
 
     private fun getUserSubmissionPaginator() = DefaultPaginator(
-        initialKey = userSubmissionState.value.page,
+        initialKey = _userSubmissionState.value.page,
         onLoadUpdated = { isLoading ->
-            userSubmissionState.update {
+            _userSubmissionState.update {
                 it.copy(isLoading = isLoading)
             }
         },
@@ -240,15 +216,15 @@ class HomeScreenViewModel @Inject constructor(
             userDetailsRepository.getUserRecentAcSubmissionsPaginated(nextPage, 5)
         },
         getNextKey = {
-            userSubmissionState.value.page + 1
+            _userSubmissionState.value.page + 1
         },
         onError = { error ->
-            userSubmissionState.update {
+            _userSubmissionState.update {
                 it.copy(error = error?.message)
             }
         },
         onSuccess = { items, newKey ->
-            userSubmissionState.update {
+            _userSubmissionState.update {
                 it.copy(
                     submissions = it.submissions + items,
                     page = newKey,
@@ -261,7 +237,7 @@ class HomeScreenViewModel @Inject constructor(
     private fun getVideosPaginator() = DefaultPaginator(
         initialKey = pageTokenForPlayList,
         onLoadUpdated = { isLoading ->
-            videosByPlayListState.update {
+            _videosByPlayListState.update {
                 it.copy(isLoading = isLoading)
             }
         },
@@ -281,12 +257,12 @@ class HomeScreenViewModel @Inject constructor(
             pageTokenForPlayList
         },
         onError = { error ->
-            videosByPlayListState.update {
+            _videosByPlayListState.update {
                 it.copy(error = error?.message)
             }
         },
         onSuccess = { items, newKey ->
-            videosByPlayListState.update {
+            _videosByPlayListState.update {
                 it.copy(
                     videos = it.videos + items,
                     endReached = items.isEmpty()
@@ -316,7 +292,7 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun refreshUserSettings() {
         viewModelScope.launch {
-            syncInterval.value = userDatastore.getSyncInterval()
+            _syncInterval.value = userDatastore.getSyncInterval()
         }
     }
 
@@ -394,7 +370,7 @@ class HomeScreenViewModel @Inject constructor(
     private fun getDifficultyStat() = viewModelScope.launch(Dispatchers.IO) {
         val stat = localProblemRepo.difficultyStat()
         if (stat.first != 0 && stat.second != 0 && stat.third != 0) {
-            diffStat.value = DifficultyStatistics(
+            _difficultyStat.value = DifficultyStatistics(
                 easyProblemCount = stat.first,
                 mediumProblemCount = stat.second,
                 hardProblemCount = stat.third

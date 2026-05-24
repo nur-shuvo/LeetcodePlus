@@ -1,27 +1,8 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.home.model
 
-import com.byteutility.dev.leetcode.plus.core.settings.config.IntervalConfigurations
-import com.byteutility.dev.leetcode.plus.data.model.UserBasicInfo
-import com.byteutility.dev.leetcode.plus.data.model.UserContestInfo
-import com.byteutility.dev.leetcode.plus.data.model.UserProblemSolvedInfo
 import com.byteutility.dev.leetcode.plus.data.model.UserSubmission
 import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.google.api.services.youtube.model.Video
-
-/**
- * Created by Shuvo on 11/06/2025.
- */
-data class UserDetailsUiState(
-    val userBasicInfo: UserBasicInfo = UserBasicInfo(),
-    val userContestInfo: UserContestInfo = UserContestInfo(),
-    val userProblemSolvedInfo: UserProblemSolvedInfo = UserProblemSolvedInfo(),
-    val userSubmissionState: UserSubmissionState = UserSubmissionState(),
-    val isWeeklyGoalSet: Boolean = false,
-    val syncInterval: Long = IntervalConfigurations.DATA_SYNC_DEFAULT_INTERVAL.minutes,
-    val videosByPlayListState: VideosByPlayListState = VideosByPlayListState(),
-    val leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState = LeetcodeUpcomingContestsState(),
-    val difficultyStat: DifficultyStatistics = DifficultyStatistics()
-)
 
 data class LeetcodeUpcomingContestsState(
     val isLoading: Boolean = false,

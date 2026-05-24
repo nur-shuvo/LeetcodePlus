@@ -107,7 +107,6 @@ import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.DifficultyStatistics
-import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserDetailsUiState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListState
 import com.byteutility.dev.leetcode.plus.ui.theme.EasyText
 import com.byteutility.dev.leetcode.plus.ui.theme.HardText
@@ -139,17 +138,12 @@ fun HomeScreen(
     onLogout: () -> Unit = {}
 ) {
     val viewModel: HomeScreenViewModel = hiltViewModel()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
-    val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
     LifecycleResumeEffect(Unit) {
         viewModel.refreshUiState()
         onPauseOrDispose { }
     }
     HomeLayout(
-        uiState = uiState,
-        dailyProblem = dailyProblem,
-        dailyProblemSolved = dailyProblemSolved,
+        viewModel = viewModel,
         onSetGoal = onSetGoal,
         onGoalStatus = onGoalStatus,
         onTroubleShoot = onTroubleShoot,
@@ -179,9 +173,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeLayout(
-    uiState: UserDetailsUiState,
-    dailyProblem: LeetCodeProblem,
-    dailyProblemSolved: Boolean,
+    viewModel: HomeScreenViewModel,
     onSetGoal: () -> Unit,
     onGoalStatus: () -> Unit,
     onTroubleShoot: () -> Unit,
@@ -213,49 +205,17 @@ fun HomeLayout(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    /**
-                     * 5 times click in a shorter period will open troubleshoot page
-                     */
-                    Text(
-                        text = "Home",
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {
-                            val currentTime = System.currentTimeMillis()
-                            if (currentTime - lastClickTime <= 1000) {
-                                clickCount++
-                                if (clickCount == 5) {
-                                    onTroubleShoot.invoke()
-                                    clickCount = 0
-                                }
-                            } else {
-                                clickCount = 1
-                            }
-                            lastClickTime = currentTime
-                            scope.launch {
-                                delay(2000)
-                                clickCount = 0
-                            }
-                        })
-                },
-                actions = {
-                    MainTopActions(
-                        isWeeklyGoalSet = uiState.isWeeklyGoalSet,
-                        avatarUrl = uiState.userBasicInfo.avatar,
-                        onSetGoal = onSetGoal,
-                        onGoalStatus = onGoalStatus,
-                        onLogoutClick = {
-                            showLogoutDialog = true
-                        },
-                        modifier = Modifier.testTag("main_top_actions")
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFABDEF5).copy(
-                        alpha = 0.1f
-                    )
-                )
+            HomeTopBar(
+                viewModel = viewModel,
+                clickCount = clickCount,
+                lastClickTime = lastClickTime,
+                onClickCountChange = { clickCount = it },
+                onLastClickTimeChange = { lastClickTime = it },
+                scope = scope,
+                onSetGoal = onSetGoal,
+                onGoalStatus = onGoalStatus,
+                onTroubleShoot = onTroubleShoot,
+                onLogoutClick = { showLogoutDialog = true }
             )
         }
     ) { paddingValues ->
@@ -269,10 +229,8 @@ fun HomeLayout(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                UserProfileContent(
-                    uiState = uiState,
-                    dailyProblem = dailyProblem,
-                    dailyProblemSolved = dailyProblemSolved,
+                HomeContent(
+                    viewModel = viewModel,
                     onNavigateToProblemDetails = onNavigateToProblemDetails,
                     onLoadMoreSubmission = onLoadMoreSubmission,
                     onLoadMoreVideos = onLoadMoreVideos,
@@ -334,6 +292,64 @@ fun HomeLayout(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeTopBar(
+    viewModel: HomeScreenViewModel,
+    clickCount: Int,
+    lastClickTime: Long,
+    onClickCountChange: (Int) -> Unit,
+    onLastClickTimeChange: (Long) -> Unit,
+    scope: kotlinx.coroutines.CoroutineScope,
+    onSetGoal: () -> Unit,
+    onGoalStatus: () -> Unit,
+    onTroubleShoot: () -> Unit,
+    onLogoutClick: () -> Unit
+) {
+    val isWeeklyGoalSet by viewModel.isWeeklyGoalSet.collectAsStateWithLifecycle()
+    val userBasicInfo by viewModel.userBasicInfo.collectAsStateWithLifecycle()
+
+    TopAppBar(
+        title = {
+            Text(
+                text = "Home",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastClickTime <= 1000) {
+                        val nextClickCount = clickCount + 1
+                        onClickCountChange(nextClickCount)
+                        if (nextClickCount == 5) {
+                            onTroubleShoot.invoke()
+                            onClickCountChange(0)
+                        }
+                    } else {
+                        onClickCountChange(1)
+                    }
+                    onLastClickTimeChange(currentTime)
+                    scope.launch {
+                        delay(2000)
+                        onClickCountChange(0)
+                    }
+                }
+            )
+        },
+        actions = {
+            MainTopActions(
+                isWeeklyGoalSet = isWeeklyGoalSet,
+                avatarUrl = userBasicInfo.avatar,
+                onSetGoal = onSetGoal,
+                onGoalStatus = onGoalStatus,
+                onLogoutClick = onLogoutClick,
+                modifier = Modifier.testTag("main_top_actions")
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color(0xFFABDEF5).copy(alpha = 0.1f)
+        )
+    )
+}
+
 @Composable
 fun MainTopActions(
     isWeeklyGoalSet: Boolean,
@@ -365,8 +381,60 @@ fun MainTopActions(
 }
 
 @Composable
+private fun HomeContent(
+    viewModel: HomeScreenViewModel,
+    onNavigateToProblemDetails: (String) -> Unit,
+    onLoadMoreSubmission: () -> Unit,
+    onLoadMoreVideos: () -> Unit,
+    onSearchClick: () -> Unit,
+    onSetInAppReminder: (Contest) -> Unit,
+    checkInAppContestReminderStatus: suspend (Contest) -> Boolean,
+    onNavigateToContestDetail: (Contest) -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
+    val userBasicInfo by viewModel.userBasicInfo.collectAsStateWithLifecycle()
+    val syncInterval by viewModel.syncInterval.collectAsStateWithLifecycle()
+    val userContestInfo by viewModel.userContestInfo.collectAsStateWithLifecycle()
+    val userProblemSolvedInfo by viewModel.userProblemSolvedInfo.collectAsStateWithLifecycle()
+    val userSubmissionState by viewModel.userSubmissionState.collectAsStateWithLifecycle()
+    val videosByPlayListState by viewModel.videosByPlayListState.collectAsStateWithLifecycle()
+    val leetcodeUpcomingContestsState by viewModel.leetcodeUpcomingContestsState.collectAsStateWithLifecycle()
+    val difficultyStat by viewModel.difficultyStat.collectAsStateWithLifecycle()
+    val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
+    val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
+
+    UserProfileContent(
+        userBasicInfo = userBasicInfo,
+        syncInterval = syncInterval,
+        userContestInfo = userContestInfo,
+        userProblemSolvedInfo = userProblemSolvedInfo,
+        userSubmissionState = userSubmissionState,
+        videosByPlayListState = videosByPlayListState,
+        leetcodeUpcomingContestsState = leetcodeUpcomingContestsState,
+        difficultyStat = difficultyStat,
+        dailyProblem = dailyProblem,
+        dailyProblemSolved = dailyProblemSolved,
+        onNavigateToProblemDetails = onNavigateToProblemDetails,
+        onLoadMoreSubmission = onLoadMoreSubmission,
+        onLoadMoreVideos = onLoadMoreVideos,
+        onSearchClick = onSearchClick,
+        onSetInAppReminder = onSetInAppReminder,
+        checkInAppContestReminderStatus = checkInAppContestReminderStatus,
+        onNavigateToContestDetail = onNavigateToContestDetail,
+        modifier = modifier
+    )
+}
+
+@Composable
 fun UserProfileContent(
-    uiState: UserDetailsUiState,
+    userBasicInfo: UserBasicInfo,
+    syncInterval: Long,
+    userContestInfo: UserContestInfo,
+    userProblemSolvedInfo: UserProblemSolvedInfo,
+    userSubmissionState: com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserSubmissionState,
+    videosByPlayListState: VideosByPlayListState,
+    leetcodeUpcomingContestsState: com.byteutility.dev.leetcode.plus.ui.screens.home.model.LeetcodeUpcomingContestsState,
+    difficultyStat: DifficultyStatistics,
     dailyProblem: LeetCodeProblem,
     dailyProblemSolved: Boolean,
     onNavigateToProblemDetails: (String) -> Unit,
@@ -390,7 +458,7 @@ fun UserProfileContent(
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                UserProfileCard(uiState.userBasicInfo)
+                UserProfileCard(userBasicInfo)
 
                 // Data sync info message
                 Row(
@@ -408,7 +476,7 @@ fun UserProfileContent(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Data updated every ${uiState.syncInterval} min",
+                        text = "Data updated every $syncInterval min",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         fontSize = 12.sp
@@ -422,9 +490,9 @@ fun UserProfileContent(
                     difficulty = dailyProblem.difficulty,
                     onNavigateToProblemDetails = onNavigateToProblemDetails
                 )
-                UserStatisticsCard(uiState.userContestInfo)
+                UserStatisticsCard(userContestInfo)
                 YouTubeVideoRowContent(
-                    uiState.videosByPlayListState,
+                    videosByPlayListState,
                     onLoadMoreVideos,
                     onSearchClick
                 )
@@ -434,14 +502,17 @@ fun UserProfileContent(
                     modifier = Modifier.padding(start = 8.dp)
                 )
                 AutoScrollingContestList(
-                    contests = uiState.leetcodeUpcomingContestsState.contests,
+                    contests = leetcodeUpcomingContestsState.contests,
                     onSetInAppReminder = onSetInAppReminder,
                     checkInAppContestReminderStatus = checkInAppContestReminderStatus,
                     onNavigateToContestDetail = onNavigateToContestDetail
                 )
-                UserProblemCategoryStats(userProblemSolvedInfo = uiState.userProblemSolvedInfo, diffStat = uiState.difficultyStat)
+                UserProblemCategoryStats(
+                    userProblemSolvedInfo = userProblemSolvedInfo,
+                    diffStat = difficultyStat
+                )
 
-                if (uiState.userSubmissionState.submissions.isEmpty()) {
+                if (userSubmissionState.submissions.isEmpty()) {
                     Text(
                         text = "You have no recent submissions",
                         modifier = Modifier.fillMaxWidth(),
@@ -460,9 +531,9 @@ fun UserProfileContent(
             }
         }
 
-        items(uiState.userSubmissionState.submissions.size) { index ->
-            val item = uiState.userSubmissionState.submissions[index]
-            if (index >= uiState.userSubmissionState.submissions.size - 1 && !uiState.userSubmissionState.endReached && !uiState.userSubmissionState.isLoading) {
+        items(userSubmissionState.submissions.size) { index ->
+            val item = userSubmissionState.submissions[index]
+            if (index >= userSubmissionState.submissions.size - 1 && !userSubmissionState.endReached && !userSubmissionState.isLoading) {
                 onLoadMoreSubmission()
             }
             SubmissionItem(
@@ -472,7 +543,7 @@ fun UserProfileContent(
         }
 
         item {
-            if (uiState.userSubmissionState.isLoading) {
+            if (userSubmissionState.isLoading) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1412,80 +1483,44 @@ private fun calculateRemainingTime(): String {
 @Preview(showBackground = true)
 @Composable
 fun PreviewUserDetails() {
-    val submissions = listOf(
-        UserSubmission(
-            lang = "volumus",
-            statusDisplay = "veri",
-            timestamp = "eu",
-            title = "reformidans"
+    UserProfileContent(
+        userBasicInfo = UserBasicInfo(
+            name = "Mindy Shannon",
+            userName = "Annette Jones",
+            avatar = "venenatis",
+            ranking = 8869,
+            country = "Gambia, The"
         ),
-        UserSubmission(
-            lang = "volumus",
-            statusDisplay = "veri",
-            timestamp = "eu",
-            title = "reformidans"
+        syncInterval = 30L,
+        userContestInfo = UserContestInfo(
+            rating = 14.15,
+            globalRanking = 3679,
+            attend = 7232
         ),
-        UserSubmission(
-            lang = "volumus",
-            statusDisplay = "veri",
-            timestamp = "eu",
-            title = "reformidans"
+        userProblemSolvedInfo = UserProblemSolvedInfo(
+            easy = 4592,
+            medium = 5761,
+            hard = 6990
         ),
-        UserSubmission(
-            lang = "volumus",
-            statusDisplay = "veri",
-            timestamp = "eu",
-            title = "reformidans"
+        userSubmissionState = com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserSubmissionState(
+            submissions = List(7) {
+                UserSubmission(
+                    lang = "Kotlin",
+                    statusDisplay = "Accepted",
+                    timestamp = "Today",
+                    title = "reformidans"
+                )
+            }
         ),
-        UserSubmission(
-            lang = "volumus",
-            statusDisplay = "veri",
-            timestamp = "eu",
-            title = "reformidans"
-        ),
-        UserSubmission(
-            lang = "volumus",
-            statusDisplay = "veri",
-            timestamp = "eu",
-            title = "reformidans"
-        ),
-        UserSubmission(
-            lang = "volumus",
-            statusDisplay = "veri",
-            timestamp = "eu",
-            title = "reformidans"
-        ),
-    )
-    HomeLayout(
-        uiState = UserDetailsUiState(
-            userBasicInfo = UserBasicInfo(
-                name = "Mindy Shannon",
-                userName = "Annette Jones",
-                avatar = "venenatis",
-                ranking = 8869,
-                country = "Gambia, The"
-            ),
-            userContestInfo = UserContestInfo(
-                rating = 14.15,
-                globalRanking = 3679,
-                attend = 7232
-            ),
-            userProblemSolvedInfo = UserProblemSolvedInfo(
-                easy = 4592,
-                medium = 5761,
-                hard = 6990
-            ),
-        ),
-        LeetCodeProblem("Two Sum", "", ""),
-        false,
-        onSetGoal = {},
-        onGoalStatus = {},
-        onTroubleShoot = {},
+        videosByPlayListState = VideosByPlayListState(),
+        leetcodeUpcomingContestsState = com.byteutility.dev.leetcode.plus.ui.screens.home.model.LeetcodeUpcomingContestsState(),
+        difficultyStat = DifficultyStatistics(),
+        dailyProblem = LeetCodeProblem("Two Sum", "", ""),
+        dailyProblemSolved = false,
         onNavigateToProblemDetails = {},
         onLoadMoreSubmission = {},
         onLoadMoreVideos = {},
         onSearchClick = {},
-        onLogout = {},
         onSetInAppReminder = {},
         checkInAppContestReminderStatus = { false },
         onNavigateToContestDetail = {}
