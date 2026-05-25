@@ -107,6 +107,8 @@ import com.byteutility.dev.leetcode.plus.network.responseVo.Contest
 import com.byteutility.dev.leetcode.plus.ui.common.ProgressIndicator
 import com.byteutility.dev.leetcode.plus.ui.model.YouTubeVideo
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.DifficultyStatistics
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.LeetcodeUpcomingContestsState
+import com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserSubmissionState
 import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListState
 import com.byteutility.dev.leetcode.plus.ui.theme.EasyText
 import com.byteutility.dev.leetcode.plus.ui.theme.HardText
@@ -138,12 +140,33 @@ fun HomeScreen(
     onLogout: () -> Unit = {}
 ) {
     val viewModel: HomeScreenViewModel = hiltViewModel()
+    val isWeeklyGoalSet by viewModel.isWeeklyGoalSet.collectAsStateWithLifecycle()
+    val userBasicInfo by viewModel.userBasicInfo.collectAsStateWithLifecycle()
+    val syncInterval by viewModel.syncInterval.collectAsStateWithLifecycle()
+    val userContestInfo by viewModel.userContestInfo.collectAsStateWithLifecycle()
+    val userProblemSolvedInfo by viewModel.userProblemSolvedInfo.collectAsStateWithLifecycle()
+    val userSubmissionState by viewModel.userSubmissionState.collectAsStateWithLifecycle()
+    val videosByPlayListState by viewModel.videosByPlayListState.collectAsStateWithLifecycle()
+    val leetcodeUpcomingContestsState by viewModel.leetcodeUpcomingContestsState.collectAsStateWithLifecycle()
+    val difficultyStat by viewModel.difficultyStat.collectAsStateWithLifecycle()
+    val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
+    val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
     LifecycleResumeEffect(Unit) {
         viewModel.refreshUiState()
         onPauseOrDispose { }
     }
     HomeLayout(
-        viewModel = viewModel,
+        isWeeklyGoalSet = isWeeklyGoalSet,
+        userBasicInfo = userBasicInfo,
+        syncInterval = syncInterval,
+        userContestInfo = userContestInfo,
+        userProblemSolvedInfo = userProblemSolvedInfo,
+        userSubmissionState = userSubmissionState,
+        videosByPlayListState = videosByPlayListState,
+        leetcodeUpcomingContestsState = leetcodeUpcomingContestsState,
+        difficultyStat = difficultyStat,
+        dailyProblem = dailyProblem,
+        dailyProblemSolved = dailyProblemSolved,
         onSetGoal = onSetGoal,
         onGoalStatus = onGoalStatus,
         onTroubleShoot = onTroubleShoot,
@@ -173,7 +196,17 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeLayout(
-    viewModel: HomeScreenViewModel,
+    isWeeklyGoalSet: Boolean,
+    userBasicInfo: UserBasicInfo,
+    syncInterval: Long,
+    userContestInfo: UserContestInfo,
+    userProblemSolvedInfo: UserProblemSolvedInfo,
+    userSubmissionState: UserSubmissionState,
+    videosByPlayListState: VideosByPlayListState,
+    leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState,
+    difficultyStat: DifficultyStatistics,
+    dailyProblem: LeetCodeProblem,
+    dailyProblemSolved: Boolean,
     onSetGoal: () -> Unit,
     onGoalStatus: () -> Unit,
     onTroubleShoot: () -> Unit,
@@ -206,7 +239,8 @@ fun HomeLayout(
     Scaffold(
         topBar = {
             HomeTopBar(
-                viewModel = viewModel,
+                isWeeklyGoalSet = isWeeklyGoalSet,
+                avatarUrl = userBasicInfo.avatar,
                 clickCount = clickCount,
                 lastClickTime = lastClickTime,
                 onClickCountChange = { clickCount = it },
@@ -230,7 +264,16 @@ fun HomeLayout(
                     .weight(1f)
             ) {
                 HomeContent(
-                    viewModel = viewModel,
+                    userBasicInfo = userBasicInfo,
+                    syncInterval = syncInterval,
+                    userContestInfo = userContestInfo,
+                    userProblemSolvedInfo = userProblemSolvedInfo,
+                    userSubmissionState = userSubmissionState,
+                    videosByPlayListState = videosByPlayListState,
+                    leetcodeUpcomingContestsState = leetcodeUpcomingContestsState,
+                    difficultyStat = difficultyStat,
+                    dailyProblem = dailyProblem,
+                    dailyProblemSolved = dailyProblemSolved,
                     onNavigateToProblemDetails = onNavigateToProblemDetails,
                     onLoadMoreSubmission = onLoadMoreSubmission,
                     onLoadMoreVideos = onLoadMoreVideos,
@@ -295,7 +338,8 @@ fun HomeLayout(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeTopBar(
-    viewModel: HomeScreenViewModel,
+    isWeeklyGoalSet: Boolean,
+    avatarUrl: String,
     clickCount: Int,
     lastClickTime: Long,
     onClickCountChange: (Int) -> Unit,
@@ -306,9 +350,6 @@ private fun HomeTopBar(
     onTroubleShoot: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
-    val isWeeklyGoalSet by viewModel.isWeeklyGoalSet.collectAsStateWithLifecycle()
-    val userBasicInfo by viewModel.userBasicInfo.collectAsStateWithLifecycle()
-
     TopAppBar(
         title = {
             Text(
@@ -337,7 +378,7 @@ private fun HomeTopBar(
         actions = {
             MainTopActions(
                 isWeeklyGoalSet = isWeeklyGoalSet,
-                avatarUrl = userBasicInfo.avatar,
+                avatarUrl = avatarUrl,
                 onSetGoal = onSetGoal,
                 onGoalStatus = onGoalStatus,
                 onLogoutClick = onLogoutClick,
@@ -382,7 +423,16 @@ fun MainTopActions(
 
 @Composable
 private fun HomeContent(
-    viewModel: HomeScreenViewModel,
+    userBasicInfo: UserBasicInfo,
+    syncInterval: Long,
+    userContestInfo: UserContestInfo,
+    userProblemSolvedInfo: UserProblemSolvedInfo,
+    userSubmissionState: UserSubmissionState,
+    videosByPlayListState: VideosByPlayListState,
+    leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState,
+    difficultyStat: DifficultyStatistics,
+    dailyProblem: LeetCodeProblem,
+    dailyProblemSolved: Boolean,
     onNavigateToProblemDetails: (String) -> Unit,
     onLoadMoreSubmission: () -> Unit,
     onLoadMoreVideos: () -> Unit,
@@ -392,17 +442,6 @@ private fun HomeContent(
     onNavigateToContestDetail: (Contest) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val userBasicInfo by viewModel.userBasicInfo.collectAsStateWithLifecycle()
-    val syncInterval by viewModel.syncInterval.collectAsStateWithLifecycle()
-    val userContestInfo by viewModel.userContestInfo.collectAsStateWithLifecycle()
-    val userProblemSolvedInfo by viewModel.userProblemSolvedInfo.collectAsStateWithLifecycle()
-    val userSubmissionState by viewModel.userSubmissionState.collectAsStateWithLifecycle()
-    val videosByPlayListState by viewModel.videosByPlayListState.collectAsStateWithLifecycle()
-    val leetcodeUpcomingContestsState by viewModel.leetcodeUpcomingContestsState.collectAsStateWithLifecycle()
-    val difficultyStat by viewModel.difficultyStat.collectAsStateWithLifecycle()
-    val dailyProblem by viewModel.dailyProblem.collectAsStateWithLifecycle()
-    val dailyProblemSolved by viewModel.dailyProblemSolved.collectAsStateWithLifecycle()
-
     UserProfileContent(
         userBasicInfo = userBasicInfo,
         syncInterval = syncInterval,
@@ -431,9 +470,9 @@ fun UserProfileContent(
     syncInterval: Long,
     userContestInfo: UserContestInfo,
     userProblemSolvedInfo: UserProblemSolvedInfo,
-    userSubmissionState: com.byteutility.dev.leetcode.plus.ui.screens.home.model.UserSubmissionState,
+    userSubmissionState: UserSubmissionState,
     videosByPlayListState: VideosByPlayListState,
-    leetcodeUpcomingContestsState: com.byteutility.dev.leetcode.plus.ui.screens.home.model.LeetcodeUpcomingContestsState,
+    leetcodeUpcomingContestsState: LeetcodeUpcomingContestsState,
     difficultyStat: DifficultyStatistics,
     dailyProblem: LeetCodeProblem,
     dailyProblemSolved: Boolean,
