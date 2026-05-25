@@ -35,6 +35,9 @@ import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -77,21 +80,33 @@ class HomeScreenViewModel @Inject constructor(
     private val _leetcodeUpcomingContestsState = MutableStateFlow(LeetcodeUpcomingContestsState())
     val leetcodeUpcomingContestsState = _leetcodeUpcomingContestsState.asStateFlow()
 
-    private val _userBasicInfo =
-        MutableStateFlow(UserBasicInfo())
-    val userBasicInfo = _userBasicInfo.asStateFlow()
+    val userBasicInfo: StateFlow<UserBasicInfo> = flow {
+        emitAll(userDetailsRepository.getUserBasicInfo().filterNotNull())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = UserBasicInfo()
+    )
 
     private val _syncInterval =
         MutableStateFlow<Long>(IntervalConfigurations.DATA_SYNC_DEFAULT_INTERVAL.minutes)
     val syncInterval = _syncInterval.asStateFlow()
 
-    private val _userContestInfo =
-        MutableStateFlow(UserContestInfo())
-    val userContestInfo = _userContestInfo.asStateFlow()
+    val userContestInfo: StateFlow<UserContestInfo> = flow {
+        emitAll(userDetailsRepository.getUserContestInfo().filterNotNull())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = UserContestInfo()
+    )
 
-    private val _userProblemSolvedInfo =
-        MutableStateFlow(UserProblemSolvedInfo())
-    val userProblemSolvedInfo = _userProblemSolvedInfo.asStateFlow()
+    val userProblemSolvedInfo: StateFlow<UserProblemSolvedInfo> = flow {
+        emitAll(userDetailsRepository.getUserProblemSolvedInfo().filterNotNull())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = UserProblemSolvedInfo()
+    )
 
     val isWeeklyGoalSet: StateFlow<Boolean> = goalRepository.weeklyGoal
         .map { it != null }
@@ -101,9 +116,13 @@ class HomeScreenViewModel @Inject constructor(
             initialValue = false
         )
 
-    private val _dailyProblem =
-        MutableStateFlow(LeetCodeProblem("", "", ""))
-    val dailyProblem = _dailyProblem.asStateFlow()
+    val dailyProblem: StateFlow<LeetCodeProblem> = flow {
+        emitAll(userDetailsRepository.getDailyProblem().filterNotNull())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = LeetCodeProblem("", "", "")
+    )
 
     private val _difficultyStat = MutableStateFlow(DifficultyStatistics())
     val difficultyStat = _difficultyStat.asStateFlow()
@@ -118,37 +137,7 @@ class HomeScreenViewModel @Inject constructor(
         loadNextAcSubmissions()
 
         viewModelScope.launch {
-            userDetailsRepository
-                .getUserBasicInfo()
-                .collect {
-                    if (it != null) {
-                        _userBasicInfo.value = it
-                    }
-                }
-        }
-
-        viewModelScope.launch {
             _syncInterval.value = userDatastore.getSyncInterval()
-        }
-
-        viewModelScope.launch {
-            userDetailsRepository
-                .getUserContestInfo()
-                .collect {
-                    if (it != null) {
-                        _userContestInfo.value = it
-                    }
-                }
-        }
-
-        viewModelScope.launch {
-            userDetailsRepository
-                .getUserProblemSolvedInfo()
-                .collect {
-                    if (it != null) {
-                        _userProblemSolvedInfo.value = it
-                    }
-                }
         }
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -159,14 +148,6 @@ class HomeScreenViewModel @Inject constructor(
                     if (LocalDate.now().isAfter(endDate)) {
                         goalRepository.deleteWeeklyGoal()
                     }
-                }
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            userDetailsRepository.getDailyProblem().collect {
-                if (it != null) {
-                    _dailyProblem.value = it
                 }
             }
         }
