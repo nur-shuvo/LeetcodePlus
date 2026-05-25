@@ -35,6 +35,7 @@ import com.byteutility.dev.leetcode.plus.ui.screens.home.model.VideosByPlayListS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -92,8 +93,13 @@ class HomeScreenViewModel @Inject constructor(
         MutableStateFlow(UserProblemSolvedInfo())
     val userProblemSolvedInfo = _userProblemSolvedInfo.asStateFlow()
 
-    private val _isWeeklyGoalSet = MutableStateFlow(false)
-    val isWeeklyGoalSet = _isWeeklyGoalSet.asStateFlow()
+    val isWeeklyGoalSet: StateFlow<Boolean> = goalRepository.weeklyGoal
+        .map { it != null }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
 
     private val _dailyProblem =
         MutableStateFlow(LeetCodeProblem("", "", ""))
@@ -185,8 +191,6 @@ class HomeScreenViewModel @Inject constructor(
 
         scheduleBackgroundTasks()
 
-        getWeeklyGoalStatus()
-
         getRemoteProblems()
 
         getDifficultyStat()
@@ -194,15 +198,6 @@ class HomeScreenViewModel @Inject constructor(
 
     fun refreshUiState() {
         refreshUserSettings()
-        getWeeklyGoalStatus()
-    }
-
-    private fun getWeeklyGoalStatus() {
-        viewModelScope.launch(Dispatchers.IO) {
-            goalRepository.weeklyGoal.collect {
-                _isWeeklyGoalSet.value = (it != null)
-            }
-        }
     }
 
     private fun getUserSubmissionPaginator() = DefaultPaginator(
