@@ -1,6 +1,7 @@
 package com.byteutility.dev.leetcode.plus.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -124,7 +125,9 @@ fun MainScreen(mainNavController: NavHostController) {
         NavHost(
             navController = navController,
             startDestination = Home,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
         ) {
             composable<Home> {
                 HomeScreen(
