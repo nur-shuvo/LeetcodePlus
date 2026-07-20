@@ -25,15 +25,13 @@ enum class BookingStatus(val firestoreValue: String) {
 }
 
 enum class SessionStatus(val firestoreValue: String) {
-    PENDING_CALENDAR("pending_calendar"),
-    CONFIRMED("confirmed"),
-    CALENDAR_FAILED("calendar_failed"),
+    MATCHED("matched"),
     COMPLETED("completed"),
     CANCELLED("cancelled");
 
     companion object {
         fun fromFirestoreValue(value: String?): SessionStatus =
-            entries.find { it.firestoreValue == value } ?: PENDING_CALENDAR
+            entries.find { it.firestoreValue == value } ?: MATCHED
     }
 }
 
@@ -44,7 +42,6 @@ data class InterviewProfile(
     val leetcodeHandle: String = "",
     val roles: List<InterviewRole> = emptyList(),
     val timeZoneId: String = "",
-    val fcmToken: String = "",
 )
 
 data class InterviewSlot(
@@ -72,11 +69,15 @@ data class InterviewSession(
     val role: InterviewRole = InterviewRole.ANDROID,
     val startEpochMillis: Long = 0L,
     val endEpochMillis: Long = 0L,
-    val status: SessionStatus = SessionStatus.PENDING_CALENDAR,
-    val meetLink: String = "",
-    val calendarEventId: String = "",
+    val status: SessionStatus = SessionStatus.MATCHED,
 ) {
     fun peerUid(myUid: String): String = if (uidA == myUid) uidB else uidA
+
+    /**
+     * Ad-hoc Jitsi Meet room derived from the session id - both peers compute the same URL
+     * client-side, so no Calendar/Meet API integration or Firestore field is needed.
+     */
+    val meetingUrl: String get() = "https://meet.jit.si/lcplus-$sessionId"
 }
 
 data class InterviewFeedback(

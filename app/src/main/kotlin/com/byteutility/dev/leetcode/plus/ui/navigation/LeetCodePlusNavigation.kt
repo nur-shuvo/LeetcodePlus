@@ -172,6 +172,13 @@ class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToInterviewSessionList: () -> Unit = {
         navController.navigate(InterviewSessionList) {
+            // Reached from either InterviewProfileSetup (after sign-in/save) or
+            // InterviewSlotPicker (after booking) - pop both of those (and any earlier session
+            // list instance) so the back stack is always just Main -> InterviewSessionList,
+            // never a pile of intermediate screens to back through.
+            popUpTo(Main) {
+                inclusive = false
+            }
             launchSingleTop = true
         }
     }

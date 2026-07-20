@@ -54,13 +54,6 @@ class InterviewProfileRepositoryImpl @Inject constructor(
         )
         profilesCollection().document(uid).set(data, SetOptions.merge()).await()
     }
-
-    override suspend fun updateFcmToken(token: String) {
-        val uid = firebaseAuth.currentUser?.uid ?: return
-        profilesCollection().document(uid)
-            .set(mapOf("fcmToken" to token), SetOptions.merge())
-            .await()
-    }
 }
 
 private fun DocumentSnapshot.toInterviewProfile(): InterviewProfile? {
@@ -73,6 +66,5 @@ private fun DocumentSnapshot.toInterviewProfile(): InterviewProfile? {
         leetcodeHandle = getString("leetcodeHandle") ?: "",
         roles = rolesRaw.mapNotNull { InterviewRole.fromFirestoreValue(it as? String) },
         timeZoneId = getString("timeZoneId") ?: "",
-        fcmToken = getString("fcmToken") ?: "",
     )
 }

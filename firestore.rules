@@ -17,17 +17,38 @@ service cloud.firestore {
     }
 
     match /slotBookings/{slotDocId}/candidates/{uid} {
-      // Only the matching Cloud Function (Admin SDK, bypasses these rules) may transition
-      // status away from "waiting" - clients can only create their own initial booking.
-      allow create: if isSelf(uid) && request.resource.data.status == 'waiting';
+      // A booking that immediately matches is created directly with status "matched" in one
+      // write (never "waiting" then updated) - Firestore evaluates a transaction's rules against
+      // each document's *final* value, so a create must accept whichever status is the actual
+      // end result of that single write.
+      allow create: if isSelf(uid) &&
+        (request.resource.data.status == 'waiting' || request.resource.data.status == 'matched');
       allow read: if isSignedIn();
-      allow update, delete: if false;
+      // Matching runs client-side in a transaction (no Admin SDK backend anymore), so any
+      // signed-in user may flip a waiting candidate to matched, but nothing else - this is a
+      // known, accepted trust gap (mirrors the client-generated slot catalog not being
+      // server-validated): worst case is a bogus match, not data corruption, since session
+      // creation below still requires 2 real participant uids.
+      allow update: if isSignedIn()
+        && resource.data.status == 'waiting'
+        && request.resource.data.status == 'matched'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+      allow delete: if false;
+    }
+
+    // Collection-group query support for getMyBookings() - a normal nested-path `match` does NOT
+    // automatically authorize collectionGroup() queries; it needs its own recursive-wildcard rule.
+    match /{path=**}/candidates/{uid} {
+      allow read: if isSignedIn();
     }
 
     match /sessions/{sessionId} {
-      // Sessions are created and mutated exclusively by Cloud Functions.
+      // Sessions are created client-side as part of the matching transaction above.
       allow read: if isSignedIn() && request.auth.uid in resource.data.participantUids;
-      allow write: if false;
+      allow create: if isSignedIn()
+        && request.auth.uid in request.resource.data.participantUids
+        && request.resource.data.participantUids.size() == 2;
+      allow update, delete: if false;
 
       match /feedback/{raterUid} {
         allow create: if isSelf(raterUid)

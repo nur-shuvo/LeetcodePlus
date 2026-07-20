@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewSession
 import com.byteutility.dev.leetcode.plus.data.model.interview.SessionStatus
+import com.byteutility.dev.leetcode.plus.data.model.interview.SlotBooking
 import java.text.DateFormat
 import java.util.Date
 
@@ -38,7 +39,7 @@ fun InterviewSessionListScreen(
     onOpenSession: (String) -> Unit = {},
     viewModel: InterviewSessionListViewModel = hiltViewModel()
 ) {
-    val sessions by viewModel.sessions.collectAsStateWithLifecycle()
+    val listItems by viewModel.items.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -50,7 +51,7 @@ fun InterviewSessionListScreen(
             }
         }
     ) { paddingValues ->
-        if (sessions.isEmpty()) {
+        if (listItems.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -67,12 +68,23 @@ fun InterviewSessionListScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(sessions, key = { it.sessionId }) { session ->
-                    SessionRow(session = session, onClick = { onOpenSession(session.sessionId) })
+                items(listItems, key = { itemKey(it) }) { item ->
+                    when (item) {
+                        is InterviewListItem.Matched -> SessionRow(
+                            session = item.session,
+                            onClick = { onOpenSession(item.session.sessionId) }
+                        )
+                        is InterviewListItem.Pending -> PendingBookingRow(booking = item.booking)
+                    }
                 }
             }
         }
     }
+}
+
+private fun itemKey(item: InterviewListItem): String = when (item) {
+    is InterviewListItem.Matched -> "session_${item.session.sessionId}"
+    is InterviewListItem.Pending -> "booking_${item.booking.slotId}_${item.booking.role.firestoreValue}"
 }
 
 @Composable
@@ -86,15 +98,30 @@ private fun SessionRow(session: InterviewSession, onClick: () -> Unit) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = session.role.displayName, style = MaterialTheme.typography.titleMedium)
             Text(text = formatter.format(Date(session.startEpochMillis)))
-            Text(text = statusLabel(session.status))
+            Text(text = statusLabel(session))
         }
     }
 }
 
-private fun statusLabel(status: SessionStatus): String = when (status) {
-    SessionStatus.PENDING_CALENDAR -> "Setting up your meeting link..."
-    SessionStatus.CONFIRMED -> "Confirmed"
-    SessionStatus.CALENDAR_FAILED -> "Couldn't create a meeting link"
-    SessionStatus.COMPLETED -> "Completed - leave feedback"
-    SessionStatus.CANCELLED -> "Cancelled"
+@Composable
+private fun PendingBookingRow(booking: SlotBooking) {
+    val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = booking.role.displayName, style = MaterialTheme.typography.titleMedium)
+            Text(text = formatter.format(Date(booking.startEpochMillis)))
+            val label = if (System.currentTimeMillis() >= booking.endEpochMillis) {
+                "No peer found - slot expired"
+            } else {
+                "Waiting for a peer..."
+            }
+            Text(text = label)
+        }
+    }
+}
+
+private fun statusLabel(session: InterviewSession): String = when {
+    session.status == SessionStatus.CANCELLED -> "Cancelled"
+    System.currentTimeMillis() >= session.endEpochMillis -> "Completed - leave feedback"
+    else -> "Matched"
 }

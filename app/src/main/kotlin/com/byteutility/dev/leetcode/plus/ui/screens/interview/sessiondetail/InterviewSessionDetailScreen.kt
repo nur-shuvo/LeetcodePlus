@@ -61,30 +61,25 @@ fun InterviewSessionDetailScreen(
                 }
             }
 
-            when (currentSession.status) {
-                SessionStatus.PENDING_CALENDAR -> Text("Setting up your Google Meet link...")
-                SessionStatus.CALENDAR_FAILED -> Text(
-                    text = "Couldn't create a meeting link automatically. " +
-                        "Please coordinate with your peer directly.",
-                    color = MaterialTheme.colorScheme.error
-                )
-                SessionStatus.CONFIRMED -> {
-                    Button(onClick = {
-                        context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse(currentSession.meetLink))
-                        )
-                    }) {
-                        Text("Join Google Meet")
-                    }
-                }
-                SessionStatus.COMPLETED -> {
+            when {
+                currentSession.status == SessionStatus.CANCELLED ->
+                    Text("This session was cancelled.")
+                System.currentTimeMillis() >= currentSession.endEpochMillis -> {
                     Button(onClick = {
                         onSubmitFeedback(currentSession.sessionId, peerProfile?.uid.orEmpty())
                     }) {
                         Text("Submit Feedback")
                     }
                 }
-                SessionStatus.CANCELLED -> Text("This session was cancelled.")
+                else -> {
+                    Button(onClick = {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse(currentSession.meetingUrl))
+                        )
+                    }) {
+                        Text("Join Video Call")
+                    }
+                }
             }
         }
     }

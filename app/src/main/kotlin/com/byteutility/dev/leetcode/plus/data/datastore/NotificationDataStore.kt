@@ -5,12 +5,17 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private val INTERVIEW_MATCHED_NOTIFIED_KEY = stringSetPreferencesKey("interview_matched_notified_session_ids")
+private val INTERVIEW_REMINDED_KEY = stringSetPreferencesKey("interview_reminded_session_ids")
 
 @Singleton
 class NotificationDataStore @Inject constructor(
@@ -60,6 +65,26 @@ class NotificationDataStore @Inject constructor(
     suspend fun clearAll() {
         context.dataStore.edit {
             it.clear()
+        }
+    }
+
+    suspend fun hasNotifiedMatched(sessionId: String): Boolean =
+        sessionId in (context.dataStore.data.first()[INTERVIEW_MATCHED_NOTIFIED_KEY] ?: emptySet())
+
+    suspend fun markMatchedNotified(sessionId: String) {
+        context.dataStore.edit { preferences ->
+            val existing = preferences[INTERVIEW_MATCHED_NOTIFIED_KEY] ?: emptySet()
+            preferences[INTERVIEW_MATCHED_NOTIFIED_KEY] = existing + sessionId
+        }
+    }
+
+    suspend fun hasSentReminder(sessionId: String): Boolean =
+        sessionId in (context.dataStore.data.first()[INTERVIEW_REMINDED_KEY] ?: emptySet())
+
+    suspend fun markReminderSent(sessionId: String) {
+        context.dataStore.edit { preferences ->
+            val existing = preferences[INTERVIEW_REMINDED_KEY] ?: emptySet()
+            preferences[INTERVIEW_REMINDED_KEY] = existing + sessionId
         }
     }
 }

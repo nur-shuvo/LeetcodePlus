@@ -68,7 +68,5 @@ private fun DocumentSnapshot.toInterviewSession(): InterviewSession? {
         startEpochMillis = getLong("startEpochMillis") ?: 0L,
         endEpochMillis = getLong("endEpochMillis") ?: 0L,
         status = SessionStatus.fromFirestoreValue(getString("status")),
-        meetLink = getString("meetLink") ?: "",
-        calendarEventId = getString("calendarEventId") ?: "",
     )
 }

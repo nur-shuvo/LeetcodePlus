@@ -7,8 +7,8 @@ import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewProfile
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewRole
 import com.byteutility.dev.leetcode.plus.data.repository.interview.GoogleAuthRepository
 import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewProfileRepository
+import com.byteutility.dev.leetcode.plus.data.worker.InterviewSessionWorker
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.util.TimeZone
 import javax.inject.Inject
 
@@ -26,7 +25,6 @@ private const val SHARE_STOP_TIMEOUT_MS = 5000L
 class InterviewProfileViewModel @Inject constructor(
     private val googleAuthRepository: GoogleAuthRepository,
     private val interviewProfileRepository: InterviewProfileRepository,
-    private val firebaseMessaging: FirebaseMessaging,
 ) : ViewModel() {
 
     val currentUser: StateFlow<FirebaseUser?> = googleAuthRepository.currentUser
@@ -53,8 +51,7 @@ class InterviewProfileViewModel @Inject constructor(
                         timeZoneId = TimeZone.getDefault().id,
                     )
                 )
-                runCatching { firebaseMessaging.token.await() }
-                    .onSuccess { token -> interviewProfileRepository.updateFcmToken(token) }
+                InterviewSessionWorker.enqueuePeriodicWork(context.applicationContext)
             }
         }
     }

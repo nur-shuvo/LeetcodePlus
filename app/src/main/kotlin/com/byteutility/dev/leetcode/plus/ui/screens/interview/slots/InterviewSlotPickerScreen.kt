@@ -68,11 +68,9 @@ fun InterviewSlotPickerScreen(
                 }
             }
 
-            if (bookingState is BookingUiState.Error) {
-                Text(
-                    text = "Couldn't book that slot, please try again.",
-                    color = MaterialTheme.colorScheme.error
-                )
+            val bookingError = bookingState as? BookingUiState.Error
+            if (bookingError != null) {
+                Text(text = bookingError.message, color = MaterialTheme.colorScheme.error)
             }
 
             LazyColumn(

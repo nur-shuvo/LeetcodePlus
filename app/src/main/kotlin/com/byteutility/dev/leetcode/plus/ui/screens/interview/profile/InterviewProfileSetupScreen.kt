@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,14 @@ fun InterviewProfileSetupScreen(
     var selectedRoles by remember(profile) { mutableStateOf(profile?.roles?.toSet() ?: emptySet()) }
     var leetcodeHandle by remember(profile) { mutableStateOf(profile?.leetcodeHandle ?: "") }
 
+    // Already signed in with a saved profile (e.g. a returning user) - skip straight past the
+    // setup form instead of making them re-save their roles every time.
+    LaunchedEffect(currentUser, profile) {
+        if (currentUser != null && profile?.roles?.isNotEmpty() == true) {
+            onProfileSaved()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Mock Interview Profile") })
@@ -59,8 +68,15 @@ fun InterviewProfileSetupScreen(
         ) {
             if (currentUser == null) {
                 Text(
-                    text = "Sign in with Google to set up peer mock interviews.",
+                    text = "Mock interviews match you with another LeetCodePlus user in " +
+                        "real time for a live practice session.",
                     style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = "Google sign-in is required so we know who you are when pairing " +
+                        "you with a peer - this is separate from your LeetCode account.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Button(
                     onClick = { viewModel.signIn(context) },

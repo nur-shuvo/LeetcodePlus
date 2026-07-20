@@ -657,7 +657,7 @@ fun MockInterviewEntryCard(onClick: () -> Unit) {
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
                 Text(
-                    text = "Get matched with a peer and a Google Meet link",
+                    text = "Get matched with a peer for a live video call - requires Google sign-in",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

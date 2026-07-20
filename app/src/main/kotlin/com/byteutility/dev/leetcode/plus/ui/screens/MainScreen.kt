@@ -172,7 +172,7 @@ fun MainScreen(mainNavController: NavHostController) {
                         navigationActions.navigateToLogin()
                     },
                     onNavigateToMockInterviews = {
-                        navigationActions.navigateToInterviewSessionList()
+                        navigationActions.navigateToInterviewProfileSetup()
                     }
                 )
             }

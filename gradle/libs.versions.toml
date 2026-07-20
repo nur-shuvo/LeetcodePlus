@@ -104,8 +104,6 @@ androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
-firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
-firebase-functions-ktx = { group = "com.google.firebase", name = "firebase-functions-ktx" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
@@ -133,9 +131,7 @@ androidx-paging = [
 ]
 firebase = [
     "firebase-auth-ktx",
-    "firebase-firestore-ktx",
-    "firebase-messaging-ktx",
-    "firebase-functions-ktx"
+    "firebase-firestore-ktx"
 ]
 google-signin = [
     "play-services-auth",

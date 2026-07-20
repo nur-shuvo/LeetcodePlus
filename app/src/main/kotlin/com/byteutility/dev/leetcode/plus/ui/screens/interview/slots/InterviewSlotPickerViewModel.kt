@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewRole
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewSlot
 import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewSlotRepository
+import com.byteutility.dev.leetcode.plus.data.repository.interview.NotSignedInException
+import com.byteutility.dev.leetcode.plus.data.repository.interview.TooManyActiveBookingsException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +23,7 @@ sealed interface BookingUiState {
     data object Idle : BookingUiState
     data object Booking : BookingUiState
     data object Booked : BookingUiState
-    data object Error : BookingUiState
+    data class Error(val message: String) : BookingUiState
 }
 
 @HiltViewModel
@@ -48,7 +50,14 @@ class InterviewSlotPickerViewModel @Inject constructor(
             _bookingState.value = BookingUiState.Booking
             runCatching { interviewSlotRepository.bookSlot(slot) }
                 .onSuccess { _bookingState.value = BookingUiState.Booked }
-                .onFailure { _bookingState.value = BookingUiState.Error }
+                .onFailure { e ->
+                    val message = when (e) {
+                        is NotSignedInException -> "Sign in with Google first to book a mock interview."
+                        is TooManyActiveBookingsException -> e.message.orEmpty()
+                        else -> "Couldn't book that slot, please try again."
+                    }
+                    _bookingState.value = BookingUiState.Error(message)
+                }
         }
     }
 }
