@@ -11,6 +11,11 @@ import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.MainScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.contest.details.ContestDetailScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.feedback.InterviewFeedbackScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.profile.InterviewProfileSetupScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.sessiondetail.InterviewSessionDetailScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.sessions.InterviewSessionListScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.slots.InterviewSlotPickerScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.leetcodelogin.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.screens.login.UserLoginScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.problem.details.ProblemDetailsScreen
@@ -125,6 +130,47 @@ fun LeetCodePlusNavGraph(
                 onBack = {
                     navigationActions.popCurrentDestination()
                 }
+            )
+        }
+
+        composable<InterviewProfileSetup> {
+            InterviewProfileSetupScreen(
+                onBack = { navigationActions.popCurrentDestination() },
+                onProfileSaved = { navigationActions.navigateToInterviewSessionList() }
+            )
+        }
+
+        composable<InterviewSlotPicker> {
+            InterviewSlotPickerScreen(
+                onBooked = { navigationActions.navigateToInterviewSessionList() }
+            )
+        }
+
+        composable<InterviewSessionList> {
+            InterviewSessionListScreen(
+                onBookNew = { navigationActions.navigateToInterviewSlotPicker() },
+                onOpenSession = { sessionId ->
+                    navigationActions.navigateToInterviewSessionDetail(
+                        InterviewSessionDetail(sessionId)
+                    )
+                }
+            )
+        }
+
+        composable<InterviewSessionDetail> {
+            InterviewSessionDetailScreen(
+                onBack = { navigationActions.popCurrentDestination() },
+                onSubmitFeedback = { sessionId, rateeUid ->
+                    navigationActions.navigateToInterviewFeedback(
+                        InterviewFeedback(sessionId, rateeUid)
+                    )
+                }
+            )
+        }
+
+        composable<InterviewFeedback> {
+            InterviewFeedbackScreen(
+                onSubmitted = { navigationActions.popCurrentDestination() }
             )
         }
     }

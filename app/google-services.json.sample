@@ -1,0 +1,30 @@
+{
+  "_comment": "Placeholder only. Download the real google-services.json from the Firebase console (Project settings > Your apps > android app for com.byteutility.dev.leetcode.plus) and place it at app/google-services.json. The real file is gitignored and must not be committed.",
+  "project_info": {
+    "project_number": "REPLACE_ME",
+    "project_id": "REPLACE_ME",
+    "storage_bucket": "REPLACE_ME.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "REPLACE_ME",
+        "android_client_info": {
+          "package_name": "com.byteutility.dev.leetcode.plus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "REPLACE_ME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

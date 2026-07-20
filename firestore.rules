@@ -1,0 +1,43 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /interviewProfiles/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isSelf(uid);
+    }
+
+    match /slotBookings/{slotDocId}/candidates/{uid} {
+      // Only the matching Cloud Function (Admin SDK, bypasses these rules) may transition
+      // status away from "waiting" - clients can only create their own initial booking.
+      allow create: if isSelf(uid) && request.resource.data.status == 'waiting';
+      allow read: if isSignedIn();
+      allow update, delete: if false;
+    }
+
+    match /sessions/{sessionId} {
+      // Sessions are created and mutated exclusively by Cloud Functions.
+      allow read: if isSignedIn() && request.auth.uid in resource.data.participantUids;
+      allow write: if false;
+
+      match /feedback/{raterUid} {
+        allow create: if isSelf(raterUid)
+          && raterUid in get(/databases/$(database)/documents/sessions/$(sessionId)).data.participantUids
+          && request.resource.data.rateeUid in get(/databases/$(database)/documents/sessions/$(sessionId)).data.participantUids
+          && request.resource.data.rateeUid != raterUid;
+        allow read: if isSignedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/sessions/$(sessionId)).data.participantUids;
+        allow update, delete: if false;
+      }
+    }
+  }
+}

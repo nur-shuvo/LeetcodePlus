@@ -12,6 +12,14 @@ plugins {
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
+// google-services.json is not committed (see .gitignore) and must be downloaded from the
+// Firebase console for the mock-interview feature's Firebase integration to build/run.
+// The plugin is only applied once that file exists, so the rest of the app keeps building
+// for anyone who hasn't set up Firebase yet.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "com.byteutility.dev.leetcode.plus"
     compileSdk = 36
@@ -132,6 +140,11 @@ dependencies {
     ksp(libs.room.compiler)
     implementation(libs.msz.progress.indicator)
     detektPlugins(libs.detekt.formatting)
+
+    // Mock interview feature: Firebase backend + Google Sign-In
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
+    implementation(libs.bundles.google.signin)
 
     // Google AdMob
     implementation(libs.play.services.ads)

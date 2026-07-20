@@ -26,6 +26,7 @@ import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
+import com.byteutility.dev.leetcode.plus.ui.navigation.InterviewSessionDetail
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavGraph
 import com.byteutility.dev.leetcode.plus.ui.navigation.Login
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
 
     private var extraStartDestination: String? = null
     private var dailyProblemTitleSlug: String? = null
+    private var interviewSessionId: String? = null
 
     private lateinit var sensorManager: SensorManager
     private lateinit var shakeDetector: ShakeDetector
@@ -115,6 +117,15 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+
+                    // Navigate to a mock interview session if opened from an FCM notification
+                    interviewSessionId?.let { sessionId ->
+                        if (sessionId.isNotEmpty() && userLoggedIn) {
+                            LaunchedEffect(sessionId) {
+                                navController.navigate(InterviewSessionDetail(sessionId))
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -161,6 +172,7 @@ class MainActivity : ComponentActivity() {
     private fun init() {
         extraStartDestination = intent.getStringExtra("startDestination")
         dailyProblemTitleSlug = intent.getStringExtra("dailyProblemTitleSlug")
+        interviewSessionId = intent.getStringExtra("interviewSessionId")
     }
 
     override fun onStart() {

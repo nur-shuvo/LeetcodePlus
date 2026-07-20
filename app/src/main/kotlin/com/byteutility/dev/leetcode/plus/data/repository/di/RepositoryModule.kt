@@ -2,6 +2,16 @@ package com.byteutility.dev.leetcode.plus.data.repository.di
 
 import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepository
 import com.byteutility.dev.leetcode.plus.data.repository.codeSubmit.CodeEditorSubmitRepositoryImpl
+import com.byteutility.dev.leetcode.plus.data.repository.interview.GoogleAuthRepository
+import com.byteutility.dev.leetcode.plus.data.repository.interview.GoogleAuthRepositoryImpl
+import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewFeedbackRepository
+import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewFeedbackRepositoryImpl
+import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewProfileRepository
+import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewProfileRepositoryImpl
+import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewSessionRepository
+import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewSessionRepositoryImpl
+import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewSlotRepository
+import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewSlotRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.problems.LocalProblemRepository
 import com.byteutility.dev.leetcode.plus.data.repository.problems.LocalProblemRepositoryImpl
 import com.byteutility.dev.leetcode.plus.data.repository.problems.ProblemsRepository
@@ -47,4 +57,34 @@ abstract class RepositoryModule {
     abstract fun provideLocalProblemRepository(
         localProblemRepositoryImpl: LocalProblemRepositoryImpl
     ): LocalProblemRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideInterviewProfileRepository(
+        interviewProfileRepositoryImpl: InterviewProfileRepositoryImpl
+    ): InterviewProfileRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideInterviewSlotRepository(
+        interviewSlotRepositoryImpl: InterviewSlotRepositoryImpl
+    ): InterviewSlotRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideInterviewSessionRepository(
+        interviewSessionRepositoryImpl: InterviewSessionRepositoryImpl
+    ): InterviewSessionRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideInterviewFeedbackRepository(
+        interviewFeedbackRepositoryImpl: InterviewFeedbackRepositoryImpl
+    ): InterviewFeedbackRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideGoogleAuthRepository(
+        googleAuthRepositoryImpl: GoogleAuthRepositoryImpl
+    ): GoogleAuthRepository
 }

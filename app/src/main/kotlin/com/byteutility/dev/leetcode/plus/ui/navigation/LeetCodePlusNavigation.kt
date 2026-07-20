@@ -56,6 +56,26 @@ data class ContestDetail(
     val href: String
 )
 
+@Serializable
+object InterviewProfileSetup
+
+@Serializable
+object InterviewSlotPicker
+
+@Serializable
+object InterviewSessionList
+
+@Serializable
+data class InterviewSessionDetail(
+    val sessionId: String
+)
+
+@Serializable
+data class InterviewFeedback(
+    val sessionId: String,
+    val rateeUid: String
+)
+
 class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToMainScreen: () -> Unit = {
@@ -134,6 +154,36 @@ class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToContestDetail: (ContestDetail) -> Unit = { contestDetail ->
         navController.navigate(contestDetail) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewProfileSetup: () -> Unit = {
+        navController.navigate(InterviewProfileSetup) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewSlotPicker: () -> Unit = {
+        navController.navigate(InterviewSlotPicker) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewSessionList: () -> Unit = {
+        navController.navigate(InterviewSessionList) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewSessionDetail: (InterviewSessionDetail) -> Unit = { sessionDetail ->
+        navController.navigate(sessionDetail) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewFeedback: (InterviewFeedback) -> Unit = { feedback ->
+        navController.navigate(feedback) {
             launchSingleTop = true
         }
     }
