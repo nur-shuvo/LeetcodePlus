@@ -4,12 +4,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -63,7 +72,11 @@ fun InterviewFeedbackScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = didNotShowUp, onCheckedChange = { didNotShowUp = it })
+                Checkbox(
+                    checked = didNotShowUp,
+                    onCheckedChange = { didNotShowUp = it },
+                    colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.error)
+                )
                 Text("My peer didn't show up", modifier = Modifier.padding(top = 12.dp))
             }
 
@@ -117,6 +130,12 @@ fun InterviewFeedbackScreen(
                 },
                 enabled = submitState !is SubmitUiState.Submitting
             ) {
+                Icon(
+                    imageVector = Icons.Filled.Send,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text("Submit")
             }
         }
@@ -134,9 +153,10 @@ private fun RatingRow(label: String, rating: Int, onRatingChange: (Int) -> Unit)
                 } else {
                     MaterialTheme.colorScheme.onSurfaceVariant
                 }
-                Text(
-                    text = if (value <= rating) "★" else "☆",
-                    style = MaterialTheme.typography.headlineSmall.copy(color = starColor),
+                Icon(
+                    imageVector = if (value <= rating) Icons.Filled.Star else Icons.Filled.StarBorder,
+                    contentDescription = null,
+                    tint = starColor,
                     modifier = Modifier
                         .padding(4.dp)
                         .clickable { onRatingChange(value) }
