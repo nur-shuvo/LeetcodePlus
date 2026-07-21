@@ -3,7 +3,6 @@ package com.byteutility.dev.leetcode.plus.ui.screens.interview.slots
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -116,13 +115,11 @@ private fun TimeSlotRow(slot: InterviewSlot, isBooking: Boolean, onBook: () -> U
             .fillMaxWidth()
             .clickable(enabled = !isBooking, onClick = onBook)
     ) {
-        Row(
+        Text(
+            text = formatter.format(Date(slot.startEpochMillis)),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = formatter.format(Date(slot.startEpochMillis)))
-        }
+                .padding(16.dp)
+        )
     }
 }
