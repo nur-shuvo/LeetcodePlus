@@ -49,7 +49,7 @@ private val HOW_IT_WORKS_BULLETS = listOf(
 fun InterviewHowItWorksContent(modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            HOW_IT_WORKS_STEPS.forEach { step -> HowItWorksStepIcon(step) }
+            HOW_IT_WORKS_STEPS.forEach { step -> HowItWorksStepIcon(step, modifier = Modifier.weight(1f)) }
         }
         HOW_IT_WORKS_BULLETS.forEach { bullet ->
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -61,8 +61,9 @@ fun InterviewHowItWorksContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun HowItWorksStepIcon(step: HowItWorksStep) {
+private fun HowItWorksStepIcon(step: HowItWorksStep, modifier: Modifier = Modifier) {
     Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
