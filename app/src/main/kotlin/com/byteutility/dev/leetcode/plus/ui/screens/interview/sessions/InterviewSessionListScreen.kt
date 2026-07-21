@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -42,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewSession
 import com.byteutility.dev.leetcode.plus.data.model.interview.SlotBooking
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.InterviewHowItWorksDialog
 import com.byteutility.dev.leetcode.plus.ui.screens.interview.InterviewSessionPhase
 import com.byteutility.dev.leetcode.plus.ui.screens.interview.formatCountdown
 import com.byteutility.dev.leetcode.plus.ui.screens.interview.phase
@@ -62,12 +64,16 @@ fun InterviewSessionListScreen(
     val currentUser by viewModel.currentUser.collectAsStateWithLifecycle()
     val now = rememberNowTicker()
     var accountMenuExpanded by remember { mutableStateOf(false) }
+    var showHowItWorks by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Mock Interviews") },
                 actions = {
+                    IconButton(onClick = { showHowItWorks = true }) {
+                        Icon(Icons.Filled.Info, contentDescription = "How mock interviews work")
+                    }
                     Box {
                         IconButton(onClick = { accountMenuExpanded = true }) {
                             val photoUrl = currentUser?.photoUrl?.toString()
@@ -146,6 +152,10 @@ fun InterviewSessionListScreen(
                 }
             }
         }
+    }
+
+    if (showHowItWorks) {
+        InterviewHowItWorksDialog(onDismiss = { showHowItWorks = false })
     }
 }
 
