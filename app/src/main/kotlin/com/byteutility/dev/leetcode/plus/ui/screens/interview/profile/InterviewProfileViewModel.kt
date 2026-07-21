@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.TimeZone
@@ -42,12 +43,17 @@ class InterviewProfileViewModel @Inject constructor(
             val result = googleAuthRepository.signIn(context)
             _isSigningIn.value = false
             result.onSuccess { user ->
+                // Fetch fresh rather than trusting this ViewModel's own `profile` StateFlow -
+                // it was subscribed before sign-in completed, so it's the pre-sign-in (null)
+                // snapshot. Using that here would wipe a returning user's saved roles.
+                val existing = interviewProfileRepository.getProfile(user.uid).first()
                 interviewProfileRepository.saveProfile(
                     InterviewProfile(
                         uid = user.uid,
                         displayName = user.displayName.orEmpty(),
                         email = user.email.orEmpty(),
-                        roles = profile.value?.roles ?: emptyList(),
+                        leetcodeHandle = existing?.leetcodeHandle.orEmpty(),
+                        roles = existing?.roles ?: emptyList(),
                         timeZoneId = TimeZone.getDefault().id,
                     )
                 )

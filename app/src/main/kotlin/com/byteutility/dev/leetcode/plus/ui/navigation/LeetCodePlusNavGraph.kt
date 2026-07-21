@@ -153,7 +153,8 @@ fun LeetCodePlusNavGraph(
                     navigationActions.navigateToInterviewSessionDetail(
                         InterviewSessionDetail(sessionId)
                     )
-                }
+                },
+                onSignedOut = { navigationActions.navigateToInterviewProfileSetup() }
             )
         }
 

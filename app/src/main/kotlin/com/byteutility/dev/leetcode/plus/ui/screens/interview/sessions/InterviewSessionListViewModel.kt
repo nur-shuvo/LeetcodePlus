@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.byteutility.dev.leetcode.plus.data.model.interview.BookingStatus
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewSession
 import com.byteutility.dev.leetcode.plus.data.model.interview.SlotBooking
+import com.byteutility.dev.leetcode.plus.data.repository.interview.GoogleAuthRepository
 import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewSessionRepository
 import com.byteutility.dev.leetcode.plus.data.repository.interview.InterviewSlotRepository
+import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,6 +39,7 @@ sealed interface InterviewListItem {
 class InterviewSessionListViewModel @Inject constructor(
     interviewSessionRepository: InterviewSessionRepository,
     interviewSlotRepository: InterviewSlotRepository,
+    private val googleAuthRepository: GoogleAuthRepository,
 ) : ViewModel() {
 
     val items: StateFlow<List<InterviewListItem>> = combine(
@@ -52,4 +55,11 @@ class InterviewSessionListViewModel @Inject constructor(
         Log.e(TAG, "Failed to load mock interview sessions/bookings", e)
         emit(emptyList())
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SHARE_STOP_TIMEOUT_MS), emptyList())
+
+    val currentUser: StateFlow<FirebaseUser?> = googleAuthRepository.currentUser
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SHARE_STOP_TIMEOUT_MS), null)
+
+    fun signOut() {
+        googleAuthRepository.signOut()
+    }
 }

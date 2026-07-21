@@ -160,6 +160,11 @@ class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToInterviewProfileSetup: () -> Unit = {
         navController.navigate(InterviewProfileSetup) {
+            // Also reached after signing out from InterviewSessionList - pop back to Main so a
+            // stale session list isn't left underneath on the back stack.
+            popUpTo(Main) {
+                inclusive = false
+            }
             launchSingleTop = true
         }
     }

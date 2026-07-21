@@ -4,31 +4,49 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewSession
-import com.byteutility.dev.leetcode.plus.data.model.interview.SessionStatus
 import com.byteutility.dev.leetcode.plus.data.model.interview.SlotBooking
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.InterviewSessionPhase
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.formatCountdown
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.phase
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.rememberNowTicker
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.statusChipColors
 import java.text.DateFormat
 import java.util.Date
 
@@ -37,13 +55,61 @@ import java.util.Date
 fun InterviewSessionListScreen(
     onBookNew: () -> Unit = {},
     onOpenSession: (String) -> Unit = {},
+    onSignedOut: () -> Unit = {},
     viewModel: InterviewSessionListViewModel = hiltViewModel()
 ) {
     val listItems by viewModel.items.collectAsStateWithLifecycle()
+    val currentUser by viewModel.currentUser.collectAsStateWithLifecycle()
+    val now = rememberNowTicker()
+    var accountMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Mock Interviews") })
+            TopAppBar(
+                title = { Text("Mock Interviews") },
+                actions = {
+                    Box {
+                        IconButton(onClick = { accountMenuExpanded = true }) {
+                            val photoUrl = currentUser?.photoUrl?.toString()
+                            if (photoUrl != null) {
+                                AsyncImage(
+                                    model = photoUrl,
+                                    contentDescription = "Account",
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                )
+                            } else {
+                                Icon(Icons.Filled.AccountCircle, contentDescription = "Account")
+                            }
+                        }
+                        DropdownMenu(
+                            expanded = accountMenuExpanded,
+                            onDismissRequest = { accountMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "Signed in as ${currentUser?.email.orEmpty()}",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                },
+                                onClick = {},
+                                enabled = false
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("Sign out") },
+                                onClick = {
+                                    accountMenuExpanded = false
+                                    viewModel.signOut()
+                                    onSignedOut()
+                                }
+                            )
+                        }
+                    }
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onBookNew) {
@@ -72,9 +138,10 @@ fun InterviewSessionListScreen(
                     when (item) {
                         is InterviewListItem.Matched -> SessionRow(
                             session = item.session,
+                            now = now,
                             onClick = { onOpenSession(item.session.sessionId) }
                         )
-                        is InterviewListItem.Pending -> PendingBookingRow(booking = item.booking)
+                        is InterviewListItem.Pending -> PendingBookingRow(booking = item.booking, now = now)
                     }
                 }
             }
@@ -88,40 +155,65 @@ private fun itemKey(item: InterviewListItem): String = when (item) {
 }
 
 @Composable
-private fun SessionRow(session: InterviewSession, onClick: () -> Unit) {
+private fun SessionRow(session: InterviewSession, now: Long, onClick: () -> Unit) {
     val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+    val phase = session.phase(now)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = session.role.displayName, style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = session.role.displayName, style = MaterialTheme.typography.titleMedium)
+                AssistChip(
+                    onClick = {},
+                    label = { Text(phase.label) },
+                    colors = statusChipColors(phase)
+                )
+            }
             Text(text = formatter.format(Date(session.startEpochMillis)))
-            Text(text = statusLabel(session))
+            if (phase == InterviewSessionPhase.JOINABLE) {
+                Text(
+                    text = "Join available now - starts in ${formatCountdown(session.startEpochMillis - now)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun PendingBookingRow(booking: SlotBooking) {
+private fun PendingBookingRow(booking: SlotBooking, now: Long) {
     val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+    val phase = booking.phase(now)
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = booking.role.displayName, style = MaterialTheme.typography.titleMedium)
-            Text(text = formatter.format(Date(booking.startEpochMillis)))
-            val label = if (System.currentTimeMillis() >= booking.endEpochMillis) {
-                "No peer found - slot expired"
-            } else {
-                "Waiting for a peer..."
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = booking.role.displayName, style = MaterialTheme.typography.titleMedium)
+                AssistChip(
+                    onClick = {},
+                    label = { Text(phase.label) },
+                    colors = statusChipColors(phase)
+                )
             }
-            Text(text = label)
+            Text(text = formatter.format(Date(booking.startEpochMillis)))
+            Text(
+                text = if (phase == InterviewSessionPhase.EXPIRED) {
+                    "No peer found"
+                } else {
+                    "Waiting for a peer..."
+                }
+            )
         }
     }
-}
-
-private fun statusLabel(session: InterviewSession): String = when {
-    session.status == SessionStatus.CANCELLED -> "Cancelled"
-    System.currentTimeMillis() >= session.endEpochMillis -> "Completed - leave feedback"
-    else -> "Matched"
 }

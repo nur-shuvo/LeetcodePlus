@@ -34,6 +34,7 @@ import com.byteutility.dev.leetcode.plus.ui.navigation.Main
 import com.byteutility.dev.leetcode.plus.ui.navigation.ProblemDetails
 import com.byteutility.dev.leetcode.plus.ui.networkmonitor.NetworkMonitorActivity
 import com.byteutility.dev.leetcode.plus.ui.networkmonitor.ShakeDetector
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.watcher.InterviewMatchModal
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -108,6 +109,17 @@ class MainActivity : ComponentActivity() {
                     }
 
                     LeetCodePlusNavGraph(navController, startDestination)
+
+                    // Live match watcher - active whenever the app is foregrounded, regardless
+                    // of which screen is on top, so a match pops up right away instead of
+                    // waiting for the periodic background worker.
+                    if (userLoggedIn) {
+                        InterviewMatchModal(
+                            onViewSession = { sessionId ->
+                                navController.navigate(InterviewSessionDetail(sessionId))
+                            }
+                        )
+                    }
 
                     // Navigate to problem details if opened from daily problem notification
                     dailyProblemTitleSlug?.let { titleSlug ->

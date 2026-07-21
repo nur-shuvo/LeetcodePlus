@@ -6,9 +6,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -16,6 +18,7 @@ import javax.inject.Singleton
 
 private const val INTERVIEW_PROFILES_COLLECTION = "interviewProfiles"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class InterviewProfileRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -24,10 +27,17 @@ class InterviewProfileRepositoryImpl @Inject constructor(
 
     private fun profilesCollection() = firestore.collection(INTERVIEW_PROFILES_COLLECTION)
 
-    override fun getMyProfile(): Flow<InterviewProfile?> {
-        val uid = firebaseAuth.currentUser?.uid ?: return flowOf(null)
-        return getProfile(uid)
-    }
+    /**
+     * Reactive to sign-in/sign-out, unlike a one-shot `firebaseAuth.currentUser?.uid` read - a
+     * ViewModel that subscribes to this before the user signs in (e.g. while showing the
+     * "Sign in with Google" button) needs to see the real profile once they do, not stay stuck
+     * on the pre-sign-in snapshot for its whole lifetime.
+     */
+    override fun getMyProfile(): Flow<InterviewProfile?> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth -> trySend(auth.currentUser?.uid) }
+        firebaseAuth.addAuthStateListener(listener)
+        awaitClose { firebaseAuth.removeAuthStateListener(listener) }
+    }.flatMapLatest { uid -> if (uid == null) flowOf(null) else getProfile(uid) }
 
     override fun getProfile(uid: String): Flow<InterviewProfile?> = callbackFlow {
         val registration = profilesCollection().document(uid)

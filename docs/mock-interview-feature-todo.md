@@ -1,10 +1,35 @@
 # Mock Interview Feature — Resume Notes
 
-Status as of 2026-07-20: fully implemented, building, and **wired to a real Firebase project** —
+Status as of 2026-07-21: fully implemented, building, and **wired to a real Firebase project** —
 matching is done **on-device** with no Cloud Functions backend and no Calendar/Meet API
 integration, which removed the multi-week Google OAuth sensitive-scope verification that used to
-block the feature. Console setup (see "Firebase project is live" below) is done; what's left is
-device testing (see "Next steps").
+block the feature. Console setup (see "Firebase project is live" below) is done. Single-account
+on-device flow, booking limits, and the UX pass below (live match detection/modal, status chips,
+countdown/join-gating, account management) are all built and verified on a real device.
+
+## UX additions (2026-07-21)
+
+- **Live match detection**: `InterviewMatchWatcherViewModel`
+  (`ui/screens/interview/watcher/`), hosted once at the app root (`MainActivity`, alongside the
+  nav graph, not inside it) so it's active regardless of which screen is on top. Reacts to the
+  same real-time `getMySessions()` Firestore listener already used elsewhere (no polling) via
+  `googleAuthRepository.currentUser.flatMapLatest { ... }` so it stays correct across sign-in/out.
+  Only actually collects while the app is at least `STARTED` (`repeatOnLifecycle` in
+  `InterviewMatchModal`), matching "while the app is foreground". Fires the matched notification
+  immediately (deduped via the same `NotificationDataStore` keys the background worker uses, so
+  they never double-fire) and surfaces an `AlertDialog` with peer details for the most recent
+  still-upcoming match.
+- **Status chips + "Ended" tag**: `InterviewSessionPhase` (`ui/screens/interview/`) is a shared
+  enum + `phase()` extension on both `InterviewSession` and `SlotBooking`, used by both the
+  session list and detail screens so phase logic isn't duplicated. Phases: `WAITING`,
+  `MATCHED_UPCOMING`, `JOINABLE`, `ENDED`/`EXPIRED`, `CANCELLED`.
+- **Countdown + join gating**: `rememberNowTicker()` (1s tick) + `formatCountdown()` in the same
+  file. "Join Video Call" is only shown once `JOINABLE` (within `JOIN_WINDOW_MILLIS` = 5 min of
+  start); before that, a live "Join opens in HH:MM:SS" countdown is shown instead.
+- **Account management**: session list's `TopAppBar` shows the signed-in Google account's avatar
+  (via Coil `AsyncImage` on `photoUrl`); tapping it opens a menu with the signed-in email and
+  Sign out. Sign-out routes back through `InterviewProfileSetup` (which shows "Sign in with
+  Google" once signed out) via the same `popUpTo(Main)` back-stack-cleanup pattern used elsewhere.
 
 ## How Matching Works
 
@@ -265,13 +290,45 @@ was reached from (mirrors the existing `popUpTo` pattern already used by
 `navigateToMainScreen`/`navigateToLogin` in the same file). Verified on-device with adb: back
 from the session list now goes straight to Home, and a second back exits the app cleanly.
 
+## Fixed: re-signing in wiped saved roles (2026-07-21, on-device)
+
+Found while testing the new account/logout UI: signing out and back into the *same* account
+that already had a saved profile landed on an *empty* role picker instead of auto-forwarding to
+the session list, even though nothing else had changed.
+
+**Cause**: `InterviewProfileViewModel.signIn()` built the profile to save using
+`profile.value?.roles ?: emptyList()`, where `profile` is this ViewModel's own
+`getMyProfile()`-backed `StateFlow` — subscribed *before* sign-in completes, when there's no user
+yet, so `profile.value` was always `null` at that point and the write went out with `roles = []`.
+`saveProfile()` uses `SetOptions.merge()`, but since `"roles"` is explicitly present in the write
+(even as an empty list), merge still overwrites it — wiping any previously-saved roles on *every*
+sign-in, not just the first.
+
+A second, related bug made this worse: `InterviewProfileRepositoryImpl.getMyProfile()` read
+`firebaseAuth.currentUser?.uid` once at flow-*creation* time, not reactively - so even after
+fixing the write, a ViewModel instance created before sign-in would never see the (correctly
+saved) profile afterward, leaving the auto-forward stuck forever on that screen instance.
+
+**Fix**:
+- `getMyProfile()` now reacts to `FirebaseAuth.AuthStateListener` via `flatMapLatest`, matching
+  the pattern already used in the new match-watcher ViewModel - re-subscribes to the real
+  document as soon as `currentUser` changes instead of freezing on the pre-sign-in snapshot.
+- `signIn()` now does a fresh one-shot `getProfile(user.uid).first()` right after sign-in
+  succeeds and preserves its `roles`/`leetcodeHandle` instead of trusting the stale `profile`
+  StateFlow.
+
+Verified on-device: saved roles now survive sign-out → sign-in, and returning users correctly
+auto-forward straight to their session list again.
+
 ## Next steps when resuming
 
-1. Single-account on-device flow (sign-in, book, pending state, back-press) is now verified
-   working - see the "Fixed" sections above.
+1. Single-account on-device flow (sign-in, book, pending state, back-press, sign-out/re-login,
+   account menu, status chips, countdown/join-gating) is now verified working - see the "Fixed"
+   sections and "UX additions" above.
 2. Manual two-account end-to-end test still needed: both sign in, set the same role, book the
-   same slot, confirm one device's booking transaction matches both, the Jitsi link works, and
-   local notifications fire on each device within ~15 min.
+   same slot, confirm one device's booking transaction matches both, the match-found modal and
+   notification fire promptly on the waiting peer's device while foregrounded, the Jitsi link
+   works, and background notifications still fire within ~15 min if backgrounded instead.
 3. Decide whether to address the client-side trust-boundary / slot-catalog validation gaps
    before wider testing.
 4. Before a release build, add the release keystore's SHA-1/SHA-256 to the Firebase Android app
