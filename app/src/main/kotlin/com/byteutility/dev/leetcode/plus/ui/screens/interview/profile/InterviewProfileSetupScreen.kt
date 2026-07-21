@@ -3,18 +3,27 @@ package com.byteutility.dev.leetcode.plus.ui.screens.interview.profile
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Login
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -87,6 +96,12 @@ fun InterviewProfileSetupScreen(
                 )
                 TextButton(onClick = { showHowItWorks = !showHowItWorks }) {
                     Text(if (showHowItWorks) "Hide details" else "How does this work?")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = if (showHowItWorks) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
                 AnimatedVisibility(visible = showHowItWorks) {
                     InterviewHowItWorksContent()
@@ -98,6 +113,13 @@ fun InterviewProfileSetupScreen(
                 ) {
                     if (isSigningIn) {
                         CircularProgressIndicator(modifier = Modifier.padding(end = 8.dp))
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.Login,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
                     Text("Sign in with Google")
                 }
@@ -136,7 +158,13 @@ fun InterviewProfileSetupScreen(
                     },
                     enabled = selectedRoles.isNotEmpty()
                 ) {
-                    Text("Save profile")
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Save & Continue")
                 }
             }
         }
