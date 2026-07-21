@@ -1,5 +1,6 @@
 package com.byteutility.dev.leetcode.plus.ui.screens.interview.profile
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewRole
+import com.byteutility.dev.leetcode.plus.ui.screens.interview.InterviewHowItWorksContent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +48,7 @@ fun InterviewProfileSetupScreen(
 
     var selectedRoles by remember(profile) { mutableStateOf(profile?.roles?.toSet() ?: emptySet()) }
     var leetcodeHandle by remember(profile) { mutableStateOf(profile?.leetcodeHandle ?: "") }
+    var showHowItWorks by remember { mutableStateOf(false) }
 
     // Already signed in with a saved profile (e.g. a returning user) - skip straight past the
     // setup form instead of making them re-save their roles every time.
@@ -78,6 +82,12 @@ fun InterviewProfileSetupScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                TextButton(onClick = { showHowItWorks = !showHowItWorks }) {
+                    Text(if (showHowItWorks) "Hide details" else "How does this work?")
+                }
+                AnimatedVisibility(visible = showHowItWorks) {
+                    InterviewHowItWorksContent()
+                }
                 Button(
                     onClick = { viewModel.signIn(context) },
                     enabled = !isSigningIn,
