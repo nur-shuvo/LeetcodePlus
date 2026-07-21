@@ -7,6 +7,15 @@ block the feature. Console setup (see "Firebase project is live" below) is done.
 on-device flow, booking limits, and the UX pass below (live match detection/modal, status chips,
 countdown/join-gating, account management) are all built and verified on a real device.
 
+## Calendar-style slot picker (2026-07-21)
+
+The slot picker (`InterviewSlotPickerScreen.kt`) was redesigned from a flat scrollable list of
+~42 rows (14 days x 3 fixed times/day) into a month calendar grid for picking a date, with a
+short tap-to-book list of that day's times below it — the flat list was hard to scan. New pure
+date/grid math lives in `InterviewSlotCalendar.kt` (unit tested); the grid itself is
+`InterviewCalendarGrid.kt`. Full design:
+`docs/superpowers/specs/2026-07-21-mock-interview-calendar-picker-design.md`.
+
 ## UX additions (2026-07-21)
 
 - **Live match detection**: `InterviewMatchWatcherViewModel`
