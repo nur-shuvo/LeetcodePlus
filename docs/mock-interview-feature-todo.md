@@ -7,6 +7,16 @@ block the feature. Console setup (see "Firebase project is live" below) is done.
 on-device flow, booking limits, and the UX pass below (live match detection/modal, status chips,
 countdown/join-gating, account management) are all built and verified on a real device.
 
+## UI polish: icons, action-intent color, copy (2026-07-21)
+
+Added leading icons to every action button/toggle across 4 screens (profile setup,
+slot picker, session detail, feedback), replaced the feedback screen's Unicode star
+glyphs (★/☆) with real `Icon` composables, and applied two action-intent color
+changes: "Join Video Call" now uses the tertiary color (matching the existing
+`JOINABLE`-phase status chip), and the "peer didn't show up" checkbox tints toward
+error when checked. One copy fix: "Save profile" → "Save & Continue" (it also
+navigates forward). Full design: `docs/superpowers/specs/2026-07-21-mock-interview-ui-polish-design.md`.
+
 ## In-app "how it works" explanation (2026-07-21)
 
 Added a static "how it works" explanation (4-icon summary + 6 bullets, no image asset - built
