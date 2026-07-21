@@ -66,7 +66,7 @@ private fun HowItWorksStepIcon(step: HowItWorksStep) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Icon(imageVector = step.icon, contentDescription = "")
+        Icon(imageVector = step.icon, contentDescription = null)
         Text(text = step.label, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
     }
 }
