@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,9 +35,16 @@ class InterviewSlotPickerViewModel @Inject constructor(
     private val _selectedRole = MutableStateFlow(InterviewRole.ANDROID)
     val selectedRole: StateFlow<InterviewRole> = _selectedRole.asStateFlow()
 
-    val slots: StateFlow<List<InterviewSlot>> = _selectedRole
-        .map { role -> interviewSlotRepository.getAvailableSlots(role) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SHARE_STOP_TIMEOUT_MS), emptyList())
+    /** Slots for the selected role, minus any the user already has a booking for (waiting or
+     * matched) - re-booking the same slot was already a harmless no-op, but showing it as
+     * "available" was confusing since tapping Book on it visibly did nothing. */
+    val slots: StateFlow<List<InterviewSlot>> = combine(
+        _selectedRole.map { role -> interviewSlotRepository.getAvailableSlots(role) },
+        interviewSlotRepository.getMyBookings(),
+    ) { availableSlots, myBookings ->
+        val bookedKeys = myBookings.map { it.slotId to it.role }.toSet()
+        availableSlots.filterNot { (it.slotId to it.role) in bookedKeys }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SHARE_STOP_TIMEOUT_MS), emptyList())
 
     private val _bookingState = MutableStateFlow<BookingUiState>(BookingUiState.Idle)
     val bookingState: StateFlow<BookingUiState> = _bookingState.asStateFlow()

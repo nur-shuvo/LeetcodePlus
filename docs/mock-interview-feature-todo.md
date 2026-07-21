@@ -320,6 +320,22 @@ saved) profile afterward, leaving the auto-forward stuck forever on that screen 
 Verified on-device: saved roles now survive sign-out → sign-in, and returning users correctly
 auto-forward straight to their session list again.
 
+## Fixed: already-booked slots still showed as bookable (2026-07-21, on-device)
+
+`InterviewSlotPickerViewModel.slots` returned `interviewSlotRepository.getAvailableSlots(role)`
+unfiltered - the full 14-day catalog for the role, with no check against what the user had
+already booked. Re-tapping "Book" on one of those was already a harmless no-op (from an earlier
+fix), but the slot stayed listed as if available, which was confusing.
+
+**Fix**: `slots` now combines the role's catalog with `interviewSlotRepository.getMyBookings()`
+and filters out any slot whose `(slotId, role)` matches an existing booking (`waiting` or
+`matched` - `InterviewSlotCatalog.generateUpcomingSlots()` already excludes past slots, so any
+booking that still shows up in the catalog range can't be expired). Added an empty-state message
+("You've booked all available `<role>` slots.") for the case where every slot for a role is
+already booked. Verified on-device: a user with three existing bookings (waiting/matched/expired
+on 21 Jul) now sees the picker start at 22 Jul - the two still-upcoming booked slots are excluded,
+the expired one was already excluded by the catalog's own past-slot filter.
+
 ## Next steps when resuming
 
 1. Single-account on-device flow (sign-in, book, pending state, back-press, sign-out/re-login,

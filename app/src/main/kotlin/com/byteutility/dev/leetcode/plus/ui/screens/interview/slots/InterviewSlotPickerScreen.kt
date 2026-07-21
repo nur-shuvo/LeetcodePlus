@@ -73,16 +73,23 @@ fun InterviewSlotPickerScreen(
                 Text(text = bookingError.message, color = MaterialTheme.colorScheme.error)
             }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(slots, key = { it.slotId }) { slot ->
-                    SlotRow(
-                        slot = slot,
-                        isBooking = bookingState is BookingUiState.Booking,
-                        onBook = { viewModel.bookSlot(slot) }
-                    )
+            if (slots.isEmpty()) {
+                Text(
+                    text = "You've booked all available ${selectedRole.displayName} slots.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(slots, key = { it.slotId }) { slot ->
+                        SlotRow(
+                            slot = slot,
+                            isBooking = bookingState is BookingUiState.Booking,
+                            onBook = { viewModel.bookSlot(slot) }
+                        )
+                    }
                 }
             }
         }
