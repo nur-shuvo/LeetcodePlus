@@ -3,17 +3,22 @@ package com.byteutility.dev.leetcode.plus.ui.screens.interview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Videocam
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,15 +77,28 @@ private fun HowItWorksStepIcon(step: HowItWorksStep, modifier: Modifier = Modifi
     }
 }
 
-/** On-demand "how it works" dialog, opened from an info icon on the session list. */
+/**
+ * On-demand "how it works" sheet, opened from an info icon on the session list. A full-width
+ * bottom sheet reads better here than a narrow `AlertDialog` - the 4-icon row has room to breathe
+ * instead of crowding into a dialog-width column.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InterviewHowItWorksDialog(onDismiss: () -> Unit) {
-    AlertDialog(
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
-        title = { Text("How Mock Interviews Work") },
-        text = { InterviewHowItWorksContent() },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Got it") }
+        sheetState = rememberModalBottomSheetState(),
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp)
+        ) {
+            Text(text = "How Mock Interviews Work", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(16.dp))
+            InterviewHowItWorksContent()
         }
-    )
+    }
 }
