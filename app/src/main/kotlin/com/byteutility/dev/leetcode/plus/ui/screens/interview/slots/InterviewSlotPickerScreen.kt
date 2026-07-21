@@ -26,7 +26,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewRole
 import com.byteutility.dev.leetcode.plus.data.model.interview.InterviewSlot
 import java.text.DateFormat
-import java.time.YearMonth
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,7 +38,8 @@ fun InterviewSlotPickerScreen(
     val slotsByDate by viewModel.slotsByDate.collectAsStateWithLifecycle()
     val selectedDate by viewModel.selectedDate.collectAsStateWithLifecycle()
     val visibleMonth by viewModel.visibleMonth.collectAsStateWithLifecycle()
-    val windowEndDate by viewModel.windowEndDate.collectAsStateWithLifecycle()
+    val canGoToPreviousMonth by viewModel.canGoToPreviousMonth.collectAsStateWithLifecycle()
+    val canGoToNextMonth by viewModel.canGoToNextMonth.collectAsStateWithLifecycle()
     val bookingState by viewModel.bookingState.collectAsStateWithLifecycle()
 
     LaunchedEffect(bookingState) {
@@ -79,8 +79,8 @@ fun InterviewSlotPickerScreen(
                 visibleMonth = visibleMonth,
                 selectedDate = selectedDate,
                 datesWithSlots = slotsByDate.keys,
-                canGoToPreviousMonth = visibleMonth.isAfter(YearMonth.now()),
-                canGoToNextMonth = visibleMonth.isBefore(YearMonth.from(windowEndDate)),
+                canGoToPreviousMonth = canGoToPreviousMonth,
+                canGoToNextMonth = canGoToNextMonth,
                 onPreviousMonth = { viewModel.navigateMonth(-1) },
                 onNextMonth = { viewModel.navigateMonth(1) },
                 onSelectDate = { viewModel.selectDate(it) },

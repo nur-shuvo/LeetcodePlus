@@ -108,4 +108,42 @@ class InterviewSlotCalendarTest {
 
         assertTrue(grid.all { it.size == 7 })
     }
+
+    @Test
+    fun monthGridDatesHasSixWeeksForAugust2026WhichStartsOnASaturday() {
+        // Verified: August 1, 2026 is a Saturday, so the Sunday-first grid has 6 leading blanks
+        // (Su-Fr) before day 1, giving 6 + 31 = 37 cells -> 6 weeks, unlike July 2026's 5 weeks.
+        val grid = InterviewSlotCalendar.monthGridDates(YearMonth.of(2026, 8))
+
+        assertEquals(6, grid.size)
+        assertTrue(grid.all { it.size == 7 })
+    }
+
+    @Test
+    fun groupByLocalDateGroupsMultipleSlotsFallingOnTheSameLocalDate() {
+        val zone = ZoneId.of("UTC")
+        val slot1 = InterviewSlot(
+            slotId = "slot1",
+            role = InterviewRole.ANDROID,
+            startEpochMillis = Instant.parse("2026-07-22T09:00:00Z").toEpochMilli(),
+            endEpochMillis = Instant.parse("2026-07-22T10:00:00Z").toEpochMilli(),
+        )
+        val slot2 = InterviewSlot(
+            slotId = "slot2",
+            role = InterviewRole.ANDROID,
+            startEpochMillis = Instant.parse("2026-07-22T14:00:00Z").toEpochMilli(),
+            endEpochMillis = Instant.parse("2026-07-22T15:00:00Z").toEpochMilli(),
+        )
+        val slot3 = InterviewSlot(
+            slotId = "slot3",
+            role = InterviewRole.ANDROID,
+            startEpochMillis = Instant.parse("2026-07-22T20:00:00Z").toEpochMilli(),
+            endEpochMillis = Instant.parse("2026-07-22T21:00:00Z").toEpochMilli(),
+        )
+
+        val grouped = InterviewSlotCalendar.groupByLocalDate(listOf(slot1, slot2, slot3), zone)
+
+        assertEquals(setOf(LocalDate.of(2026, 7, 22)), grouped.keys)
+        assertEquals(listOf(slot1, slot2, slot3), grouped.getValue(LocalDate.of(2026, 7, 22)))
+    }
 }

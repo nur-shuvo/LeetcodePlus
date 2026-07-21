@@ -17,8 +17,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
 import javax.inject.Inject
 
 private const val SHARE_STOP_TIMEOUT_MS = 5000L
@@ -59,9 +61,9 @@ class InterviewSlotPickerViewModel @Inject constructor(
      * regardless of booking state - used only to clamp [visibleMonth] navigation forward. */
     val windowEndDate: StateFlow<LocalDate> = _selectedRole
         .map { role ->
-            InterviewSlotCalendar.groupByLocalDate(interviewSlotRepository.getAvailableSlots(role))
-                .keys
-                .maxOrNull() ?: LocalDate.now()
+            interviewSlotRepository.getAvailableSlots(role)
+                .maxOfOrNull { Instant.ofEpochMilli(it.startEpochMillis).atZone(ZoneId.systemDefault()).toLocalDate() }
+                ?: LocalDate.now()
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SHARE_STOP_TIMEOUT_MS), LocalDate.now())
 
@@ -86,6 +88,21 @@ class InterviewSlotPickerViewModel @Inject constructor(
     ) { selected, override ->
         override ?: selected?.let { YearMonth.from(it) } ?: YearMonth.now()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SHARE_STOP_TIMEOUT_MS), YearMonth.now())
+
+    /** Whether [navigateMonth] can move a month earlier - true as long as [visibleMonth] is
+     * after the current month. */
+    val canGoToPreviousMonth: StateFlow<Boolean> = visibleMonth
+        .map { it.isAfter(YearMonth.now()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SHARE_STOP_TIMEOUT_MS), false)
+
+    /** Whether [navigateMonth] can move a month later - true as long as [visibleMonth] is
+     * before the month containing [windowEndDate]. */
+    val canGoToNextMonth: StateFlow<Boolean> = combine(
+        visibleMonth,
+        windowEndDate,
+    ) { month, endDate ->
+        month.isBefore(YearMonth.from(endDate))
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SHARE_STOP_TIMEOUT_MS), true)
 
     private val _bookingState = MutableStateFlow<BookingUiState>(BookingUiState.Idle)
     val bookingState: StateFlow<BookingUiState> = _bookingState.asStateFlow()
