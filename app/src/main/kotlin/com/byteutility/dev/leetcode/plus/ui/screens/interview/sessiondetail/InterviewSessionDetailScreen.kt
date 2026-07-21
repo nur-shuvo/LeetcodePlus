@@ -5,13 +5,21 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.RateReview
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -112,9 +120,31 @@ private fun SessionAction(
     when (phase) {
         InterviewSessionPhase.CANCELLED -> Text("This session was cancelled.")
         InterviewSessionPhase.ENDED, InterviewSessionPhase.EXPIRED ->
-            Button(onClick = onSubmitFeedback) { Text("Submit Feedback") }
+            Button(onClick = onSubmitFeedback) {
+                Icon(
+                    imageVector = Icons.Filled.RateReview,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Submit Feedback")
+            }
         InterviewSessionPhase.JOINABLE ->
-            Button(onClick = onJoin) { Text("Join Video Call") }
+            Button(
+                onClick = onJoin,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Videocam,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Join Video Call")
+            }
         InterviewSessionPhase.MATCHED_UPCOMING, InterviewSessionPhase.WAITING -> {
             val untilJoinable = session.startEpochMillis - JOIN_WINDOW_MILLIS - now
             Text(
