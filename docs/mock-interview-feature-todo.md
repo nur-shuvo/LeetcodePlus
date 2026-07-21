@@ -7,6 +7,14 @@ block the feature. Console setup (see "Firebase project is live" below) is done.
 on-device flow, booking limits, and the UX pass below (live match detection/modal, status chips,
 countdown/join-gating, account management) are all built and verified on a real device.
 
+## In-app "how it works" explanation (2026-07-21)
+
+Added a static "how it works" explanation (4-icon summary + 6 bullets, no image asset - built
+entirely from existing Material icons) in `InterviewHowItWorks.kt`, surfaced two ways: an
+expandable inline section on the profile setup screen (before sign-in), and an info-icon dialog
+in the Mock Interviews session list's top bar (after sign-in, for on-demand reference). Full
+design: `docs/superpowers/specs/2026-07-21-mock-interview-how-it-works-design.md`.
+
 ## Calendar-style slot picker (2026-07-21)
 
 The slot picker (`InterviewSlotPickerScreen.kt`) was redesigned from a flat scrollable list of
