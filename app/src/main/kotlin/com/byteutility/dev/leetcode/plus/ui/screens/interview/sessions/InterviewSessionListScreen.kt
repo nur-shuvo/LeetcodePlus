@@ -125,7 +125,10 @@ fun InterviewSessionListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onBookNew) {
+            FloatingActionButton(
+                onClick = onBookNew,
+                modifier = Modifier.padding(bottom = 24.dp)
+            ) {
                 Icon(Icons.Filled.Add, contentDescription = "Book a new mock interview")
             }
         }
