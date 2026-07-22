@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
@@ -55,6 +56,7 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InterviewSessionListScreen(
+    onBack: () -> Unit = {},
     onBookNew: () -> Unit = {},
     onOpenSession: (String) -> Unit = {},
     onSignedOut: () -> Unit = {},
@@ -70,6 +72,11 @@ fun InterviewSessionListScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Mock Interviews") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
                 actions = {
                     IconButton(onClick = { showHowItWorks = true }) {
                         Icon(Icons.Filled.Info, contentDescription = "How mock interviews work")

@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 object Home
 
 @Serializable
+object Hub
+
+@Serializable
 object Main
 
 @Serializable
@@ -78,12 +81,18 @@ data class InterviewFeedback(
 
 class LeetCodePlusNavigation(navController: NavController) {
 
-    val navigateToMainScreen: () -> Unit = {
-        navController.navigate(Main) {
+    val navigateToHub: () -> Unit = {
+        navController.navigate(Hub) {
             launchSingleTop = true
             popUpTo(Login) {
                 inclusive = true
             }
+        }
+    }
+
+    val navigateToLeetCodeHome: () -> Unit = {
+        navController.navigate(Main) {
+            launchSingleTop = true
         }
     }
 
@@ -138,7 +147,7 @@ class LeetCodePlusNavigation(navController: NavController) {
     val navigateToLogin: () -> Unit = {
         navController.navigate(Login) {
             launchSingleTop = true
-            popUpTo(Main) {
+            popUpTo(Hub) {
                 inclusive = true
             }
         }
@@ -160,9 +169,9 @@ class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToInterviewProfileSetup: () -> Unit = {
         navController.navigate(InterviewProfileSetup) {
-            // Also reached after signing out from InterviewSessionList - pop back to Main so a
+            // Also reached after signing out from InterviewSessionList - pop back to Hub so a
             // stale session list isn't left underneath on the back stack.
-            popUpTo(Main) {
+            popUpTo(Hub) {
                 inclusive = false
             }
             launchSingleTop = true
@@ -179,9 +188,9 @@ class LeetCodePlusNavigation(navController: NavController) {
         navController.navigate(InterviewSessionList) {
             // Reached from either InterviewProfileSetup (after sign-in/save) or
             // InterviewSlotPicker (after booking) - pop both of those (and any earlier session
-            // list instance) so the back stack is always just Main -> InterviewSessionList,
+            // list instance) so the back stack is always just Hub -> InterviewSessionList,
             // never a pile of intermediate screens to back through.
-            popUpTo(Main) {
+            popUpTo(Hub) {
                 inclusive = false
             }
             launchSingleTop = true

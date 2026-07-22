@@ -136,8 +136,7 @@ fun HomeScreen(
     onNavigateToVideoSolutions: () -> Unit = {},
     onNavigateToAllProblems: () -> Unit = {},
     onNavigateToContestDetail: (Contest) -> Unit = {},
-    onLogout: () -> Unit = {},
-    onNavigateToMockInterviews: () -> Unit = {}
+    onLogout: () -> Unit = {}
 ) {
     val viewModel: HomeScreenViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -173,8 +172,7 @@ fun HomeScreen(
             viewModel.checkInAppContestReminderStatus(it)
         },
         onNavigateToAllProblems = onNavigateToAllProblems,
-        onNavigateToContestDetail = onNavigateToContestDetail,
-        onNavigateToMockInterviews = onNavigateToMockInterviews
+        onNavigateToContestDetail = onNavigateToContestDetail
     )
 }
 
@@ -196,7 +194,6 @@ fun HomeLayout(
     checkInAppContestReminderStatus: suspend (Contest) -> Boolean,
     onNavigateToAllProblems: () -> Unit = {},
     onNavigateToContestDetail: (Contest) -> Unit = {},
-    onNavigateToMockInterviews: () -> Unit = {},
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -282,8 +279,7 @@ fun HomeLayout(
                     onSearchClick = onSearchClick,
                     onSetInAppReminder = onSetInAppReminder,
                     checkInAppContestReminderStatus = checkInAppContestReminderStatus,
-                    onNavigateToContestDetail = onNavigateToContestDetail,
-                    onNavigateToMockInterviews = onNavigateToMockInterviews
+                    onNavigateToContestDetail = onNavigateToContestDetail
                 )
                 val infiniteTransition = rememberInfiniteTransition(label = "fab_animation")
                 val scale by infiniteTransition.animateFloat(
@@ -380,7 +376,6 @@ fun UserProfileContent(
     onSetInAppReminder: (Contest) -> Unit,
     checkInAppContestReminderStatus: suspend (Contest) -> Boolean,
     onNavigateToContestDetail: (Contest) -> Unit = {},
-    onNavigateToMockInterviews: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -428,7 +423,6 @@ fun UserProfileContent(
                     onNavigateToProblemDetails = onNavigateToProblemDetails
                 )
                 UserStatisticsCard(uiState.userContestInfo)
-                MockInterviewEntryCard(onClick = onNavigateToMockInterviews)
                 YouTubeVideoRowContent(
                     uiState.videosByPlayListState,
                     onLoadMoreVideos,
@@ -631,38 +625,6 @@ fun LogoutButton(
                 .size(36.dp)
                 .clip(CircleShape)
         )
-    }
-}
-
-@Composable
-fun MockInterviewEntryCard(onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(
-                    text = "Practice a mock interview",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
-                Text(
-                    text = "Get matched with a peer for a live video call - requires Google sign-in",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
     }
 }
 

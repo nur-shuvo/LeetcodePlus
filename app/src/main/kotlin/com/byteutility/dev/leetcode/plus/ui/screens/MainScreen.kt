@@ -170,9 +170,6 @@ fun MainScreen(mainNavController: NavHostController) {
                     },
                     onLogout = {
                         navigationActions.navigateToLogin()
-                    },
-                    onNavigateToMockInterviews = {
-                        navigationActions.navigateToInterviewProfileSetup()
                     }
                 )
             }

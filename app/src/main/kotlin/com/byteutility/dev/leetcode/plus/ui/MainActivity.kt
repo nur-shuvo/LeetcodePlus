@@ -26,11 +26,11 @@ import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
+import com.byteutility.dev.leetcode.plus.ui.navigation.Hub
 import com.byteutility.dev.leetcode.plus.ui.navigation.InterviewSessionDetail
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavGraph
 import com.byteutility.dev.leetcode.plus.ui.navigation.Login
-import com.byteutility.dev.leetcode.plus.ui.navigation.Main
 import com.byteutility.dev.leetcode.plus.ui.navigation.ProblemDetails
 import com.byteutility.dev.leetcode.plus.ui.networkmonitor.NetworkMonitorActivity
 import com.byteutility.dev.leetcode.plus.ui.networkmonitor.ShakeDetector
@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
                     val startDestination =
                         if (userLoggedIn) {
                             if (extraStartDestination == null) {
-                                Main
+                                Hub
                             } else {
                                 when (extraStartDestination) {
                                     "leetcode_login_webview" -> LeetCodeLoginWebView

@@ -11,6 +11,7 @@ import androidx.navigation.toRoute
 import com.byteutility.dev.leetcode.plus.troubleshoot.TroubleShootScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.MainScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.contest.details.ContestDetailScreen
+import com.byteutility.dev.leetcode.plus.ui.screens.hub.HomeHubScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.interview.feedback.InterviewFeedbackScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.interview.profile.InterviewProfileSetupScreen
 import com.byteutility.dev.leetcode.plus.ui.screens.interview.sessiondetail.InterviewSessionDetailScreen
@@ -37,8 +38,15 @@ fun LeetCodePlusNavGraph(
 
         composable<Login> {
             UserLoginScreen {
-                navigationActions.navigateToMainScreen()
+                navigationActions.navigateToHub()
             }
+        }
+
+        composable<Hub> {
+            HomeHubScreen(
+                onLeetCodeClick = { navigationActions.navigateToLeetCodeHome() },
+                onMockInterviewClick = { navigationActions.navigateToInterviewProfileSetup() }
+            )
         }
 
         composable<Main> {
@@ -142,12 +150,14 @@ fun LeetCodePlusNavGraph(
 
         composable<InterviewSlotPicker> {
             InterviewSlotPickerScreen(
+                onBack = { navigationActions.popCurrentDestination() },
                 onBooked = { navigationActions.navigateToInterviewSessionList() }
             )
         }
 
         composable<InterviewSessionList> {
             InterviewSessionListScreen(
+                onBack = { navigationActions.popCurrentDestination() },
                 onBookNew = { navigationActions.navigateToInterviewSlotPicker() },
                 onOpenSession = { sessionId ->
                     navigationActions.navigateToInterviewSessionDetail(
@@ -171,6 +181,7 @@ fun LeetCodePlusNavGraph(
 
         composable<InterviewFeedback> {
             InterviewFeedbackScreen(
+                onBack = { navigationActions.popCurrentDestination() },
                 onSubmitted = { navigationActions.popCurrentDestination() }
             )
         }
