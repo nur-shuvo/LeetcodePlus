@@ -42,8 +42,8 @@ android {
         applicationId = "com.byteutility.dev.leetcode.plus"
         minSdk = 24
         targetSdk = 36
-        versionCode = 21
-        versionName = "1.1.10"
+        versionCode = 23
+        versionName = "1.1.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
