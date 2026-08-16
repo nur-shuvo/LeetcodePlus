@@ -9,6 +9,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.devconsole.DevConsole
+import io.devconsole.mocks.okhttp.DevConsoleMockInterceptor
+import io.devconsole.network.okhttp.installDevConsole
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -37,6 +40,11 @@ object RestApiModule {
     ): OkHttpClient {
         return OkHttpClient
             .Builder()
+            // Wires DevConsole's event listener and interceptor together so the inspector's
+            // timing breakdown is populated, not just the request/response bodies. No-op in
+            // release builds. Installed first so it observes the chain below it.
+            .installDevConsole(DevConsole.networkRecorder())
+            .addInterceptor(DevConsoleMockInterceptor(DevConsole.mockEngine()))
             .connectTimeout(CONNECTION_TIME, TimeUnit.SECONDS)
             .readTimeout(READ_TIME, TimeUnit.SECONDS)
             .writeTimeout(WRITE_TIME, TimeUnit.SECONDS)

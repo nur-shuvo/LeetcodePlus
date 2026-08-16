@@ -4,8 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.hardware.Sensor
-import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,13 +14,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.byteutility.dev.leetcode.plus.BuildConfig
 import com.byteutility.dev.leetcode.plus.data.datastore.UserDatastore
 import com.byteutility.dev.leetcode.plus.monitor.DailyProblemStatusMonitor
 import com.byteutility.dev.leetcode.plus.monitor.WeeklyGoalStatusMonitor
@@ -32,8 +28,6 @@ import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodeLoginWebView
 import com.byteutility.dev.leetcode.plus.ui.navigation.LeetCodePlusNavGraph
 import com.byteutility.dev.leetcode.plus.ui.navigation.Login
 import com.byteutility.dev.leetcode.plus.ui.navigation.ProblemDetails
-import com.byteutility.dev.leetcode.plus.ui.networkmonitor.NetworkMonitorActivity
-import com.byteutility.dev.leetcode.plus.ui.networkmonitor.ShakeDetector
 import com.byteutility.dev.leetcode.plus.ui.screens.interview.watcher.InterviewMatchModal
 import com.byteutility.dev.leetcode.plus.ui.theme.LeetcodePlusTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,9 +50,6 @@ class MainActivity : ComponentActivity() {
     private var extraStartDestination: String? = null
     private var dailyProblemTitleSlug: String? = null
     private var interviewSessionId: String? = null
-
-    private lateinit var sensorManager: SensorManager
-    private lateinit var shakeDetector: ShakeDetector
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -143,32 +134,14 @@ class MainActivity : ComponentActivity() {
         }
         goalStatusMonitor.start()
         dailyProblemStatusMonitor.start()
-        initShakeDetector()
-    }
-
-    private fun initShakeDetector() {
-        sensorManager = getSystemService()!!
-        shakeDetector = ShakeDetector {
-            startActivity(Intent(this, NetworkMonitorActivity::class.java))
-        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (BuildConfig.DEBUG) {
-            sensorManager.registerListener(
-                shakeDetector,
-                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SensorManager.SENSOR_DELAY_UI,
-            )
-        }
     }
 
     override fun onPause() {
         super.onPause()
-        if (BuildConfig.DEBUG) {
-            sensorManager.unregisterListener(shakeDetector)
-        }
     }
 
     private fun handleShareIntent(intent: Intent?, navController: NavController) {
