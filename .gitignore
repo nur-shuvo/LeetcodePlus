@@ -25,3 +25,11 @@ local.properties
 keystore.properties
 create_keystore.sh
 /PLAY_STORE_RELEASE_GUIDE.md
+
+# Firebase config - NEVER commit this, download your own from the Firebase console!
+/app/google-services.json
+
+# Firebase CLI local state
+.firebase/
+functions/node_modules/
+functions/lib/

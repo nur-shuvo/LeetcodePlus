@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 object Home
 
 @Serializable
+object Hub
+
+@Serializable
 object Main
 
 @Serializable
@@ -56,14 +59,40 @@ data class ContestDetail(
     val href: String
 )
 
+@Serializable
+object InterviewProfileSetup
+
+@Serializable
+object InterviewSlotPicker
+
+@Serializable
+object InterviewSessionList
+
+@Serializable
+data class InterviewSessionDetail(
+    val sessionId: String
+)
+
+@Serializable
+data class InterviewFeedback(
+    val sessionId: String,
+    val rateeUid: String
+)
+
 class LeetCodePlusNavigation(navController: NavController) {
 
-    val navigateToMainScreen: () -> Unit = {
-        navController.navigate(Main) {
+    val navigateToHub: () -> Unit = {
+        navController.navigate(Hub) {
             launchSingleTop = true
             popUpTo(Login) {
                 inclusive = true
             }
+        }
+    }
+
+    val navigateToLeetCodeHome: () -> Unit = {
+        navController.navigate(Main) {
+            launchSingleTop = true
         }
     }
 
@@ -118,7 +147,7 @@ class LeetCodePlusNavigation(navController: NavController) {
     val navigateToLogin: () -> Unit = {
         navController.navigate(Login) {
             launchSingleTop = true
-            popUpTo(Main) {
+            popUpTo(Hub) {
                 inclusive = true
             }
         }
@@ -134,6 +163,48 @@ class LeetCodePlusNavigation(navController: NavController) {
 
     val navigateToContestDetail: (ContestDetail) -> Unit = { contestDetail ->
         navController.navigate(contestDetail) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewProfileSetup: () -> Unit = {
+        navController.navigate(InterviewProfileSetup) {
+            // Also reached after signing out from InterviewSessionList - pop back to Hub so a
+            // stale session list isn't left underneath on the back stack.
+            popUpTo(Hub) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewSlotPicker: () -> Unit = {
+        navController.navigate(InterviewSlotPicker) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewSessionList: () -> Unit = {
+        navController.navigate(InterviewSessionList) {
+            // Reached from either InterviewProfileSetup (after sign-in/save) or
+            // InterviewSlotPicker (after booking) - pop both of those (and any earlier session
+            // list instance) so the back stack is always just Hub -> InterviewSessionList,
+            // never a pile of intermediate screens to back through.
+            popUpTo(Hub) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewSessionDetail: (InterviewSessionDetail) -> Unit = { sessionDetail ->
+        navController.navigate(sessionDetail) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToInterviewFeedback: (InterviewFeedback) -> Unit = { feedback ->
+        navController.navigate(feedback) {
             launchSingleTop = true
         }
     }

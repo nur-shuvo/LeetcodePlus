@@ -23,6 +23,9 @@ object NotificationHandler {
     private const val GOAL_CHANNEL_ID = "goal_reminder_channel"
     private const val DAILY_PROBLEM_CHANNEL_ID = "daily_problem_channel"
     private const val CONTEST_REMINDER_CHANNEL_ID = "contest_reminder_channel"
+    private const val INTERVIEW_MATCHED_CHANNEL_ID = "interview_matched_channel"
+    private const val INTERVIEW_REMINDER_CHANNEL_ID = "interview_reminder_channel"
+    private const val INTERVIEW_FEEDBACK_CHANNEL_ID = "interview_feedback_channel"
 
     @SuppressLint("MissingPermission")
     fun createWeeklyGoalNotification(context: Context, message: String) {
@@ -141,6 +144,106 @@ object NotificationHandler {
                 }
             } else {
                 notify(3, builder.build())
+            }
+        }
+    }
+
+    private data class InterviewNotificationSpec(
+        val channelId: String,
+        val channelName: String,
+        val channelDescription: String,
+        val title: String,
+        val notificationId: Int,
+    )
+
+    @SuppressLint("MissingPermission")
+    fun createInterviewMatchedNotification(context: Context, sessionId: String, message: String) {
+        showInterviewNotification(
+            context,
+            sessionId,
+            message,
+            InterviewNotificationSpec(
+                channelId = INTERVIEW_MATCHED_CHANNEL_ID,
+                channelName = "Mock Interview Matched",
+                channelDescription = "Notification when you're matched for a mock interview",
+                title = "You're matched!",
+                notificationId = 4,
+            )
+        )
+    }
+
+    @SuppressLint("MissingPermission")
+    fun createInterviewReminderNotification(context: Context, sessionId: String, message: String) {
+        showInterviewNotification(
+            context,
+            sessionId,
+            message,
+            InterviewNotificationSpec(
+                channelId = INTERVIEW_REMINDER_CHANNEL_ID,
+                channelName = "Mock Interview Reminder",
+                channelDescription = "Reminder before your mock interview starts",
+                title = "Mock interview starting soon",
+                notificationId = 5,
+            )
+        )
+    }
+
+    @SuppressLint("MissingPermission")
+    fun createInterviewFeedbackPromptNotification(
+        context: Context,
+        sessionId: String,
+        message: String
+    ) {
+        showInterviewNotification(
+            context,
+            sessionId,
+            message,
+            InterviewNotificationSpec(
+                channelId = INTERVIEW_FEEDBACK_CHANNEL_ID,
+                channelName = "Mock Interview Feedback",
+                channelDescription = "Reminder to leave feedback after a mock interview",
+                title = "How did it go?",
+                notificationId = 6,
+            )
+        )
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun showInterviewNotification(
+        context: Context,
+        sessionId: String,
+        message: String,
+        spec: InterviewNotificationSpec,
+    ) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("interviewSessionId", sessionId)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            spec.notificationId,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        createNotificationChannel(context, spec.channelName, spec.channelId, spec.channelDescription, false)
+
+        val builder = NotificationCompat.Builder(context, spec.channelId)
+            .setSmallIcon(R.drawable.app_icon_playstore)
+            .setContentTitle(spec.title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
+        with(NotificationManagerCompat.from(context)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (hasPostNotificationsPermission(context)) {
+                    notify(spec.notificationId, builder.build())
+                }
+            } else {
+                notify(spec.notificationId, builder.build())
             }
         }
     }

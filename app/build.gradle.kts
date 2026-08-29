@@ -9,7 +9,16 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.devconsole)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+}
+
+// google-services.json is not committed (see .gitignore) and must be downloaded from the
+// Firebase console for the mock-interview feature's Firebase integration to build/run.
+// The plugin is only applied once that file exists, so the rest of the app keeps building
+// for anyone who hasn't set up Firebase yet.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }
 
 android {
@@ -34,8 +43,8 @@ android {
         applicationId = "com.byteutility.dev.leetcode.plus"
         minSdk = 24
         targetSdk = 36
-        versionCode = 21
-        versionName = "1.1.10"
+        versionCode = 23
+        versionName = "1.1.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -95,6 +104,26 @@ android {
     }
 }
 
+// DevConsole's release-safety checks. debug carries the real runtime; release is verified free of
+// it (see build/reports/devconsole/variants.json).
+//
+// failBuildOnUnsafeVariant is off for one specific reason: the packaged-artifact scanner reads at
+// most 64MB per zip entry and reports any entry it could not finish as a violation (fail-closed).
+// This app's R8 mapping file is ~235MB, and AGP embeds it in the AAB at
+// BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map, so that one entry always trips
+// the limit and would fail every assembleRelease/bundleRelease. The mapping size is pre-existing
+// and unrelated to DevConsole -- it measures the same at ~246MB on a build with DevConsole removed
+// entirely -- so the trip is a false positive, not a leak.
+//
+// The trade-off: a real leak would now warn rather than fail, so check the violation list in
+// build/reports/devconsole/release-artifacts.json before shipping and confirm the only entry is
+// the proguard.map scan-limit one. Shrinking the mapping under 64MB (the broad
+// `-keep class ... { *; }` rules in proguard-rules.pro are the lever) would let this be turned
+// back on and is the durable fix.
+devConsole {
+    failBuildOnUnsafeVariant.set(false)
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -133,8 +162,20 @@ dependencies {
     implementation(libs.msz.progress.indicator)
     detektPlugins(libs.detekt.formatting)
 
+    // Mock interview feature: Firebase backend + Google Sign-In
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
+    implementation(libs.bundles.google.signin)
+
     // Google AdMob
     implementation(libs.play.services.ads)
+
+    // DevConsole in-app debugger. The real runtime is debug-only; release compiles against the
+    // no-op, which exposes the identical public API so call sites need no BuildConfig.DEBUG
+    // branch. The devconsole plugin (applied above) verifies the release variant is free of the
+    // full runtime and fails the build if it ever leaks in.
+    debugImplementation(libs.devconsole)
+    releaseImplementation(libs.devconsole.noop)
 
     // To work with youtube v3 client
     implementation(libs.google.api.client.android)

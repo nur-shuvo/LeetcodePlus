@@ -7,6 +7,12 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.HiltAndroidApp
+import io.devconsole.DevConsole
+import io.devconsole.api.BrowserBinding
+import io.devconsole.api.BrowserConfig
+import io.devconsole.api.DevConsoleConfig
+import io.devconsole.api.OpenTriggers
+import io.devconsole.api.ScreenshotPolicy
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
@@ -30,6 +36,23 @@ class LeetCodePlusApplication : Application(), Configuration.Provider {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initializeTextMate()
         initializeMobileAds()
+        initializeDevConsole()
+    }
+
+    /**
+     * Shake the device to open the in-app inspector. This returns immediately without starting
+     * anything in release builds, where the no-op artifact is what gets compiled in. The browser
+     * dashboard is never auto-started; open it from the inspector's More screen.
+     */
+    private fun initializeDevConsole() {
+        DevConsole.initialize(
+            this,
+            DevConsoleConfig
+                .default()
+                .withScreenshotPolicy(ScreenshotPolicy(enabled = true))
+                .withBrowserConfig(BrowserConfig(binding = BrowserBinding.LAN))
+                .withOpenTriggers(OpenTriggers(shakeToOpen = true)),
+        )
     }
 
     private fun initializeMobileAds() {
